@@ -7,7 +7,10 @@ import json
 AllowedActions = ['both', 'publish', 'subscribe']
 
 mode = 'subscribe'
-
+#args mock:
+class args:
+    pass
+args.message = 'test publish and subscribe'
 # Custom MQTT message callback
 def customCallback(client, userdata, message):
     print("Received a new message: ")
