@@ -27,7 +27,7 @@ topic = '/CubeX_main'
 
 # Configure logging
 logger = logging.getLogger("AWSIoTPythonSDK.core")
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.ERROR)
 streamHandler = logging.StreamHandler()
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 streamHandler.setFormatter(formatter)
@@ -58,11 +58,11 @@ loopCount = 0
 while True:
     if mode == 'both' or mode == 'publish':
         message = {}
-        message['message'] = args.message
+        message['message'] = 'Hello, world'
         message['sequence'] = loopCount
         messageJson = json.dumps(message)
         myAWSIoTMQTTClient.publish(topic, messageJson, 1)
-        if mode == 'publish':
+        if mode == 'publish' or mode == 'both':
             print('Published topic %s: %s\n' % (topic, messageJson))
         loopCount += 1
     time.sleep(1)
