@@ -6,7 +6,7 @@ import json
 
 AllowedActions = ['both', 'publish', 'subscribe']
 
-mode = 'subscribe'
+mode = 'both'
 #args mock:
 class args:
     pass
