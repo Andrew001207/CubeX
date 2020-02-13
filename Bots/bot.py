@@ -25,6 +25,8 @@ logger = logging.getLogger(__name__)
 # Read configfile
 config = configparser.ConfigParser()
 
+CUBES, TASKS = range(2)
+
 config_filename = ".bot.conf"
 config.read(config_filename)
 
@@ -54,12 +56,13 @@ def create_cube(update, context):
 
 def cool(update, context):
     print('cool')
-
 def start(update, context):
-    """Send a message when the command /start is issued."""
-    update.message.reply_text('Hi!')
-    context
+    reply_keyboard = [['Boy', 'Girl', 'Other']]
 
+    update.message.reply_text('start replay',
+        reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True))
+
+    return CUBES
 
 def help(update, context):
     """Send a message when the command /help is issued."""
@@ -77,6 +80,7 @@ def error(update, context):
 
 
 def main():
+
     """Start the bot."""
     # Create the Updater and pass it your bot's token.
     # Make sure to set use_context=True to use the new context based callbacks
@@ -86,13 +90,29 @@ def main():
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
 
+    # Add conversation handler with the states GENDER, PHOTO, LOCATION and BIO
+    conv_handler = ConversationHandler(
+        entry_points=[CommandHandler('start', start)],
+
+        states={
+            CUBES: [MessageHandler(Filters.regex('^(6|12|20)$'), select_cube)],
+
+            TASKS: [MessageHandler(Filters.text, cube.map_task)],
+
+        },
+
+        fallbacks=[CommandHandler('cancel', cancel)]
+    )
+
     # on different commands - answer in Telegram
-    dp.add_handler(CommandHandler("start", start))
-    dp.add_handler(CommandHandler("help", help))
-    dp.add_handler(CommandHandler("cool", cool))
+#    dp.add_handler(CommandHandler("start", start))
+#    dp.add_handler(CommandHandler("help", help))
+#    dp.add_handler(CommandHandler("cool", cool))
 
     # on noncommand i.e message - echo the message on Telegram
 #    dp.add_handler(MessageHandler(Filters.text, echo))
+
+    dp.add_handler(conv_handler)
 
     # log all errors
     dp.add_error_handler(error)
