@@ -35,25 +35,30 @@ logger.info('Read config')
 # Define a few command handlers. These usually take the two arguments update and
 # context. Error handlers also receive the raised TelegramError object in error.
 
+def create_cube(update, context):
+    update.message.replay_text('Please select the number of sides the cube should have')
+    update.massage.from_user()
+#def select_cube()
+#class task()
+#def create_task()
+##NOTE: show we use a compositum pattern for task. So we don't have to treat groups differently
+#def create_task_group
+## different mapping from tasks to sides according to context:
+#def create_context()
+#class cube()
+#    def get_task()
+#    def map_task()
+#    def get_current_side()
+#    def _change_side()
 
-def select_cube()
-class task():
-def create_task()
-#NOTE: show we use a compositum pattern for task. So we don't have to treat groups differently
-def create_task_group
-# different mapping from tasks to sides according to context:
-def create_context()
-class cube():
-    def get_task()
-    def map_task()
-    def get_current_side()
-    def _change_side()
 
-
+def cool(update, context):
+    print('cool')
 
 def start(update, context):
     """Send a message when the command /start is issued."""
     update.message.reply_text('Hi!')
+    context
 
 
 def help(update, context):
@@ -84,9 +89,10 @@ def main():
     # on different commands - answer in Telegram
     dp.add_handler(CommandHandler("start", start))
     dp.add_handler(CommandHandler("help", help))
+    dp.add_handler(CommandHandler("cool", cool))
 
     # on noncommand i.e message - echo the message on Telegram
-    dp.add_handler(MessageHandler(Filters.text, echo))
+#    dp.add_handler(MessageHandler(Filters.text, echo))
 
     # log all errors
     dp.add_error_handler(error)
