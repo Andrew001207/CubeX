@@ -34,6 +34,23 @@ bot_token = config[username]['token']
 logger.info('Read config')
 # Define a few command handlers. These usually take the two arguments update and
 # context. Error handlers also receive the raised TelegramError object in error.
+
+
+def select_cube()
+class task():
+def create_task()
+#NOTE: show we use a compositum pattern for task. So we don't have to treat groups differently
+def create_task_group
+# different mapping from tasks to sides according to context:
+def create_context()
+class cube():
+    def get_task()
+    def map_task()
+    def get_current_side()
+    def _change_side()
+
+
+
 def start(update, context):
     """Send a message when the command /start is issued."""
     update.message.reply_text('Hi!')
