@@ -37,72 +37,35 @@ logger.info('Read config')
 # Define a few command handlers. These usually take the two arguments update and
 # context. Error handlers also receive the raised TelegramError object in error.
 
+
 class Task():
     pass
-#def create_task()
-##NOTE: show we use a compositum pattern for task. So we don't have to treat groups differently
-#def create_task_group
-## different mapping from tasks to sides according to context:
-#def create_context()
-
-CUBES, TASKS = range(2)
-
-class Cube():
-    def __init__(self, side_amount):
-        self.current_side = self.get_current_side()
-        #QUESTION: is there a elegant way to do this:
-        self.sides = {}
-        print(side_amount)
-        for el in range(side_amount):
-            self.sides[el] = []
-
-#    def get_task()
-    def map_task(self, side, task):
-        self.sides[side].append(task)
-    def get_current_side(self):
-        #TODO:
-        return 0
-#    def _change_side()
-
-def create_cube(update, context):
-    update.message.reply_text('Please select the number of sides the cube should have')
-
-def select_cube(update, context):
-    reply_keyboard = [['6', '8', '20']]
-
-    update.message.reply_text('start replay',
-        reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True))
-
-    sides = int(update.message.text)
-    #TODO: make cube not global.?
-    print(sides)
-    cube = Cube(sides)
-    return TASKS
 
 
+def create_task():
+    pass
 
-# create dummy:
-cube = Cube(0)
 
-def cool(update, context):
-    print('cool')
+#NOTE: show we use a compositum pattern for task. So we don't have to treat groups differently
+def create_task_group():
+    pass
+
+TASKS = range(1)
+
 
 def start(update, context):
-    reply_keyboard = [['Boy', 'Girl', 'Other']]
+    reply_keyboard = [['create Task', 'create Taskgroup', 'Other']]
 
-    update.message.reply_text('start replay',
+    update.message.reply_text('Please choce what you would like to do.',
         reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True))
 
-    return CUBES
+    return TASKS
+
 
 def help(update, context):
     """Send a message when the command /help is issued."""
     update.message.reply_text('Help!')
 
-
-def echo(update, context):
-    """Echo the user message."""
-    update.message.reply_text(update.message.text)
 
 def cancel(update, context):
     user = update.message.from_user
@@ -134,22 +97,14 @@ def main():
         entry_points=[CommandHandler('start', start)],
 
         states={
-            CUBES: [MessageHandler(Filters.regex('^(6|8|20)$'), select_cube)],
-
-            TASKS: [MessageHandler(Filters.text, cube.map_task)],
-
+            TASKS: [MessageHandler(Filters.text, cube.map_task), MessageHandler(Filters.regex('^(6|8|20)$'), select_cube)]
         },
 
         fallbacks=[CommandHandler('cancel', cancel)]
     )
 
-    # on different commands - answer in Telegram
-#    dp.add_handler(CommandHandler("start", start))
-#    dp.add_handler(CommandHandler("help", help))
-#    dp.add_handler(CommandHandler("cool", cool))
-
     # on noncommand i.e message - echo the message on Telegram
-#    dp.add_handler(MessageHandler(Filters.text, echo))
+    # dp.add_handler(MessageHandler(Filters.text, echo))
 
     dp.add_handler(conv_handler)
 
