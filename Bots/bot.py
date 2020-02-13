@@ -15,7 +15,8 @@ bot.
 
 import logging, configparser
 
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from telegram import (ReplyKeyboardMarkup, ReplyKeyboardRemove)
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -40,17 +41,30 @@ logger.info('Read config')
 def create_cube(update, context):
     update.message.replay_text('Please select the number of sides the cube should have')
     update.massage.from_user()
-#def select_cube()
-#class task()
+def select_cube(sides):
+    #TODO: make cube not global.?
+    cube = Cube(sides)
+class Task():
+    pass
 #def create_task()
 ##NOTE: show we use a compositum pattern for task. So we don't have to treat groups differently
 #def create_task_group
 ## different mapping from tasks to sides according to context:
 #def create_context()
-#class cube()
+class Cube()
+    def __init__(self, side_amount):
+        self.current_side = self.get_current_side()
+        #QUESTION: is there a elegant way to do this:
+        self.sides = {}
+        for el in range(side_amount):
+            self.sides[el] = []
+
 #    def get_task()
-#    def map_task()
-#    def get_current_side()
+    def map_task(self, side, task)
+        self.sides[side].append(task)
+    def get_current_side(self):
+        #TODO:
+        return 0
 #    def _change_side()
 
 
