@@ -14,7 +14,7 @@ Press Ctrl-C on the command line or send a signal to the process to stop the
 bot.
 """
 
-import logging
+import logging, configparser
 
 from telegram import (ReplyKeyboardMarkup, ReplyKeyboardRemove)
 from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters,
@@ -28,6 +28,17 @@ logger = logging.getLogger(__name__)
 
 GENDER, PHOTO, LOCATION, BIO = range(4)
 
+# Read configfile
+config = configparser.ConfigParser()
+
+
+config_filename = ".bot.conf"
+config.read(config_filename)
+
+username = 'kilian'
+bot_token = config[username]['token']
+
+logger.info('Read config')
 
 def start(update, context):
     reply_keyboard = [['Boy', 'Girl', 'Other']]
@@ -117,7 +128,7 @@ def main():
     # Create the Updater and pass it your bot's token.
     # Make sure to set use_context=True to use the new context based callbacks
     # Post version 12 this will no longer be necessary
-    updater = Updater("TOKEN", use_context=True)
+    updater = Updater(bot_token, use_context=True)
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher

@@ -20,13 +20,12 @@ from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, Conve
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                    level=logging.DEBUG)
+                    level=logging.INFO)
 
 logger = logging.getLogger(__name__)
 # Read configfile
 config = configparser.ConfigParser()
 
-CUBES, TASKS = range(2)
 
 config_filename = ".bot.conf"
 config.read(config_filename)
@@ -38,12 +37,6 @@ logger.info('Read config')
 # Define a few command handlers. These usually take the two arguments update and
 # context. Error handlers also receive the raised TelegramError object in error.
 
-def create_cube(update, context):
-    update.message.replay_text('Please select the number of sides the cube should have')
-    update.massage.from_user()
-def select_cube(sides):
-    #TODO: make cube not global.?
-    cube = Cube(sides)
 class Task():
     pass
 #def create_task()
@@ -51,7 +44,10 @@ class Task():
 #def create_task_group
 ## different mapping from tasks to sides according to context:
 #def create_context()
-class Cube()
+
+CUBES, TASKS = range(2)
+
+class Cube():
     def __init__(self, side_amount):
         self.current_side = self.get_current_side()
         #QUESTION: is there a elegant way to do this:
@@ -60,16 +56,36 @@ class Cube()
             self.sides[el] = []
 
 #    def get_task()
-    def map_task(self, side, task)
+    def map_task(self, side, task):
         self.sides[side].append(task)
     def get_current_side(self):
         #TODO:
         return 0
 #    def _change_side()
 
+def create_cube(update, context):
+    update.message.replay_text('Please select the number of sides the cube should have')
+    update.massage.from_user()
+
+def select_cube(update, context):
+    reply_keyboard = [['6', '8', '20']]
+
+    update.message.reply_text('start replay',
+        reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True))
+
+    sides = update.message.from_user()
+    #TODO: make cube not global.?
+    cube = Cube(sides)
+    return TASKS
+
+
+
+# create dummy:
+cube = Cube(0)
 
 def cool(update, context):
     print('cool')
+
 def start(update, context):
     reply_keyboard = [['Boy', 'Girl', 'Other']]
 
@@ -86,6 +102,14 @@ def help(update, context):
 def echo(update, context):
     """Echo the user message."""
     update.message.reply_text(update.message.text)
+
+def cancel(update, context):
+    user = update.message.from_user
+    logger.info("User %s canceled the conversation.", user.first_name)
+    update.message.reply_text('Bye! I hope we can talk again some day.',
+                              reply_markup=ReplyKeyboardRemove())
+
+    return ConversationHandler.END
 
 
 def error(update, context):
