@@ -52,6 +52,7 @@ class Cube():
         self.current_side = self.get_current_side()
         #QUESTION: is there a elegant way to do this:
         self.sides = {}
+        print(side_amount)
         for el in range(side_amount):
             self.sides[el] = []
 
@@ -64,8 +65,7 @@ class Cube():
 #    def _change_side()
 
 def create_cube(update, context):
-    update.message.replay_text('Please select the number of sides the cube should have')
-    update.massage.from_user()
+    update.message.reply_text('Please select the number of sides the cube should have')
 
 def select_cube(update, context):
     reply_keyboard = [['6', '8', '20']]
@@ -73,8 +73,9 @@ def select_cube(update, context):
     update.message.reply_text('start replay',
         reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True))
 
-    sides = update.message.from_user()
+    sides = int(update.message.text)
     #TODO: make cube not global.?
+    print(sides)
     cube = Cube(sides)
     return TASKS
 
@@ -133,7 +134,7 @@ def main():
         entry_points=[CommandHandler('start', start)],
 
         states={
-            CUBES: [MessageHandler(Filters.regex('^(6|12|20)$'), select_cube)],
+            CUBES: [MessageHandler(Filters.regex('^(6|8|20)$'), select_cube)],
 
             TASKS: [MessageHandler(Filters.text, cube.map_task)],
 
