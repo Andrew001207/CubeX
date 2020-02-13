@@ -34,32 +34,56 @@ username = 'kilian'
 bot_token = config[username]['token']
 
 logger.info('Read config')
+
 # Define a few command handlers. These usually take the two arguments update and
 # context. Error handlers also receive the raised TelegramError object in error.
 
 
+TASK_NAME, TASK_TEXT, TASK_GROUP, TASK_FINISH = range(4)
+task_list = [] 
+
 class Task():
-    pass
+    def __init__(self):
+        self.name = ''
+        self.text = ''
+        self.group = ''
 
 
-def create_task():
-    pass
+cur_task = Task()
+
+
+def create_task_name(update, context):
+    update.message.reply_text('Please insert the name of the new Task')
+    return TASK_TEXT
+
+
+def create_task_text(update, context):
+    update.message.reply_text('Please insert a description  of the new Task')
+    cur_task.name = update.message.text
+    return TASK_GROUP
 
 
 #NOTE: show we use a compositum pattern for task. So we don't have to treat groups differently
-def create_task_group():
-    pass
+def create_task_group(update, context):
+    #TODO: Make it possible to add the Task to more groups
+    update.message.reply_text('Please insert a groupe in with the the new Task should be a part of.')
+    cur_task.text = update.message.text
+    return TASK_FINISH
 
-TASKS = range(1)
+
+def finish_task_creation(update, context):
+    cur_task.group = update.message.text
+    task_list.append(cur_task)
+    #cur_task = Task() TODO: replace this, so more task can be created
+    update.message.reply_text('The task "%s" has been succesfully created.' % cur_task.name)
+    print(cur_task.name)
+    print(cur_task.text)
+    print(cur_task.group)
 
 
 def start(update, context):
-    reply_keyboard = [['create Task', 'create Taskgroup', 'Other']]
-
-    update.message.reply_text('Please choce what you would like to do.',
-        reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True))
-
-    return TASKS
+    update.message.reply_text('Welcome to the cube bot')
+    return TASK_NAME
 
 
 def help(update, context):
@@ -97,7 +121,10 @@ def main():
         entry_points=[CommandHandler('start', start)],
 
         states={
-            TASKS: [MessageHandler(Filters.text, cube.map_task), MessageHandler(Filters.regex('^(6|8|20)$'), select_cube)]
+            TASK_NAME: [MessageHandler(Filters.text, create_task_name)],
+            TASK_TEXT: [MessageHandler(Filters.text, create_task_text)],
+            TASK_GROUP: [MessageHandler(Filters.text, create_task_group)],
+            TASK_FINISH: [MessageHandler(Filters.text, finish_task_creation)]
         },
 
         fallbacks=[CommandHandler('cancel', cancel)]
