@@ -133,3 +133,4 @@ dmypy.json
 
 #AWS Certificates
 cert/
+Bots/.bot.conf
