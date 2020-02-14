@@ -60,11 +60,9 @@ class AwsConnecter:
         self.logger.addHandler(self.streamHandler)
     
     def customCallback(self, client, userdata, message):
-        print("Received a new message: ")
         print(message.payload)
-        print("from topic: ")
-        print(message.topic)
-        print("--------------\n\n")
+        return message.payload
+
 
 if __name__ == "__main__":
     #this is only implimented as a little test
@@ -74,4 +72,5 @@ if __name__ == "__main__":
     aws_connector.connect()
     aws_connector.recieve()
     aws_connector.send("neue Klasse test")
+    aws_connector.recieve()
     

@@ -4,14 +4,9 @@ Created on Thu Feb 13 12:50:37 2020
 
 @author: matthiasmoser
 """
-
+from configparser import ConfigParser
 import psycopg2
 import logging
-db_host = 'cubex-db.cc4xdtflaafw.us-west-2.rds.amazonaws.com'
-db_port = 5432
-db_name = "cubex"
-db_user = "postgres"
-db_pass = "7E1TrepkaITJkGfSX7UP"
 
 logger = logging.getLogger("sqlconnecter")
 logger.setLevel(logging.INFO)
@@ -20,18 +15,38 @@ formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(messag
 streamHandler.setFormatter(formatter)
 logger.addHandler(streamHandler)
 
+
+def config(filename='database.ini', section='postgresql'):
+    # create a parser
+    parser = ConfigParser()
+    # read config file
+    parser.read(filename)
+ 
+    # get section, default to postgresql
+    db = {}
+    if parser.has_section(section):
+        params = parser.items(section)
+        for param in params:
+            db[param[0]] = param[1]
+    else:
+        raise Exception('Section {0} not found in the {1} file'.format(section, filename))
+    print(db)
+    return db
+
+
 def make_conn():
     conn = None
+    params = config()
     try:
-        conn = psycopg2.connect("dbname='%s' user='%s' host='%s' password='%s'"\
-                                % (db_name, db_user, db_host, db_pass))
+        conn = psycopg2.connect(**params)
     except:
         logger.info("I am unable to connect to the database")
     return conn
 
 
-def fetch_data(conn, cmd):
-    if "selct" in cmd:
+def fetch_data(cmd):
+    if "select" in cmd:
+        conn = make_conn()
         result = []
         logger.info("Now executing: %s" % (cmd))
         cursor = conn.cursor()
@@ -48,13 +63,14 @@ def fetch_data(conn, cmd):
         return 
 
 
-def excecute_command(conn, cmd):
+def execute_command(cmd):
+    conn = make_conn()
     cursor = conn.cursor()
     logger.info("Now executing: %s" % (cmd))
     cursor.execute(cmd)
+    conn.commit()
     cursor.close()
     conn.close()
     return
 
-#bsp how to use
-#excecute_command(make_conn(),"drop table event")
+print(make_conn())
