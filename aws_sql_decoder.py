@@ -30,23 +30,27 @@ def config(filename='database.ini', section='AwsConnector'):
 
 def receive ():
     params = config()
-    awsConnecter = AwsConnecter(**params)
+    awsConnecter = AwsConnecter(params['host'],params['rootcapath'],params['certificatepath'],params['privatekeypath'],int(params['port']),params['clientid'],params['topic'])
     awsConnecter.connect()
-    return awsConnecter.recieve()
+    awsConnecter.
 
 def decode(json_data):
     print(json_data)
     test = json_data
-    test = test.strip("[]")
+    test = test.strip("[]b'")
     testarray = test.split(",")
     testarray[0]= int(testarray[0])
     testarray[1]= int(testarray[1])
     testarray[3]= int(testarray[3])
+    print(testarray)
     return testarray
 
 def insert_into_database(json_data):
-    json_array = decode(json_data)
-    execute_command("insert into event Values(%d,%e,clock_timestamp(),clock_timestamp())"%(json_array[2]))
+    if json_data is not None:
+        print(json_data)
+        json_array = decode(json_data)
+        execute_command("insert into event Values(%d,%e,clock_timestamp(),clock_timestamp())"%(json_array[2]))
 
 if __name__ == "__main__":
-    insert_into_database(receive())
+    json_data = receive()
+    insert_into_database(json_data)

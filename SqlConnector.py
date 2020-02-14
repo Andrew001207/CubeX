@@ -9,7 +9,7 @@ import psycopg2
 import logging
 
 logger = logging.getLogger("sqlconnecter")
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.WARNING)
 streamHandler = logging.StreamHandler()
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 streamHandler.setFormatter(formatter)
@@ -30,7 +30,6 @@ def config(filename='database.ini', section='postgresql'):
             db[param[0]] = param[1]
     else:
         raise Exception('Section {0} not found in the {1} file'.format(section, filename))
-    print(db)
     return db
 
 
@@ -73,4 +72,4 @@ def execute_command(cmd):
     conn.close()
     return
 
-print(make_conn())
+print(fetch_data("select * from event"))

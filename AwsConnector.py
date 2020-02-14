@@ -70,7 +70,9 @@ if __name__ == "__main__":
                                  'cert/AmazonRootCA1.pem','cert/5582d73565-certificate.pem.crt',\
                                      'cert/5582d73565-private.pem.key',8883,'Cube','/CubeX_main')
     aws_connector.connect()
-    aws_connector.recieve()
-    aws_connector.send("neue Klasse test")
-    aws_connector.recieve()
+    while True:
+        aws_connector.recieve()
+        time.sleep(1)
+        
+
     
