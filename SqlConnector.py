@@ -7,11 +7,6 @@ Created on Thu Feb 13 12:50:37 2020
 from configparser import ConfigParser
 import psycopg2
 import logging
-db_host = 'cubex-db.cc4xdtflaafw.us-west-2.rds.amazonaws.com'
-db_port = 5432
-db_name = "cubex"
-db_user = "postgres"
-db_pass = "7E1TrepkaITJkGfSX7UP"
 
 logger = logging.getLogger("sqlconnecter")
 logger.setLevel(logging.INFO)
@@ -50,7 +45,7 @@ def make_conn():
 
 
 def fetch_data(conn, cmd):
-    if "selct" in cmd:
+    if "select" in cmd:
         result = []
         logger.info("Now executing: %s" % (cmd))
         cursor = conn.cursor()
@@ -71,9 +66,12 @@ def excecute_command(conn, cmd):
     cursor = conn.cursor()
     logger.info("Now executing: %s" % (cmd))
     cursor.execute(cmd)
+    conn.commit()
     cursor.close()
     conn.close()
     return
 
 #bsp how to use
-excecute_command(make_conn(),"drop table event")
+print(fetch_data(make_conn(),"select * from event;"))
+excecute_command(make_conn(),"insert into event(task_name,start_time,end_time) values ('coding','2019-06-22 19:10:25-07','2019-06-22 19:10:25-07');")
+print(fetch_data(make_conn(),"select * from event;"))
