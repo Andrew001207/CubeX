@@ -127,7 +127,13 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
 #sql credentials
 database.ini
+
+#IDE
+.idea/
+
+#AWS Certificates
 cert/
 Bots/.bot.conf
