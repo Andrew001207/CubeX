@@ -28,7 +28,7 @@ config = configparser.ConfigParser()
 config_filename = ".bot.conf"
 config.read(config_filename)
 
-username = 'kilian'
+username = input('please insert you username')
 bot_token = config[username]['token']
 
 logger.info('Read config')
