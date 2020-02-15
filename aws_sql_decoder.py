@@ -28,20 +28,19 @@ def config(filename='database.ini', section='AwsConnector'):
  
     return db
 
-def receive ():
+def connect_to_aws ():
     params = config()
     awsConnecter = AwsConnecter(params['host'],params['rootcapath'],params['certificatepath'],params['privatekeypath'],int(params['port']),params['clientid'],params['topic'])
     awsConnecter.connect()
-    awsConnecter.
+    return awsConnecter
 
 def decode(json_data):
-    print(json_data)
+    print(json_data, "decode")
     test = json_data
-    test = test.strip("[]b'")
+    test = test.strip("b")
+    test = test.strip('"')
+    test = test.strip("[]")
     testarray = test.split(",")
-    testarray[0]= int(testarray[0])
-    testarray[1]= int(testarray[1])
-    testarray[3]= int(testarray[3])
     print(testarray)
     return testarray
 
@@ -49,8 +48,15 @@ def insert_into_database(json_data):
     if json_data is not None:
         print(json_data)
         json_array = decode(json_data)
-        execute_command("insert into event Values(%d,%e,clock_timestamp(),clock_timestamp())"%(json_array[2]))
+        execute_command("insert into event Values(2,{},clock_timestamp(),clock_timestamp());".format(json_array[2]))
 
 if __name__ == "__main__":
-    json_data = receive()
-    insert_into_database(json_data)
+    aws_con = connect_to_aws()
+    aws_con.recieve()
+    while True:
+        time.sleep(1)
+        if aws_con.message is not None:
+            print("i am not None")
+            insert_into_database(aws_con.message) 
+            aws_con.message = None
+            

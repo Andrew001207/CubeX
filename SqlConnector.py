@@ -71,5 +71,3 @@ def execute_command(cmd):
     cursor.close()
     conn.close()
     return
-
-print(fetch_data("select * from event"))

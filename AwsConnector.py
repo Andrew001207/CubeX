@@ -25,6 +25,7 @@ class AwsConnecter:
         self.port = port
         self.clientId = clientId
         self.topic = topic
+        self.message = None
         
     def connect(self):
         # Init AWSIoTMQTTClient
@@ -60,8 +61,8 @@ class AwsConnecter:
         self.logger.addHandler(self.streamHandler)
     
     def customCallback(self, client, userdata, message):
-        print(message.payload)
-        return message.payload
+        self.message = message.payload
+        self.message = str(self.message)
 
 
 if __name__ == "__main__":
@@ -70,9 +71,8 @@ if __name__ == "__main__":
                                  'cert/AmazonRootCA1.pem','cert/5582d73565-certificate.pem.crt',\
                                      'cert/5582d73565-private.pem.key',8883,'Cube','/CubeX_main')
     aws_connector.connect()
+    aws_connector.recieve()
     while True:
-        aws_connector.recieve()
         time.sleep(1)
-        
 
     
