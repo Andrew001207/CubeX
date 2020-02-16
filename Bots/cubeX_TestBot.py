@@ -93,7 +93,7 @@ def create_task(update, context):
     
     conv_handler = ConversationHandler(
         #Workaround to automatically start ConversationHandler
-        entry_points=[MessageHandler(Filters.text, i_start)],
+        entry_points=[MessageHandler(Filters.regex('regex_token'), i_start)],
 
         states={
             SET_NAME: [MessageHandler(Filters.text, i_name)],
@@ -106,7 +106,7 @@ def create_task(update, context):
     context.dispatcher.add_handler(conv_handler)
     #Autostart ConversationHandler
     update_tmp = update
-    update_tmp.message.text = "text"
+    update_tmp.message.text = "^regex_token$"
     context.dispatcher.process_update(update_tmp)
 
 def error(update, context):
