@@ -3,6 +3,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+#certificats
+cert/
+
 # C extensions
 *.so
 
@@ -128,7 +131,6 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-<<<<<<< HEAD
 #sql credentials
 database.ini
 
@@ -138,6 +140,6 @@ database.ini
 #AWS Certificates
 cert/
 Bots/.bot.conf
-#
+
 #cubexproject
 .cert/
