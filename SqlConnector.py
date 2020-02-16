@@ -71,3 +71,7 @@ def execute_command(cmd):
     cursor.close()
     conn.close()
     return
+
+def create_task(task_name,task_group):
+    execute_command('inset into task values({},{})'.format(task_name, task_group))
+

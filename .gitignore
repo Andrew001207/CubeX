@@ -141,3 +141,5 @@ cert/*
 #AWS Certificates
 cert/
 Bots/.bot.conf
+#Database
+.database.ini
