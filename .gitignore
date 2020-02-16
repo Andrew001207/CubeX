@@ -136,7 +136,8 @@ dmypy.json
 database.ini
 #IDE
 .idea/
-
+#cert
+cert/*
 #AWS Certificates
 cert/
 Bots/.bot.conf
