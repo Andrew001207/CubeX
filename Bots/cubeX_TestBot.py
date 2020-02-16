@@ -14,8 +14,9 @@ bot.
 """
 
 import logging, configparser
-
+import re
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, CallbackQueryHandler
+
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -32,6 +33,7 @@ config.read(config_filename)
 username = input('please insert your username: ')
 try:
     bot_token = config[username]['token']
+    token_tuple = config[username]['token_tuple']
 except KeyError:
     bot_token = input('''please insert you token from Botfather or create a ~/CubeX/Bots/.bot.conf file like this
 [<username>]
@@ -56,7 +58,8 @@ def create_task(update, context):
     """Create a new task for the Cube"""
     task = ""
     group = ""
-    def i_start(update, context):
+    #def i_start(update, context):
+    def i_start(bot, update):
         update.message.reply_text("Enter name")
         return SET_NAME
 
@@ -86,14 +89,11 @@ def create_task(update, context):
     )
     context.dispatcher.add_handler(conv_handler)
 
-    # conv_handler.handle_update(update, context.dispatcher, ((483072764, 483072764), conv_handler, True))
+    conv_handler.handle_update(update, context.dispatcher, (token_tuple, MessageHandler(Filters.regex('^$'), i_start),re.match('^$','')))
     
-    #update.message.reply_text(str(context.dispatcher.handlers))
-    print(update.message.text)
-
 def error(update, context):
     """Log Errors caused by Updates."""
-    logger.warning('Update "%s" caused error "%s"', update, context.error)
+    logger.warning('Update with id: "%s" caused error "%s"', update['update_id'], context.error)
 
 def ask_user(update, context, question):
     update.message.reply_text(question)
