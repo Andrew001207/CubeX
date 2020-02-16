@@ -40,9 +40,8 @@ def create_cube(update, context):
     update.massage.from_user()
 #def select_cube()
 #class task()
-#def create_task()
+#def create_task() done
 ##NOTE: show we use a compositum pattern for task. So we don't have to treat groups differently
-#def create_task_group
 ## different mapping from tasks to sides according to context:
 #def create_context()
 #class cube()
