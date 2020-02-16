@@ -29,8 +29,14 @@ config = configparser.ConfigParser()
 config_filename = ".bot.conf"
 config.read(config_filename)
 
-username = input('please insert your username')
-bot_token = config[username]['token']
+username = input('please insert your username: ')
+try:
+    bot_token = config[username]['token']
+except KeyError:
+    bot_token = input('''please insert you token from Botfather or create a ~/CubeX/Bots/.bot.conf file like this
+[<username>]
+token=<token>
+''')
 
 logger.info('Read config')
 
@@ -68,7 +74,7 @@ def create_task(update, context):
     #update.message.reply_text(f'Created task {task} of group {group}.')
     START, SET_NAME, SET_GROUP = range(3)
     conv_handler = ConversationHandler(
-        entry_points=[MessageHandler(Filters.regex('^\/ct$'), i_start)],
+        entry_points=[MessageHandler(Filters.regex('^[a-zA-Z]$'), i_start)],
 
         states={
             SET_NAME: [MessageHandler(Filters.text, i_name)],
@@ -79,8 +85,9 @@ def create_task(update, context):
         fallbacks=[CommandHandler("error", error)]
     )
     context.dispatcher.add_handler(conv_handler)
-    import pdb; pdb.set_trace()
-    #conv_handler.handle_update(update, context.
+
+    # conv_handler.handle_update(update, context.dispatcher, ((483072764, 483072764), conv_handler, True))
+    
     #update.message.reply_text(str(context.dispatcher.handlers))
     print(update.message.text)
 
@@ -105,6 +112,7 @@ def main():
     # Post version 12 this will no longer be necessary
     updater = Updater(bot_token, use_context=True)
 
+    #import pdb; pdb.set_trace()
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
 
