@@ -13,15 +13,25 @@ Press Ctrl-C on the command line or send a signal to the process to stop the
 bot.
 """
 
-import logging
+import logging, configparser
 
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, CallbackQueryHandler
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
 
 logger = logging.getLogger(__name__)
+
+config = configparser.ConfigParser()
+
+config_filename = ".bot.conf"
+config.read(config_filename)
+
+username = 'max-di'
+bot_token = config[username]['token']
+
+logger.info('Read config')
 
 
 # Define a few command handlers. These usually take the two arguments update and
@@ -45,20 +55,22 @@ def create_task(update, context):
         return SET_NAME
 
     def i_name(update, context):
+        nonlocal task
         task = update.message.text
         update.message.reply_text("Enter group")
         return SET_GROUP
 
     def i_group(update, context):
+        nonlocal task
+        nonlocal group
         group = update.message.text
-        update.message.reply_text("Done")
+        update.message.reply_text(f'Created task {task} in group {group}.')
+        context.dispatcher.remove_handler(conv_handler)
         return ConversationHandler.END
-    #task = ask_user(update, context, "Please enter task name")
-    #group = ask_user(update, context, "Got it! Now enter the group of the task")
-    #update.message.reply_text(f'Created task {task} of group {group}.')
     START, SET_NAME, SET_GROUP = range(3)
+    tmp = MessageHandler(Filters.text, i_start)
     conv_handler = ConversationHandler(
-        entry_points=[MessageHandler(Filters.regex('^\/ct$'), i_start)],
+        entry_points=[tmp],
 
         states={
             SET_NAME: [MessageHandler(Filters.text, i_name)],
@@ -69,8 +81,9 @@ def create_task(update, context):
         fallbacks=[CommandHandler("error", error)]
     )
     context.dispatcher.add_handler(conv_handler)
-    #update.message.reply_text(str(context.dispatcher.handlers))
-    print(update.message.text)
+    update_tmp = update
+    update_tmp.message.text = "text"
+    context.dispatcher.process_update(update_tmp)
 
 def error(update, context):
     """Log Errors caused by Updates."""
@@ -91,7 +104,7 @@ def main():
     # Create the Updater and pass it your bot's token.
     # Make sure to set use_context=True to use the new context based callbacks
     # Post version 12 this will no longer be necessary
-    updater = Updater("", use_context=True)
+    updater = Updater(bot_token, use_context=True)
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
