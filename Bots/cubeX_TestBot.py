@@ -29,7 +29,7 @@ config_filename = ".bot.conf"
 
 config.read(config_filename)
 
-username = 'maxdi'
+username = 'max-di'
 bot_token = config[username]['token']
 
 logger.info('Read config')
@@ -52,7 +52,7 @@ def create_task(update, context):
     task = None
     group = None
     SET_NAME, SET_GROUP = range(2) #Constants for ConversationHandler
-    
+
     def i_start(update, context):
         """
         Start creating new task
