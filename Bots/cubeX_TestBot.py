@@ -13,7 +13,7 @@ Press Ctrl-C on the command line or send a signal to the process to stop the
 bot.
 """
 
-import logging
+import logging, configparser
 
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, CallbackQueryHandler
 
@@ -79,6 +79,8 @@ def create_task(update, context):
         fallbacks=[CommandHandler("error", error)]
     )
     context.dispatcher.add_handler(conv_handler)
+    import pdb; pdb.set_trace()
+    #conv_handler.handle_update(update, context.
     #update.message.reply_text(str(context.dispatcher.handlers))
     print(update.message.text)
 
