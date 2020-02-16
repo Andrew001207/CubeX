@@ -65,14 +65,4 @@ class AwsConnecter:
         self.message = str(self.message)
 
 
-if __name__ == "__main__":
-    #this is only implimented as a little test
-    aws_connector = AwsConnecter('a19iauu3f7q9ce-ats.iot.us-west-2.amazonaws.com',\
-                                 'cert/AmazonRootCA1.pem','cert/5582d73565-certificate.pem.crt',\
-                                     'cert/5582d73565-private.pem.key',8883,'Cube','/CubeX_main')
-    aws_connector.connect()
-    aws_connector.recieve()
-    while True:
-        time.sleep(1)
-
     
