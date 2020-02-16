@@ -26,9 +26,10 @@ logger = logging.getLogger(__name__)
 config = configparser.ConfigParser()
 
 config_filename = ".bot.conf"
+
 config.read(config_filename)
 
-username = 'max-di'
+username = 'maxdi'
 bot_token = config[username]['token']
 
 logger.info('Read config')
@@ -48,29 +49,51 @@ def help(update, context):
 
 def create_task(update, context):
     """Create a new task for the Cube"""
-    task = ""
-    group = ""
+    task = None
+    group = None
+    SET_NAME, SET_GROUP = range(2) #Constants for ConversationHandler
+    
     def i_start(update, context):
+        """
+        Start creating new task
+        
+        Returns:
+        int: next state for ConversationHandler
+        """
         update.message.reply_text("Enter name")
         return SET_NAME
 
     def i_name(update, context):
+        """
+        Read the entered name of the new task
+        
+        Returns:
+        int: next state for ConversationHandler
+        """
         nonlocal task
         task = update.message.text
         update.message.reply_text("Enter group")
         return SET_GROUP
 
     def i_group(update, context):
+        """
+        Read the entered group of the new task and finish creation of the new task
+        
+        Returns:
+        int: next stop-state for ConversationHandler
+        """
         nonlocal task
         nonlocal group
         group = update.message.text
+        #Insert actual code to create task
         update.message.reply_text(f'Created task {task} in group {group}.')
+        #Reset handlers
         context.dispatcher.remove_handler(conv_handler)
         return ConversationHandler.END
-    START, SET_NAME, SET_GROUP = range(3)
-    tmp = MessageHandler(Filters.text, i_start)
+    
     conv_handler = ConversationHandler(
-        entry_points=[tmp],
+        #Workaround to automatically start ConversationHandler
+        entry_points=[MessageHandler(Filters.text, i_start)],
 
         states={
             SET_NAME: [MessageHandler(Filters.text, i_name)],
@@ -81,6 +104,7 @@ def create_task(update, context):
         fallbacks=[CommandHandler("error", error)]
     )
     context.dispatcher.add_handler(conv_handler)
+    #Autostart ConversationHandler
     update_tmp = update
     update_tmp.message.text = "text"
     context.dispatcher.process_update(update_tmp)
@@ -88,16 +112,6 @@ def create_task(update, context):
 def error(update, context):
     """Log Errors caused by Updates."""
     logger.warning('Update "%s" caused error "%s"', update, context.error)
-
-def ask_user(update, context, question):
-    update.message.reply_text(question)
-    msg_id = update.message.message_id
-    print("Before: ", update.message.message_id, context.bot.getUpdates[-1].update_id)
-    while(msg_id == update.message.message_id):
-        pass
-    print("After: ", update.message.message_id)
-    return update.message.text
-
 
 def main():
     """Start the bot."""
