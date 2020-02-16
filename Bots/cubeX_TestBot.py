@@ -89,7 +89,7 @@ def create_task(update, context):
     )
     context.dispatcher.add_handler(conv_handler)
 
-    conv_handler.handle_update(update, context.dispatcher, (token_tuple, MessageHandler(Filters.regex('^$'), i_start),re.match('^$','')))
+    conv_handler.handle_update(update, context.dispatcher, (conv_handler._get_key(update), MessageHandler(Filters.regex('^$'), i_start),re.match('^$','')))
     
 def error(update, context):
     """Log Errors caused by Updates."""
