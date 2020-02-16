@@ -6,11 +6,7 @@ import json
 
 AllowedActions = ['both', 'publish', 'subscribe']
 
-mode = 'both'
-#args mock:
-class args:
-    pass
-args.message = 'test publish and subscribe'
+mode = 'subscribe'
 # Custom MQTT message callback
 def customCallback(client, userdata, message):
     print("Received a new message: ")
@@ -30,7 +26,7 @@ topic = '/CubeX_main'
 
 # Configure logging
 logger = logging.getLogger("AWSIoTPythonSDK.core")
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.ERROR)
 streamHandler = logging.StreamHandler()
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 streamHandler.setFormatter(formatter)

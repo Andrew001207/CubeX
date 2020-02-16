@@ -18,6 +18,9 @@ import re
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, CallbackQueryHandler
 
 
+#NOTE: is there a nicer way than global?
+curr_cube_id = None
+
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
@@ -31,13 +34,14 @@ config_filename = ".bot.conf"
 config.read(config_filename)
 
 username = input('please insert your username: ')
+
 try:
     bot_token = config[username]['token']
-    token_tuple = config[username]['token_tuple']
 except KeyError:
     bot_token = input('''please insert you token from Botfather or create a ~/CubeX/Bots/.bot.conf file like this
 [<username>]
 token=<token>
+and insert your username and token ther
 ''')
 
 logger.info('Read config')
@@ -51,58 +55,28 @@ def start(update, context):
 
 def help(update, context):
     """Send a message when the command /help is issued."""
+    #TODO: implement help
     update.message.reply_text('Help!')
+
+    
+def select_cube(update, context):
+    """Select currently used Cube"""
+    
+    def process_results(answers):
+        """Update selected cube"""
+        curr_cube_id = answers[0]
+
+    add_conv_handler(update, context, create_conv_handler(["Enter Cube_ID"], process_results))
 
 
 def create_task(update, context):
-    """Create a new task for the Cube"""
-    task = ""
-    group = ""
-    #def i_start(update, context):
-    def i_start(bot, update):
-        update.message.reply_text("Enter name")
-        return SET_NAME
+    """Create a new task for the cube"""
+    add_conv_handler(update, context, create_conv_handler(["Enter name", "Enter group"]))
 
-    def i_name(update, context):
-        task = update.message.text
-        update.message.reply_text("Enter group")
-        return SET_GROUP
 
-    def i_group(update, context):
-        group = update.message.text
-        update.message.reply_text("Done")
-        return ConversationHandler.END
-    #task = ask_user(update, context, "Please enter task name")
-    #group = ask_user(update, context, "Got it! Now enter the group of the task")
-    #update.message.reply_text(f'Created task {task} of group {group}.')
-    START, SET_NAME, SET_GROUP = range(3)
-    conv_handler = ConversationHandler(
-        entry_points=[MessageHandler(Filters.regex('^[a-zA-Z]$'), i_start)],
-
-        states={
-            SET_NAME: [MessageHandler(Filters.text, i_name)],
-
-            SET_GROUP: [MessageHandler(Filters.text, i_group)]
-        },
-
-        fallbacks=[CommandHandler("error", error)]
-    )
-    context.dispatcher.add_handler(conv_handler)
-
-    conv_handler.handle_update(update, context.dispatcher, (conv_handler._get_key(update), MessageHandler(Filters.regex('^$'), i_start),re.match('^$','')))
-    
 def error(update, context):
     """Log Errors caused by Updates."""
     logger.warning('Update with id: "%s" caused error "%s"', update['update_id'], context.error)
-
-def ask_user(update, context, question):
-    update.message.reply_text(question)
-    msg_id = update.message.message_id
-    print("Before: ", update.message.message_id, context.bot.getUpdates[-1].update_id)
-    while(msg_id == update.message.message_id):
-        pass
-    print("After: ", update.message.message_id)
-    return update.message.text
 
 
 def main():
@@ -112,7 +86,6 @@ def main():
     # Post version 12 this will no longer be necessary
     updater = Updater(bot_token, use_context=True)
 
-    #import pdb; pdb.set_trace()
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
 
@@ -120,8 +93,11 @@ def main():
     dp.add_handler(CommandHandler("start", start))
     dp.add_handler(CommandHandler("help", help))
 
-    # on noncommand i.e message - echo the message on Telegram
+    # command to create new task
     dp.add_handler(CommandHandler("ct", create_task))
+
+    # command to select current cube
+    dp.add_handler(CommandHandler("sc", select_cube))
 
     # log all errors
     dp.add_error_handler(error)
@@ -133,6 +109,77 @@ def main():
     # SIGTERM or SIGABRT. This should be used most of the time, since
     # start_polling() is non-blocking and will stop the bot gracefully.
     updater.idle()
+
+
+ ###################################################### Helpers #######################################################
+
+def create_conv_handler(questions, process_results=lambda answers: None):
+    """Creates and returns a ConversationHandler asking the User the given questions"""
+    answers = [] #Save Useres answers
+    
+    def i_start(update, context):
+        """
+        Entry function for ConversationHandler asking the User the first question
+        
+        Returns:
+        First state of the ConversationHandler for next question
+        """
+        update.message.reply_text(questions[0])
+        return 0
+
+    def i_end(update, context):
+        """
+        Final function for the ConversationHandler processing the Users whole input and clearing up the handlers
+
+        Returns:
+        End state for the ConversationHandler to stop
+        """
+        answers.append(update.message.text)
+        process_results(answers)
+        update.message.reply_text(f'Answers: {str(answers)}')
+        #Reset handlers
+        context.dispatcher.remove_handler(conv_handler)
+        return ConversationHandler.END
+
+    conv_handlers = [] #Handlers for each state of the ConversationHandler
+
+    for i in range(len(questions)-1):
+
+        def i_ask_answer_funtion(update, context):
+            """
+            Funtion to store Useres last answer and ask the next question
+
+            Returns:
+            Next state for the ConversationHandler
+            """
+            answers.append(update.message.text)
+            update.message.reply_text(questions[i+1])
+            return i+1
+        
+        conv_handlers.append([MessageHandler(Filters.text, i_ask_answer_funtion)])
+
+    conv_handlers.append([MessageHandler(Filters.text, i_end)])
+
+    #Create actual ConversationHandler
+    conv_handler = ConversationHandler(
+        #Workaround to automatically start ConversationHandler
+        entry_points=[MessageHandler(Filters.regex('regex_token'), i_start)],
+
+        states=dict(zip(range(len(questions)), conv_handlers)), #Map each handler to the numbers 0..x
+
+        fallbacks=[CommandHandler("error", error)]
+    )
+
+    return conv_handler
+
+def add_conv_handler(update, context, conv_handler):
+    """Adds a given ConversationHandler to the current dispatcher and autostarts it"""
+    context.dispatcher.add_handler(conv_handler)
+
+    #Autostart ConversationHandler
+    conv_handler.handle_update(update, context.dispatcher, (conv_handler._get_key(update), MessageHandler(Filters.regex('^$'), i_start),re.match('^$','')))
+
+################################################### Helpers End ######################################################   
 
 
 if __name__ == '__main__':
