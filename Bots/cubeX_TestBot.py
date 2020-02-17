@@ -66,12 +66,12 @@ def select_cube(update, context):
         """Update selected cube"""
         curr_cube_id = answers[0]
 
-    add_conv_handler(update, context, create_conv_handler(["Enter Cube_ID"], process_results))
+    start_conversation(update, context, ["Enter Cube_ID"], process_results)
 
 
 def create_task(update, context):
     """Create a new task for the cube"""
-    add_conv_handler(update, context, create_conv_handler(["Enter name", "Enter group"]))
+    start_conversation(update, context, ["Enter name", "Enter group"])
 
 
 def error(update, context):
@@ -113,11 +113,11 @@ def main():
 
  ###################################################### Helpers #######################################################
 
-def create_conv_handler(questions, process_results=lambda answers: None):
+def start_conversation(update, context, questions, process_results=lambda answers: None):
     """Creates and returns a ConversationHandler asking the User the given questions"""
     answers = [] #Save Useres answers
     
-    def i_start(update, context):
+    def i_start(bot, update):
         """
         Entry function for ConversationHandler asking the User the first question
         
@@ -162,18 +162,14 @@ def create_conv_handler(questions, process_results=lambda answers: None):
 
     #Create actual ConversationHandler
     conv_handler = ConversationHandler(
-        #Workaround to automatically start ConversationHandler
-        entry_points=[MessageHandler(Filters.regex('regex_token'), i_start)],
+        entry_points=[], #Starts automated
 
         states=dict(zip(range(len(questions)), conv_handlers)), #Map each handler to the numbers 0..x
 
         fallbacks=[CommandHandler("error", error)]
     )
 
-    return conv_handler
-
-def add_conv_handler(update, context, conv_handler):
-    """Adds a given ConversationHandler to the current dispatcher and autostarts it"""
+    #Add handler temporaryly to current dispatcher
     context.dispatcher.add_handler(conv_handler)
 
     #Autostart ConversationHandler
