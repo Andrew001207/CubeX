@@ -73,7 +73,7 @@ def select_cube(update, context):
 
 def create_task(update, context):
     """Create a new task for the cube"""
-    start_conversation(update, context, ["Enter name", "Enter group"])
+    start_conversation(update, context, ["Enter name"])
 
 
 def error(update, context):
@@ -118,6 +118,9 @@ def main():
 def start_conversation(update, context, questions, process_results=lambda answers: None):
     """Creates and returns a ConversationHandler asking the User the given questions"""
     answers = [] #Save Useres answers
+
+    #Store and clear handlery temporaryly
+    handlers_tmp = context.dispatcher.handlers[0]
     
     def i_start(bot, update):
         """
@@ -140,12 +143,12 @@ def start_conversation(update, context, questions, process_results=lambda answer
         process_results(answers)
         update.message.reply_text(f'Answers: {str(answers)}')
         #Reset handlers
-        context.dispatcher.remove_handler(conv_handler)
+        restore_handlers(context, handlers_tmp)
         return ConversationHandler.END
 
     def i_wrong_input(update, context):
         update.message.reply_text("Wrong input, command stopped.")
-        context.dispatcher.remove_handler(conv_handler)
+        restore_handlers(context, handlers_tmp)
         return ConversationHandler.END
 
     conv_handlers = [] #Handlers for each state of the ConversationHandler
@@ -163,9 +166,9 @@ def start_conversation(update, context, questions, process_results=lambda answer
             update.message.reply_text(questions[i+1])
             return i+1
         
-        conv_handlers.append([MessageHandler(Filters.text, i_ask_answer_funtion)])
+        conv_handlers.append([MessageHandler(Filters.regex('^[0-9a-zA-Z]'), i_ask_answer_funtion), MessageHandler(Filters.all, i_wrong_input)])
 
-    conv_handlers.append([MessageHandler(Filters.text, i_end)])
+    conv_handlers.append([MessageHandler(Filters.regex('^[0-9a-zA-Z]'), i_end), MessageHandler(Filters.all, i_wrong_input)])
 
     #Create actual ConversationHandler
     conv_handler = ConversationHandler(
@@ -177,10 +180,18 @@ def start_conversation(update, context, questions, process_results=lambda answer
     )
 
     #Add handler temporaryly to current dispatcher
-    context.dispatcher.add_handler(conv_handler)
+    set_single_handler(context, conv_handler)
 
     #Autostart ConversationHandler
     conv_handler.handle_update(update, context.dispatcher, (conv_handler._get_key(update), MessageHandler(Filters.regex('^$'), i_start),re.match('^$','')))
+
+def set_single_handler(context, handler):
+    context.dispatcher.handlers[0] = []
+    context.dispatcher.add_handler(handler)
+
+def restore_handlers(context, old_handlers):
+    context.dispatcher.handlers[0] = []
+    any(context.dispatcher.add_handler(handler) for handler in old_handlers)
 
 ################################################### Helpers End ######################################################   
 
