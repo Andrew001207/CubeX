@@ -81,7 +81,7 @@ def map_task_conv(update, context):
     if not curr_cube_id:
         #TODO: make command_names not hardcoded:
         # command_name = command_dict['select_cube']
-        start_conversation(update, context, ['No Cube selected, please run the command "\\ct"'])
+        start_conversation(update, context, ['No Cube selected, please run the command "\\sc"'])
         return
     
     def process_results(answers):
