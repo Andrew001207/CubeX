@@ -48,7 +48,7 @@ def insert_into_database(json_data):
     if json_data is not None:
         print(json_data)
         json_array = decode(json_data)
-        execute_command("insert into event Values(3,{},clock_timestamp(),clock_timestamp());".format(json_array[2]))
+        execute_command("insert into event Values(default ,{},clock_timestamp(),clock_timestamp());".format(json_array[2]))
 
 if __name__ == "__main__":
     aws_con = connect_to_aws()

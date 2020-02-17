@@ -69,11 +69,37 @@ def execute_command(cmd):
     conn.close()
     return
 
-def create_task(task_name,task_group): 
-    #abfangen falls gruppe noch nicht vorhanden. abfangen falls Task schon in Datenbank
-    group_id = fetch_data("select group_ID from Task_group where group_name = '{}'".format(task_group))[0][0]
-    execute_command("insert into task values ('{}', {});".format(task_name, group_id))
-    
-create_task('schlafe', 'work')
+def create_task(task_name,task_group):
+    try:
+        group_id = fetch_data("select group_ID from Task_group where group_name = '{}'".format(task_group))[0][0]
+        execute_command("insert into task values ('{}', {});".format(task_name, group_id))
+    except:
+        execute_command("insert into task_group values (default,'{}');".format(task_group))
+        try:
+            execute_command("insert into task values ('{}', {});".format(task_name, group_id))
+        except:
+            logger.warning("task schon vorhanden")
+def create_cube():
+    execute_command("insert into cube values (default);")
+
+def assign_task_side(cube_ID, side, task):
+    execute_command("insert into side values ('{}','{}','{}');".format(cube_ID,side,task))
+
+def get_all_tasks():
+    return fetch_data("select task_name from task;")
+
+def get_all_group_name():
+    return fetch_data("select group_name from task_group;")
+
+def get_all_cube_id():
+    return fetch_data("select cube_ID from cube")
+
+
+
+print(get_all_group_name())
+
+
+
+
 
 
