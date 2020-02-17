@@ -11,7 +11,7 @@ import json
 import time
 from SqlConnector import execute_command
 
-def config(filename='database.ini', section='AwsConnector'):
+def config(filename='config.ini', section='AwsConnector'):
     # create a parser
     parser = ConfigParser()
     # read config file

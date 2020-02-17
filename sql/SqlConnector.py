@@ -16,7 +16,7 @@ streamHandler.setFormatter(formatter)
 logger.addHandler(streamHandler)
 
 
-def config(filename='database.ini', section= 'postgresql'):
+def config(filename='config.ini', section= 'postgresql'):
     # create a parser
     parser = ConfigParser()
     # read config file
@@ -69,21 +69,41 @@ def execute_command(cmd):
     conn.close()
     return
 
-def create_task(task_name,task_group):
+def create_task(task_name,group_name):
     try:
-        group_id = fetch_data("select group_ID from Task_group where group_name = '{}'".format(task_group))[0][0]
-        execute_command("insert into task values ('{}', {});".format(task_name, group_id))
+        execute_command("insert into task values ('{}', {});".format(task_name, group_name))
     except:
-        execute_command("insert into task_group values (default,'{}');".format(task_group))
-        try:
-            execute_command("insert into task values ('{}', {});".format(task_name, group_id))
-        except:
-            logger.warning("task schon vorhanden")
+        logger.warning("task schon vorhanden")
 def create_cube():
     execute_command("insert into cube values (default);")
 
-def assign_task_side(cube_ID, side, task):
-    execute_command("insert into side values ('{}','{}','{}');".format(cube_ID,side,task))
+
+def set_task(cube_id, side_id, task_name, group_name):
+    """
+    :param cube_ID: integer
+    :param side_id: interger
+    :param task_name: string
+    :param group_name: string
+    :return: nothing
+    """
+    create_task(task_name,group_name)
+    try:
+        execute_command("insert into side values ({},{},'{}','{}');".format(side_id,cube_id,task_name,group_name))
+    except:
+        execute_command("update side set task_name = '{}' , group_name = '{}' where side_id = {} and cube_id = {};"\
+                        .format(task_name, group_name, side_id, cube_id))
+def delete_task(cube_ID, group_name, task_name):
+    """
+
+    :param cube_ID: integer
+    :param group_name: string
+    :param task_name: string
+    :return: nothing
+    """
+    execute_command("delete from task where(cube_Id = {} and group = '{}' and task = '{}');".format(cube_ID, group_name, task_name))
+
+def load_state(cube_ID):
+    sides = fetch_data("select * from side where Cube_ID = {}".format(cube_ID))
 
 def get_all_tasks():
     return fetch_data("select task_name from task;")
