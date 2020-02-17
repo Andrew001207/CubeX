@@ -71,7 +71,7 @@ if __name__ == "__main__":
                                  'cert/AmazonRootCA1.pem','cert/5582d73565-certificate.pem.crt',\
                                      'cert/5582d73565-private.pem.key',8883,'Cube')
     aws_connector.connect()
-    aws_connector.subscribe('CubeX_main', exampleCallback)
+    aws_connector.subscribe('/CubeX_main', exampleCallback)
     while True:
         aws_connector.send('/CubeX_main', 'Test_message')
         print('Msg published')
