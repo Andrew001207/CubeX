@@ -4,6 +4,10 @@
 Created on Wed Feb 12 15:57:35 2020
 
 @author: matthiasmoser
+# Edited By Andrew001207 Feb17
+    Removed logging
+    Callbacks are custom
+    Topics handled by another class
 """
 from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
 import logging
@@ -16,15 +20,13 @@ class AwsConnecter:
         
     '''
     def __init__(self, host, rootCAPath, certificatePath, privateKeyPath,\
-                 port, clientId, topic):
+                 port, clientId):
         self.host = host
         self.rootCAPath = rootCAPath
         self.certificatePath = certificatePath
         self.privateKeyPath = privateKeyPath
         self.port = port
         self.clientId = clientId
-        self.topic = topic
-        self.message = None
         
     def connect(self):
         # Init AWSIoTMQTTClient
@@ -44,24 +46,34 @@ class AwsConnecter:
         # Connect and subscribe to AWS IoT
         self.myAWSIoTMQTTClient.connect()
         
-    def send(self, message):
+    def send(self, topic, message):
         messageJson = json.dumps(message)
-        self.myAWSIoTMQTTClient.publish(self.topic, messageJson, 1)
+        self.myAWSIoTMQTTClient.publish(topic, messageJson, 1)
         
-    def recieve(self):
-        self.myAWSIoTMQTTClient.subscribe(self.topic, 1, self.customCallback)
-        
-    def logger(self):
-        self.logger = logging.getLogger("AWSIoTPythonSDK.core")
-        self.logger.setLevel(logging.WARNING)
-        self.streamHandler = logging.StreamHandler()
-        self.formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        self.streamHandler.setFormatter(self.formatter)
-        self.logger.addHandler(self.streamHandler)
-    
-    def customCallback(self, client, userdata, message):
-        self.message = message.payload
-        self.message = str(self.message)
+    def subscribe(self, topic, callback):
 
+        self.myAWSIoTMQTTClient.subscribe(topic, 1, callback)
+
+
+
+if __name__ == "__main__":
+
+    #this is only implimented as a little test
+
+    def exampleCallback(client, userdata, message):
+        print("A message was received")
+        message = message.payload
+        message = str(message)
+        print (message)
+
+    aws_connector = AwsConnecter('a19iauu3f7q9ce-ats.iot.us-west-2.amazonaws.com',\
+                                 'cert/AmazonRootCA1.pem','cert/5582d73565-certificate.pem.crt',\
+                                     'cert/5582d73565-private.pem.key',8883,'Cube')
+    aws_connector.connect()
+    aws_connector.subscribe('/CubeX_main', exampleCallback)
+    while True:
+        aws_connector.send('/CubeX_main', 'Test_message')
+        print('Msg published')
+        time.sleep(1)
 
     

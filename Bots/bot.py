@@ -26,78 +26,45 @@ logger = logging.getLogger(__name__)
 # Read configfile
 config = configparser.ConfigParser()
 
-
 config_filename = ".bot.conf"
 config.read(config_filename)
 
-username = 'kilian'
+username = input('please insert you username')
 bot_token = config[username]['token']
 
 logger.info('Read config')
-
 # Define a few command handlers. These usually take the two arguments update and
 # context. Error handlers also receive the raised TelegramError object in error.
 
+def create_cube(update, context):
+    update.message.replay_text('Please select the number of sides the cube should have')
+    update.massage.from_user()
+#def select_cube()
 
-TASK_NAME, TASK_TEXT, TASK_GROUP, TASK_FINISH = range(4)
-task_list = [] 
+#def create_task() done
+##NOTE: show we use a compositum pattern for task. So we don't have to treat groups differently
 
-class Task():
-    def __init__(self):
-        self.name = ''
-        self.text = ''
-        self.group = ''
-
-
-cur_task = Task()
-
-
-def create_task_name(update, context):
-    update.message.reply_text('Please insert the name of the new Task')
-    return TASK_TEXT
+## different mapping from tasks to sides according to context:
+#def create_context()
+#class cube()
+#    def get_task()
+#    def map_task()
+#    def get_current_side()
+#    def _change_side()
 
 
-def create_task_text(update, context):
-    update.message.reply_text('Please insert a description  of the new Task')
-    cur_task.name = update.message.text
-    return TASK_GROUP
-
-
-#NOTE: show we use a compositum pattern for task. So we don't have to treat groups differently
-def create_task_group(update, context):
-    #TODO: Make it possible to add the Task to more groups
-    update.message.reply_text('Please insert a groupe in with the the new Task should be a part of.')
-    cur_task.text = update.message.text
-    return TASK_FINISH
-
-
-def finish_task_creation(update, context):
-    cur_task.group = update.message.text
-    task_list.append(cur_task)
-    #cur_task = Task() TODO: replace this, so more task can be created
-    update.message.reply_text('The task "%s" has been succesfully created.' % cur_task.name)
-    print(cur_task.name)
-    print(cur_task.text)
-    print(cur_task.group)
-
+def cool(update, context):
+    print('cool')
 
 def start(update, context):
-    update.message.reply_text('Welcome to the cube bot')
-    return TASK_NAME
+    """Send a message when the command /start is issued."""
+    update.message.reply_text('Hi!')
+    context
 
 
 def help(update, context):
     """Send a message when the command /help is issued."""
     update.message.reply_text('Help!')
-
-
-def cancel(update, context):
-    user = update.message.from_user
-    logger.info("User %s canceled the conversation.", user.first_name)
-    update.message.reply_text('Bye! I hope we can talk again some day.',
-                              reply_markup=ReplyKeyboardRemove())
-
-    return ConversationHandler.END
 
 
 def error(update, context):
@@ -106,7 +73,6 @@ def error(update, context):
 
 
 def main():
-
     """Start the bot."""
     # Create the Updater and pass it your bot's token.
     # Make sure to set use_context=True to use the new context based callbacks
@@ -116,24 +82,10 @@ def main():
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
 
-    # Add conversation handler with the states GENDER, PHOTO, LOCATION and BIO
-    conv_handler = ConversationHandler(
-        entry_points=[CommandHandler('start', start)],
-
-        states={
-            TASK_NAME: [MessageHandler(Filters.text, create_task_name)],
-            TASK_TEXT: [MessageHandler(Filters.text, create_task_text)],
-            TASK_GROUP: [MessageHandler(Filters.text, create_task_group)],
-            TASK_FINISH: [MessageHandler(Filters.text, finish_task_creation)]
-        },
-
-        fallbacks=[CommandHandler('cancel', cancel)]
-    )
-
-    # on noncommand i.e message - echo the message on Telegram
-    # dp.add_handler(MessageHandler(Filters.text, echo))
-
-    dp.add_handler(conv_handler)
+    # on different commands - answer in Telegram
+    dp.add_handler(CommandHandler("start", start))
+    dp.add_handler(CommandHandler("help", help))
+    dp.add_handler(CommandHandler("cool", cool))
 
     # log all errors
     dp.add_error_handler(error)
