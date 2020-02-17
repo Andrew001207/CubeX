@@ -1,0 +1,10 @@
+{"cube_list":{
+		"cube_id":{
+				"task_list":{
+						"task":{
+								"name": "first_task",
+								"side": 1
+						}
+				}
+		}
+}

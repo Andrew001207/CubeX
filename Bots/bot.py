@@ -13,32 +13,58 @@ Press Ctrl-C on the command line or send a signal to the process to stop the
 bot.
 """
 
-import logging
+import logging, configparser
 
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from telegram import (ReplyKeyboardMarkup, ReplyKeyboardRemove)
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
 
 logger = logging.getLogger(__name__)
+# Read configfile
+config = configparser.ConfigParser()
 
+config_filename = ".bot.conf"
+config.read(config_filename)
 
+username = input('please insert you username')
+bot_token = config[username]['token']
+
+logger.info('Read config')
 # Define a few command handlers. These usually take the two arguments update and
 # context. Error handlers also receive the raised TelegramError object in error.
+
+def create_cube(update, context):
+    update.message.replay_text('Please select the number of sides the cube should have')
+    update.massage.from_user()
+#def select_cube()
+
+#def create_task() done
+##NOTE: show we use a compositum pattern for task. So we don't have to treat groups differently
+
+## different mapping from tasks to sides according to context:
+#def create_context()
+#class cube()
+#    def get_task()
+#    def map_task()
+#    def get_current_side()
+#    def _change_side()
+
+
+def cool(update, context):
+    print('cool')
+
 def start(update, context):
     """Send a message when the command /start is issued."""
     update.message.reply_text('Hi!')
+    context
 
 
 def help(update, context):
     """Send a message when the command /help is issued."""
     update.message.reply_text('Help!')
-
-
-def echo(update, context):
-    """Echo the user message."""
-    update.message.reply_text(update.message.text)
 
 
 def error(update, context):
@@ -51,7 +77,7 @@ def main():
     # Create the Updater and pass it your bot's token.
     # Make sure to set use_context=True to use the new context based callbacks
     # Post version 12 this will no longer be necessary
-    updater = Updater("1087259229:AAF7GYHnAQ9GrGFDQRc0KU6M6Hj0K1XS-2g", use_context=True)
+    updater = Updater(bot_token, use_context=True)
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
@@ -59,9 +85,7 @@ def main():
     # on different commands - answer in Telegram
     dp.add_handler(CommandHandler("start", start))
     dp.add_handler(CommandHandler("help", help))
-
-    # on noncommand i.e message - echo the message on Telegram
-    dp.add_handler(MessageHandler(Filters.text, echo))
+    dp.add_handler(CommandHandler("cool", cool))
 
     # log all errors
     dp.add_error_handler(error)
