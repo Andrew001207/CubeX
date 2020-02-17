@@ -131,7 +131,7 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-#sql credentials
+#configuration
 config.ini
 
 #IDE
