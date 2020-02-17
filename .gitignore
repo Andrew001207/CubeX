@@ -142,4 +142,5 @@ cert/*
 cert/
 Bots/.bot.conf
 #Database
-.database.ini
+.config.ini
+
