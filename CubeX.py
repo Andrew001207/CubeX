@@ -7,20 +7,56 @@ Created on Fri Feb 17 11:34:30 2020
 # Write edits here:
 """
 from AwsConnector import AwsConnecter
+from configparser import ConfigParser
 
 class CubeX:
-    def __init__(self, cubeId):
-        self.connector = 
 
+    def __init__(self, cubeId):
+        self.cubeId = cubeId
+        self.clientId = 'Manager_' + str(cubeId)
+        conf = self.loadAWSConfig()
+        self.connection = AwsConnecter(
+                                        conf['host'],
+                                        conf['rootcapath'],
+                                        conf['certificatepath'],
+                                        conf['privatekeypath'],
+                                        int(conf['port']),
+                                        self.clientId)
+        try:
+            self.connection.connect()
+            print(self.clientId + ' Successfully connected')
+        except Exception as e:
+            print(e.message)
+
+        # TODO Connect database instance
+
+    def loadAWSConfig(self, path='config.ini', section='AwsConnector'):
+        # create a parser
+        parser = ConfigParser()
+        # read config file
+        parser.read(path)
+        # get section, default to postgresql
+        conf = {}
+        if parser.has_section(section):
+            params = parser.items(section)
+            for param in params:
+                conf[param[0]] = param[1]
+        else:
+            raise Exception('Section {0} not found in the {1} file'.format(section, path))
+        return conf
+
+    # TODO Implement following methods
+
+    def setTask(self, group, name, side):
         pass
-    def setTask(self,):
-        pass
-    def deleteTask(self,):
+    def deleteTask(self, group, name):
         pass
     def loadState(self):
         pass
-    def taskMessageAction(self,)
+    def taskMessageAction(self):
+        #Action to be performed when a message is received at /Cubex/<CubeId>/Tasks
         pass
 
 if __name__ == "__main__":
     print("Test run")
+    a = CubeX(100)
