@@ -132,7 +132,7 @@ dmypy.json
 .pyre/
 
 #sql credentials
-database.ini
+config.ini
 
 #IDE
 .idea/

@@ -1,0 +1,63 @@
+{
+    "_comment": "This is an example file to describe a package sent from the software to the cube",
+    "current_task": {
+                        "group":"work",
+                        "task":"debugging"
+                    },
+    "groups": ["work", "home"],
+    "work":{
+                "tasks": ["coding","debugging", "mmetup", "Fourth_task", "Fifith_task", "Sixth_task"],
+                "coding":{
+							"side": 0,
+                            "EXTRA_INFO":999
+					    },
+                "debugging":{
+							"side": 1,
+                            "EXTRA_INFO":999
+					    },
+                "meetup":{
+							"side": 2,
+                            "EXTRA_INFO":999
+					    },
+                "Fourth_task":{
+							"side": 3,
+                            "EXTRA_INFO":999
+					    },
+                "Fifith_task":{
+							"side": 4,
+                            "EXTRA_INFO":999
+					    },
+                "Sixth_task":{
+							"side": 5,
+                            "EXTRA_INFO":999
+					    }
+           },
+    "home":{
+                "tasks": ["cooking","sleeping", "walking", "eating", "Fifith_task", "Sixth_task"],
+                "cooking":{
+							"side": 0,
+                            "EXTRA_INFO":999
+					    },
+                "sleeping":{
+							"side": 1,
+                            "EXTRA_INFO":999
+					    },
+                "walking":{
+							"side": 2,
+                            "EXTRA_INFO":999
+					    },
+                "eating":{
+							"side": 3,
+                            "EXTRA_INFO":999
+					    },
+                "Fifith_task":{
+							"side": 4,
+                            "EXTRA_INFO":999
+					    },
+                "Sixth_task":{
+							"side": 5,
+                            "EXTRA_INFO":999
+					    }
+           }
+    
+}
