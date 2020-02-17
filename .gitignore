@@ -141,6 +141,7 @@ cert/*
 #AWS Certificates
 cert/
 Bots/.bot.conf
+bots/.bot.conf
 
 #cubexproject
 .cert/
