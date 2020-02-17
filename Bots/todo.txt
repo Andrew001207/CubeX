@@ -1,0 +1,16 @@
+# class CubeX
+#     set / add task(groupe, name, side)
+#       submit json to aws
+#       and change cube
+#     delete task(groupe, name)
+#     load state(cube_id)
+#     select_cube_with_photo(..)
+#     massage_action(msg)
+# class AWS_mqtt_client
+#    string send to cube : '/CubeX/Cube_id/task'
+#    string send to cube : '/CubeX/Cube_id/state'
+#    string send to cube : '/CubeX/Cube_id/service'
+# class database():
+#   ...
+# telegram_bot
+#	connect_cube(cube_id)
