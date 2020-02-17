@@ -76,6 +76,28 @@ def create_task(update, context):
     start_conversation(update, context, ["Enter name"])
 
 
+def map_task_conv(update, context):
+    """Map a given Task to a Side of the current Cube """
+    if not curr_cube_id:
+        #TODO: make command_names not hardcoded:
+        # command_name = command_dict['select_cube']
+        start_conversation(update, context, ['No Cube selected, please run the command "\\sc"'])
+        return
+    
+    def process_results(answers):
+        """Update selected cube"""
+        task_name = answers[0]
+        cube_side = answers[1]
+        _map_task(curr_cube_id, task_name, cube_side)
+
+    start_conversation(update, context, ["Please insert the name of the task", "Please insert the number of the side of the cube"])
+
+def _map_task(cube, task, side):
+    #TODO: map task to side of cube
+    pass
+
+
+
 def error(update, context):
     """Log Errors caused by Updates."""
     logger.warning('Update with id: "%s" caused error "%s"', update['update_id'], context.error)
