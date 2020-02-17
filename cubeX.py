@@ -6,9 +6,9 @@ Created on Fri Feb 17 11:34:30 2020
 @author: Andrew001207
 # Write edits here:
 """
-from sql.AwsConnector import AwsConnecter
+from sql.aws_Connector import AwsConnecter
 from configparser import ConfigParser
-from sql.SqlConnector import set_task, delete_task, load_state
+from sql.sql_Connector import set_task, delete_task, load_state
 
 
 class CubeX:
