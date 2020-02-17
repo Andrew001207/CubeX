@@ -46,11 +46,14 @@ def start(update, context):
 
 def help(update, context):
     """Send a message when the command /help is issued."""
-    update.message.reply_text('Help!')
+    update.message.reply_text("""You can use the following commands:
+    /help - See available commands
+    /ct - Create a new task
+    /sc - Select a cube""")
 
 def select_cube(update, context):
     """Select currently used Cube"""
-    
+
     def process_results(answers):
         """Update selected cube"""
         curr_cube_id = answers[0]
@@ -128,6 +131,11 @@ def create_conv_handler(questions, process_results=lambda answers: None):
         context.dispatcher.remove_handler(conv_handler)
         return ConversationHandler.END
 
+    def i_wrong_input(update, context):
+        update.message.reply_text("Wrong input, command stopped.")
+        context.dispatcher.remove_handler(conv_handler)
+        return ConversationHandler.END
+
     conv_handlers = [] #Handlers for each state of the ConversationHandler
 
     for i in range(len(questions)-1):
@@ -154,7 +162,7 @@ def create_conv_handler(questions, process_results=lambda answers: None):
 
         states=dict(zip(range(len(questions)), conv_handlers)), #Map each handler to the numbers 0..x
 
-        fallbacks=[CommandHandler("error", error)]
+        fallbacks=[MessageHandler(Filters.command, i_wrong_input)]
     )
 
     return conv_handler
