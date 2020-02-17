@@ -6,7 +6,7 @@
                     },
     "groups": ["work", "home"],
     "work":{
-                "tasks": ["coding","debugging", "mmetup", "Fourth_task", "Fifith_task", "Sixth_task"],
+                "tasks": ["coding","debugging", "meetup", "Fourth_task", "Fifith_task", "Sixth_task"],
                 "coding":{
 							"side": 0,
                             "EXTRA_INFO":999

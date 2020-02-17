@@ -2,7 +2,7 @@
 CREATE TABLE Task(
 	Task_Name VarChar(255) NOT NULL,
 	Group_name VarChar(255) NOT NULL,
-	Cube_Id integer NOT NULL
+	Cube_Id integer NOT NULL,
 	Primary KEY (Group_name, Task_Name, Cube_ID)
 	
 );
