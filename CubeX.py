@@ -6,8 +6,10 @@ Created on Fri Feb 17 11:34:30 2020
 @author: Andrew001207
 # Write edits here:
 """
-from AwsConnector import AwsConnecter
+from sql.AwsConnector import AwsConnecter
 from configparser import ConfigParser
+from sql.SqlConnector import set_task, delete_task, load_state
+
 
 class CubeX:
 
@@ -48,10 +50,13 @@ class CubeX:
     # TODO Implement following methods
 
     def setTask(self, group, name, side):
+        set_task(self.cubeId, side, name, group)
         pass
     def deleteTask(self, group, name):
+        delete_task(self.cubeId, group, name)
         pass
     def loadState(self):
+        load_state(self.cubeId)
         pass
     def taskMessageAction(self):
         #Action to be performed when a message is received at /Cubex/<CubeId>/Tasks
