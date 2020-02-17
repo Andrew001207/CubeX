@@ -7,7 +7,6 @@ Created on Wed Feb 12 15:57:35 2020
 """
 from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
 import logging
-import time
 import json
 
 class AwsConnecter:

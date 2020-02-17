@@ -16,20 +16,17 @@ streamHandler.setFormatter(formatter)
 logger.addHandler(streamHandler)
 
 
-def config(filename='database.ini', section='postgresql'):
+def config(filename='database.ini', section= 'postgresql'):
     # create a parser
     parser = ConfigParser()
     # read config file
     parser.read(filename)
  
     # get section, default to postgresql
-    db = {}
-    if parser.has_section(section):
-        params = parser.items(section)
-        for param in params:
-            db[param[0]] = param[1]
-    else:
-        raise Exception('Section {0} not found in the {1} file'.format(section, filename))
+    db = {}    
+    params = parser.items(section)
+    for param in params:
+         db[param[0]] = param[1]
     return db
 
 
@@ -72,6 +69,11 @@ def execute_command(cmd):
     conn.close()
     return
 
-def create_task(task_name,task_group):
-    execute_command('inset into task values({},{})'.format(task_name, task_group))
+def create_task(task_name,task_group): 
+    #abfangen falls gruppe noch nicht vorhanden. abfangen falls Task schon in Datenbank
+    group_id = fetch_data("select group_ID from Task_group where group_name = '{}'".format(task_group))[0][0]
+    execute_command("insert into task values ('{}', {});".format(task_name, group_id))
+    
+create_task('schlafe', 'work')
+
 
