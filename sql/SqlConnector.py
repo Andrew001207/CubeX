@@ -74,6 +74,7 @@ def create_task(task_name,group_name):
         execute_command("insert into task values ('{}', {});".format(task_name, group_name))
     except:
         logger.warning("task schon vorhanden")
+
 def create_cube():
     execute_command("insert into cube values (default);")
 
