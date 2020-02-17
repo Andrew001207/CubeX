@@ -114,13 +114,3 @@ def get_all_group_name():
 
 def get_all_cube_id():
     return fetch_data("select cube_ID from cube")
-
-
-
-print(get_all_group_name())
-
-
-
-
-
-

@@ -61,7 +61,3 @@ class CubeX:
     def taskMessageAction(self):
         #Action to be performed when a message is received at /Cubex/<CubeId>/Tasks
         pass
-
-if __name__ == "__main__":
-    print("Test run")
-    a = CubeX(100)
