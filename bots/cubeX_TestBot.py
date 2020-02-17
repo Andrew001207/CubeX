@@ -144,7 +144,7 @@ def start_conversation(update, context, questions, process_results=lambda answer
     #Store and clear handlery temporaryly
     handlers_tmp = context.dispatcher.handlers[0]
     
-    def i_start(update, bot):
+    def i_start(bot, update):
         """
         Entry function for ConversationHandler asking the User the first question
         
