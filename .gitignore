@@ -131,9 +131,9 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+#configuration
+config.ini
 
-#database
-database.ini
 #IDE
 .idea/
 #cert
@@ -141,3 +141,6 @@ cert/*
 #AWS Certificates
 cert/
 Bots/.bot.conf
+
+#cubexproject
+.cert/

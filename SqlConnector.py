@@ -9,12 +9,15 @@ import psycopg2
 import logging
 
 logger = logging.getLogger("sqlconnecter")
+<<<<<<< HEAD
+logger.setLevel(logging.INFO)
+=======
 logger.setLevel(logging.WARNING)
+>>>>>>> origin/Momo
 streamHandler = logging.StreamHandler()
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 streamHandler.setFormatter(formatter)
 logger.addHandler(streamHandler)
-
 
 def config(filename='database.ini', section='postgresql'):
     # create a parser
