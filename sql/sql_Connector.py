@@ -112,30 +112,32 @@ def execute_Scripts_From_File(filename):
             print("Command skipped: ", msg)
 
 
-def create_task_from_json(json_file):
+def create_task_from_json(file_path):
     """
     takes the json file and creates all task that are in it
 
     :param json_file: json_file
     :return:
     """
-    data = json.load(json_file)
-    for group in data['groups']:
-        for task in data[group]['tasks']:
-            create_task(1, task, group)
+    with open(file_path) as json_file:
+        data = json.load(json_file)
+        for group in data['groups']:
+            for task in data[group]['tasks']:
+                create_task(1, task, group)
 
-def set_task_on_side(cube_id, json_file):
+def set_task_on_side(cube_id, filepath):
     """
     takes the json file to write tasks into database
 
     :param cube_id: integer
-    :param json_file: json_file
+    :param filepath: json_file
     :return:
     """
-    data = json.load(json_file)
-    for group in data['groups']:
-        for task in data[group]['tasks']:
-            set_task(cube_id, data[group][task]['side'], task, group)
+    with open(filepath) as json_file:
+        data = json.load(json_file)
+        for group in data['groups']:
+            for task in data[group]['tasks']:
+                set_task(cube_id, data[group][task]['side'], task, group)
 
 def create_task(cube_id, task_name, group_name):
     """
@@ -173,8 +175,10 @@ def set_task(cube_id, side_id, task_name, group_name):
     #creates and sets tasks if wanted
     #create_task(cube_id ,task_name, group_name)
     try:
+        print(cube_id,side_id,task_name,group_name)
         execute_command("insert into side values ({},{},'{}','{}');".format(side_id, cube_id, task_name, group_name))
     except:
+        print("sides vorhanden update side")
         execute_command("update side set task_name = '{}' , group_name = '{}' where side_id = {} and cube_id = {};" \
                         .format(task_name, group_name, side_id, cube_id))
 
@@ -191,9 +195,22 @@ def delete_task(cube_id, group_name, task_name):
         "delete from task where(cube_Id = {} and group = '{}' and task = '{}');".format(cube_id, group_name, task_name))
 
 
-def load_state(cube_id):
+def write_cube_state_json(cube_id):
     sides = fetch_data("select * from side where Cube_ID = {}".format(cube_id))
+    data = {}
+    data['side']= []
+    for i in sides:
 
+        data['side'].append(
+            {
+                'side': i[0],
+                'cube_id': i[1],
+                'task': i[2],
+                'group': i[3]
+
+            }
+        )
+    return data
 
 def get_all_tasks():
     return fetch_data("select task_name from task;")
@@ -205,3 +222,4 @@ def get_all_group_name():
 
 def get_all_cube_id():
     return fetch_data("select cube_ID from cube")
+
