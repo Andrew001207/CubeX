@@ -8,7 +8,7 @@ Created on Fri Feb 17 11:34:30 2020
 """
 from sql.aws_Connector import AwsConnecter
 from configparser import ConfigParser
-from sql.sql_Connector import set_task, delete_task, load_state
+from sql.sql_Connector import set_task, delete_task, write_cube_state_json
 
 
 class CubeX:
@@ -56,8 +56,14 @@ class CubeX:
         delete_task(self.cubeId, group, name)
         pass
     def loadState(self):
-        load_state(self.cubeId)
+        json = write_cube_state_json(self.cubeId)
+        self.connection.send('/CubeX/{}'.format(self.cubeId), json)
         pass
     def taskMessageAction(self):
         #Action to be performed when a message is received at /Cubex/<CubeId>/Tasks
         pass
+
+if __name__ == "__main__":
+    print("Test run")
+    a = CubeX(1)
+    a.loadState()
