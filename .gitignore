@@ -131,3 +131,6 @@ dmypy.json
 #AWS Certificates
 cert/
 database.ini
+
+#Test directory
+bot/test/
