@@ -47,37 +47,57 @@ and insert your username and token ther
 logger.info('Read config')
 
 class Conv_automat():
-    '''example: 
-    state_name = ('question', {'maping of answers':'to new state'}'''
-    stats = {'start':('do you have a cube', {'ja':self.select_cube, 'nein':self.create_cube,'else':}),
-            'select_cube':(lamda : self.get_cube_list())
-            }
-    state_texts = {self.start:'give the task a name: ',
-            self.group:'give the task a group: '}
     def __init__(self):
-        self.last_state = None
+        #self.last_state = None
         self.curr_state = self.start
-        self.next_state = self.group
+        self.next_state = self.name
+
+
+        self.state_texts = {
+                self.side:'please choose a side of the cube',
+                self.name:'give the task a name: ',
+                self.group:'give the task a group: ',
+                self.end : 'task creation finished!'}
+
     def interpret_text(self, update, context):
         answer = update.message.text
-        self.curr_state(answer) # her the function has to set the next_state
+        
+        self.curr_state(answer) # here the function has to set the next_state
 
-        if isinstanc(state_texts[self.next_state], str):
-            update.message.reply_text = state_texts[self.next_state]
+        befor = self.state_texts[self.next_state]
+
+        if isinstance(befor, str):
+            update.message.reply_text = befor
+        #TODO: elif callable(befor):
         else:
-            update.message.reply_text = state_texts[self.next_state]()
+            update.message.reply_text = befor()
 
         self.curr_state = self.next_state
         self.next_state = None # the function will have to set this, based of the users answer or her desision
 
 
     def start(self, answer):
+        
+        self.next = self.name
 
-        return ('do you have a cube', {'ja':self.select_cube, 'nein':self.create_cube})
-    def select_cube(self):
-        return (None, {'default': self.end_conv})
+    def name(self, answer):
+        print(f'this is the name of the task {answer}')
+        
+        self.next = self.group
+        
+    def group(self, answer):
+        print(f'this is the name of the task {answer}')
 
-    def end_conv(self)
+        self.next = self.side
+
+    def side(self, answer):
+        print(f'this is the name of the task {answer}')
+
+        self.next = self.end
+        
+    def end(self):
+        pass
+
 def main():
     """Start the bot."""
     # Create the Updater and pass it your bot's token.
@@ -91,19 +111,11 @@ def main():
     # create a instanc of the conversation automat:
     ca = Conv_automat()
     # on different commands - answer in Telegram
-    dp.add_handler(MessageHandler(Filters.regex('^[a-zA-Z0-9]'), ca.interpret_text)
-    dp.add_handler(CommandHandler(Filters.regex('^[a-zA-Z0-9]'), ca.interpret_command)
-    dp.add_handler(CommandHandler("start", start))
-    dp.add_handler(CommandHandler("help", help))
-
-    # command to create new task
-    dp.add_handler(CommandHandler("ct", create_task))
-
-    # command to select current cube
-    dp.add_handler(CommandHandler("sc", select_cube))
+    dp.add_handler(MessageHandler(Filters.regex('^[a-zA-Z0-9]'), ca.interpret_text))
+    #dp.add_handler(CommandHandler("help", help))
 
     # log all errors
-    dp.add_error_handler(error)
+    # dp.add_error_handler(error)
 
     # Start the Bot
     updater.start_polling()
