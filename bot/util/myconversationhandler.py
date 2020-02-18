@@ -20,13 +20,13 @@
 
 import logging
 import warnings
+import re
 from threading import Lock
 
 from telegram import Update
 from telegram.ext import (Handler, CallbackQueryHandler, InlineQueryHandler,
-                          ChosenInlineResultHandler, CallbackContext)
+                          ChosenInlineResultHandler, CallbackContext, MessageHandler, Filters)
 from telegram.utils.promise import Promise
-
 
 class _ConversationTimeoutContext(object):
     def __init__(self, conversation_key, update, dispatcher):
@@ -140,9 +140,11 @@ class MyConversationHandler(Handler):
     WAITING = -3
     """:obj:`int`: Used as a constant to handle state when a conversation is still waiting on the
     previous ``@run_sync`` decorated running handler to finish."""
+    STOP_ALL = -4
 
     def __init__(self,
-                 entry_points,
+                 update, context, init_response,
+                 #entry_points,
                  states,
                  fallbacks,
                  allow_reentry=False,
@@ -154,9 +156,13 @@ class MyConversationHandler(Handler):
                  persistent=False,
                  map_to_parent=None):
 
-        self.entry_points = entry_points
+        #self.entry_points = entry_points
         self.states = states
         self.fallbacks = fallbacks
+
+        self.context = context
+        self.init_response = init_response
+        self.update = update
 
         self.allow_reentry = allow_reentry
         self.per_user = per_user
@@ -187,7 +193,7 @@ class MyConversationHandler(Handler):
                           "since message IDs are not globally unique.")
 
         all_handlers = list()
-        all_handlers.extend(entry_points)
+        #all_handlers.extend(entry_points)
         all_handlers.extend(fallbacks)
 
         for state_handlers in states.values():
@@ -214,6 +220,8 @@ class MyConversationHandler(Handler):
                                   "since inline queries have no chat context.")
                     break
 
+        print("States after creaton: ", self.states)
+
     @property
     def persistence(self):
         return self._persistence
@@ -224,7 +232,7 @@ class MyConversationHandler(Handler):
         # Set persistence for nested conversations
         for handlers in self.states.values():
             for handler in handlers:
-                if isinstance(handler, ConversationHandler):
+                if isinstance(handler, MyConversationHandler):
                     handler.persistence = self.persistence
 
     @property
@@ -237,7 +245,7 @@ class MyConversationHandler(Handler):
         # Set conversations for nested conversations
         for handlers in self.states.values():
             for handler in handlers:
-                if isinstance(handler, ConversationHandler):
+                if isinstance(handler, MyConversationHandler):
                     handler.conversations = self.persistence.get_conversations(handler.name)
 
     def _get_key(self, update):
@@ -311,23 +319,25 @@ class MyConversationHandler(Handler):
         handler = None
 
         # Search entry points for a match
-        if state is None or self.allow_reentry:
-            for entry_point in self.entry_points:
-                check = entry_point.check_update(update)
-                if check is not None and check is not False:
-                    handler = entry_point
-                    break
+        # if state is None or self.allow_reentry:
+        #     for entry_point in self.entry_points:
+        #         check = entry_point.check_update(update)
+        #         if check is not None and check is not False:
+        #             handler = entry_point
+        #             break
 
-            else:
-                if state is None:
-                    return None
+        #     else:
+        #         if state is None:
+        #             return None
 
         # Get the handler list for current state, if we didn't find one yet and we're still here
         if state is not None and not handler:
             handlers = self.states.get(state)
-
+            print("My states: ", self.states)
+            print("Checking if ConvHandler with state ", state, " in handlers: ", handlers)
             for candidate in (handlers or []):
                 check = candidate.check_update(update)
+                print("Candidate ", candidate, " with result ", check)
                 if check is not None and check is not False:
                     handler = candidate
                     break
@@ -363,7 +373,14 @@ class MyConversationHandler(Handler):
                 timeout_job.schedule_removal()
 
         new_state = handler.handle_update(update, dispatcher, check_result, context)
-
+        print("New state ", new_state, " for Handler ", self.name)
+        print("Current handlers: ", self.context.dispatcher.handlers)
+        ####################################################################
+        handlers = self.states.get(new_state) 
+        if handlers and isinstance(handlers[0], MyConversationHandler):
+                i = handlers[0].start_handler()
+                print("Started ConvHandler in ConvHandler, ", i)
+        ####################################################################
         with self._timeout_jobs_lock:
             if self.conversation_timeout and new_state != self.END:
                 # Add the new timeout job
@@ -372,13 +389,15 @@ class MyConversationHandler(Handler):
                     context=_ConversationTimeoutContext(conversation_key, update, dispatcher))
 
         if isinstance(self.map_to_parent, dict) and new_state in self.map_to_parent:
+            print("Trying to map back...")
             self.update_state(self.END, conversation_key)
+            print("Returning: ", self.map_to_parent.get(new_state))
             return self.map_to_parent.get(new_state)
         else:
             self.update_state(new_state, conversation_key)
 
     def update_state(self, new_state, key):
-        if new_state == self.END:
+        if new_state == self.END or new_state == self.STOP_ALL:
             with self._conversations_lock:
                 if key in self.conversations:
                     # If there is no key in conversations, nothing is done.
@@ -423,3 +442,11 @@ class MyConversationHandler(Handler):
             if check is not None and check is not False:
                 handler.handle_update(context.update, context.dispatcher, check, callback_context)
         self.update_state(self.END, context.conversation_key)
+
+    def start_handler(self):
+
+        def _start(bot, update):
+            update.message.reply_text(self.init_response)
+            return 0
+
+        self.handle_update(self.update, self.context.dispatcher, (self._get_key(self.update), MessageHandler(Filters.regex('^$'), _start),re.match('^$','')))
