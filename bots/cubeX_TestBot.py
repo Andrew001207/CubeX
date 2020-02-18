@@ -47,13 +47,6 @@ and insert your username and token ther
 logger.info('Read config')
 
 
-class Conversation_automat():
-    _machine = automat.MethodicalMachine()
-    def __init__(self):
-        pass
-    @_machine.state()
-    def end(self):
-        pass
 # Define a few command handlers. These usually take the two arguments update and
 # context. Error handlers also receive the raised TelegramError object in error.
 def start(update, context):
@@ -110,6 +103,42 @@ def error(update, context):
     """Log Errors caused by Updates."""
     logger.warning('Update with id: "%s" caused error "%s"', update['update_id'], context.error)
 
+class Conv_automat():
+    _machine = automat.MethodicalMachine()
+
+    def __init__(self, parent=None):
+        self.state = 'start'
+        self.parent = parent
+        self.answer = None
+
+    @_machine.state()
+    def got_name(self):
+        '''got a name form user'''
+        print('got a name')
+
+    @_machine.state()
+    def got_group(self):
+        print('got group')
+
+    @_machine.input()
+    def input(self):
+
+    @_machine.input()
+    def interpret_text(self):
+        #self.answer = update.message.text
+
+    @_machine.output()
+    def _process_answer(self, answer):
+        self._process_answer(update.message.text)
+
+
+    @_machine.input()
+    def interpret_command(self, answer):
+        
+    @_machine.state()
+    def end(self):
+        pass
+
 
 def main():
     """Start the bot."""
@@ -121,7 +150,11 @@ def main():
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
 
+    # create a instanc of the conversation automat:
+    ca = Conv_automat()
     # on different commands - answer in Telegram
+    dp.add_handler(MessageHandler(Filters.regex('^[a-zA-Z0-9]'), ca.interpret_text)
+    dp.add_handler(CommandHandler(Filters.regex('^[a-zA-Z0-9]'), ca.interpret_command)
     dp.add_handler(CommandHandler("start", start))
     dp.add_handler(CommandHandler("help", help))
 
