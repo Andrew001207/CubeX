@@ -57,46 +57,60 @@ class Conv_automat():
                 self.side:'please choose a side of the cube',
                 self.name:'give the task a name: ',
                 self.group:'give the task a group: ',
-                self.end : 'task creation finished!'}
+                self.end : 'task creation finished!',
+                'error':self.error
+                }
 
     def interpret_text(self, update, context):
         answer = update.message.text
         
         self.curr_state(answer) # here the function has to set the next_state
 
-        befor = self.state_texts[self.next_state]
+        try:
+            befor = self.state_texts[self.next_state]
+        except KeyError as e:
+            befor = self.state_texts['error']
 
         if isinstance(befor, str):
-            update.message.reply_text = befor
+            reply = befor
         #TODO: elif callable(befor):
         else:
-            update.message.reply_text = befor()
+            reply = befor()
+
+        update.message.reply_text = reply
+
+        logger.debug(f'reply massage for user: {reply}')
 
         self.curr_state = self.next_state
         self.next_state = None # the function will have to set this, based of the users answer or her desision
 
+        logger.debug(f'changed state to {self.curr_state}')
 
     def start(self, answer):
         
-        self.next = self.name
+        self.next_state = self.name
 
     def name(self, answer):
         print(f'this is the name of the task {answer}')
         
-        self.next = self.group
+        self.next_state = self.group
         
     def group(self, answer):
         print(f'this is the name of the task {answer}')
 
-        self.next = self.side
+        self.next_state = self.side
 
     def side(self, answer):
         print(f'this is the name of the task {answer}')
 
-        self.next = self.end
+        self.next_state = self.end
         
-    def end(self):
+    def end(self, _):
         pass
+
+    def error(self, _):
+        logger.warning('not handelt state')
+
 
 def main():
     """Start the bot."""
