@@ -50,13 +50,3 @@ def insert_into_database(json_data):
         json_array = decode(json_data)
         execute_command("insert into event Values(default ,{},clock_timestamp(),clock_timestamp());".format(json_array[2]))
 
-if __name__ == "__main__":
-    aws_con = connect_to_aws()
-    aws_con.recieve()
-    while True:
-        time.sleep(1)
-        if aws_con.message is not None:
-            print("i am not None")
-            insert_into_database(aws_con.message) 
-            aws_con.message = None
-            

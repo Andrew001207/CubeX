@@ -9,7 +9,7 @@ Created on Fri Feb 17 11:34:30 2020
 from sql.aws_Connector import AwsConnecter
 from configparser import ConfigParser
 from sql.sql_Connector import set_task, delete_task, write_cube_state_json
-
+import time
 
 class CubeX:
 
@@ -59,7 +59,9 @@ class CubeX:
         json = write_cube_state_json(self.cubeId)
         self.connection.send('/CubeX/{}'.format(self.cubeId), json)
         pass
-    def taskMessageAction(self):
+    def taskMessageAction(self, client, userdata, message):
+        print("i do something")
+        print(message.payload)
         #Action to be performed when a message is received at /Cubex/<CubeId>/Tasks
         pass
 
@@ -67,3 +69,6 @@ if __name__ == "__main__":
     print("Test run")
     a = CubeX(1)
     a.loadState()
+    a.connection.subscribe('/CubeX/{}'.format(a.cubeId), a.taskMessageAction)
+    while True:
+        time.sleep(1)

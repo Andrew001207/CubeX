@@ -51,7 +51,6 @@ class AwsConnecter:
         self.myAWSIoTMQTTClient.publish(topic, messageJson, 1)
         
     def subscribe(self, topic, callback):
-
         self.myAWSIoTMQTTClient.subscribe(topic, 1, callback)
 
 
