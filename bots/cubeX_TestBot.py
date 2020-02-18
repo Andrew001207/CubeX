@@ -46,100 +46,38 @@ and insert your username and token ther
 
 logger.info('Read config')
 
-
-# Define a few command handlers. These usually take the two arguments update and
-# context. Error handlers also receive the raised TelegramError object in error.
-def start(update, context):
-    """Send a message when the command /start is issued."""
-    update.message.reply_text('Hi!')
-
-
-def help(update, context):
-    """Send a message when the command /help is issued."""
-
-    update.message.reply_text("""You can use the following commands:
-    /help - See available commands
-    /ct - Create a new task
-    /sc - Select a cube""")
-    
-def select_cube(update, context):
-    """Select currently used Cube"""
-
-    def process_results(answers):
-        """Update selected cube"""
-        curr_cube_id = answers[0]
-
-    start_conversation(update, context, ["Enter Cube_ID"], process_results)
-
-
-def create_task(update, context):
-    """Create a new task for the cube"""
-    start_conversation(update, context, ["Enter name"])
-
-
-def map_task_conv(update, context):
-    """Map a given Task to a Side of the current Cube """
-    if not curr_cube_id:
-        #TODO: make command_names not hardcoded:
-        # command_name = command_dict['select_cube']
-        start_conversation(update, context, ['No Cube selected, please run the command "\\sc"'])
-        return
-    
-    def process_results(answers):
-        """Update selected cube"""
-        task_name = answers[0]
-        cube_side = answers[1]
-        _map_task(curr_cube_id, task_name, cube_side)
-
-    start_conversation(update, context, ["Please insert the name of the task", "Please insert the number of the side of the cube"])
-
-def _map_task(cube, task, side):
-    #TODO: map task to side of cube
-    pass
-
-
-
-def error(update, context):
-    """Log Errors caused by Updates."""
-    logger.warning('Update with id: "%s" caused error "%s"', update['update_id'], context.error)
-
 class Conv_automat():
-    _machine = automat.MethodicalMachine()
+    '''example: 
+    state_name = ('question', {'maping of answers':'to new state'}'''
+    stats = {'start':('do you have a cube', {'ja':self.select_cube, 'nein':self.create_cube,'else':}),
+            'select_cube':(lamda : self.get_cube_list())
+            }
+    state_texts = {self.start:'give the task a name: ',
+            self.group:'give the task a group: '}
+    def __init__(self):
+        self.last_state = None
+        self.curr_state = self.start
+        self.next_state = self.group
+    def interpret_text(self, update, context):
+        answer = update.message.text
+        self.curr_state(answer) # her the function has to set the next_state
 
-    def __init__(self, parent=None):
-        self.state = 'start'
-        self.parent = parent
-        self.answer = None
+        if isinstanc(state_texts[self.next_state], str):
+            update.message.reply_text = state_texts[self.next_state]
+        else:
+            update.message.reply_text = state_texts[self.next_state]()
 
-    @_machine.state()
-    def got_name(self):
-        '''got a name form user'''
-        print('got a name')
-
-    @_machine.state()
-    def got_group(self):
-        print('got group')
-
-    @_machine.input()
-    def input(self):
-
-    @_machine.input()
-    def interpret_text(self):
-        #self.answer = update.message.text
-
-    @_machine.output()
-    def _process_answer(self, answer):
-        self._process_answer(update.message.text)
+        self.curr_state = self.next_state
+        self.next_state = None # the function will have to set this, based of the users answer or her desision
 
 
-    @_machine.input()
-    def interpret_command(self, answer):
-        
-    @_machine.state()
-    def end(self):
-        pass
+    def start(self, answer):
 
+        return ('do you have a cube', {'ja':self.select_cube, 'nein':self.create_cube})
+    def select_cube(self):
+        return (None, {'default': self.end_conv})
 
+    def end_conv(self)
 def main():
     """Start the bot."""
     # Create the Updater and pass it your bot's token.
@@ -174,89 +112,6 @@ def main():
     # SIGTERM or SIGABRT. This should be used most of the time, since
     # start_polling() is non-blocking and will stop the bot gracefully.
     updater.idle()
-
-
- ###################################################### Helpers #######################################################
-
-def start_conversation(update, context, questions, process_results=lambda answers: None):
-    """Creates and returns a ConversationHandler asking the User the given questions"""
-    answers = [] #Save Useres answers
-
-    #Store and clear handlery temporaryly
-    handlers_tmp = context.dispatcher.handlers[0]
-    
-    def i_start(bot, update):
-        """
-        Entry function for ConversationHandler asking the User the first question
-        
-        Returns:
-        First state of the ConversationHandler for next question
-        """
-        update.message.reply_text(questions[0])
-        return 0
-
-    def i_end(update, context):
-        """
-        Final function for the ConversationHandler processing the Users whole input and clearing up the handlers
-
-        Returns:
-        End state for the ConversationHandler to stop
-        """
-        answers.append(update.message.text)
-        process_results(answers)
-        update.message.reply_text(f'Answers: {str(answers)}')
-        #Reset handlers
-        restore_handlers(context, handlers_tmp)
-        return ConversationHandler.END
-
-    def i_wrong_input(update, context):
-        update.message.reply_text("Wrong input, command stopped.")
-        restore_handlers(context, handlers_tmp)
-        return ConversationHandler.END
-
-    conv_handlers = [] #Handlers for each state of the ConversationHandler
-
-    for i in range(len(questions)-1):
-
-        def i_ask_answer_funtion(update, context):
-            """
-            Funtion to store Useres last answer and ask the next question
-
-            Returns:
-            Next state for the ConversationHandler
-            """
-            answers.append(update.message.text)
-            update.message.reply_text(questions[i+1])
-            return i+1
-        
-        conv_handlers.append([MessageHandler(Filters.regex('^[0-9a-zA-Z]'), i_ask_answer_funtion), MessageHandler(Filters.all, i_wrong_input)])
-
-    conv_handlers.append([MessageHandler(Filters.regex('^[0-9a-zA-Z]'), i_end), MessageHandler(Filters.all, i_wrong_input)])
-
-    #Create actual ConversationHandler
-    conv_handler = ConversationHandler(
-        entry_points=[], #Starts automated
-
-        states=dict(zip(range(len(questions)), conv_handlers)), #Map each handler to the numbers 0..x
-
-        fallbacks=[MessageHandler(Filters.command, i_wrong_input)]
-    )
-
-    #Add handler temporaryly to current dispatcher
-    set_single_handler(context, conv_handler)
-
-    #Autostart ConversationHandler
-    conv_handler.handle_update(update, context.dispatcher, (conv_handler._get_key(update), MessageHandler(Filters.regex('^$'), i_start),re.match('^$','')))
-
-def set_single_handler(context, handler):
-    context.dispatcher.handlers[0] = []
-    context.dispatcher.add_handler(handler)
-
-def restore_handlers(context, old_handlers):
-    context.dispatcher.handlers[0] = []
-    any(context.dispatcher.add_handler(handler) for handler in old_handlers)
-
-################################################### Helpers End ######################################################   
 
 
 if __name__ == '__main__':
