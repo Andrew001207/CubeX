@@ -18,12 +18,9 @@ import re, automat
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, CallbackQueryHandler
 
 
-#NOTE: is there a nicer way than global?
-curr_cube_id = None
-
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                    level=logging.INFO)
+                    level=logging.DEBUG)
 
 logger = logging.getLogger(__name__)
 
@@ -50,7 +47,7 @@ class Conv_automat():
     def __init__(self):
         #self.last_state = None
         self.curr_state = self.start
-        self.next_state = self.name
+        self.next_state = None # will be set by the current methode
 
 
         self.state_texts = {
@@ -61,7 +58,8 @@ class Conv_automat():
                 'error':self.error
                 }
 
-    def interpret_text(self, update, context):
+    def handle_answer(self, update, context):
+
         answer = update.message.text
         
         self.curr_state(answer) # here the function has to set the next_state
@@ -69,7 +67,10 @@ class Conv_automat():
         try:
             befor = self.state_texts[self.next_state]
         except KeyError as e:
-            befor = self.state_texts['error']
+            # befor = self.state_texts['error']
+            # TODO: handel errors better
+            self.next_state = end
+            befor = 'an error okkured: keyerror'
 
         if isinstance(befor, str):
             reply = befor
@@ -77,14 +78,15 @@ class Conv_automat():
         else:
             reply = befor()
 
-        update.message.reply_text = reply
-
+        update.message.reply_text(reply)
+        
         logger.debug(f'reply massage for user: {reply}')
 
         self.curr_state = self.next_state
         self.next_state = None # the function will have to set this, based of the users answer or her desision
 
         logger.debug(f'changed state to {self.curr_state}')
+        return 
 
     def start(self, answer):
         
@@ -96,12 +98,12 @@ class Conv_automat():
         self.next_state = self.group
         
     def group(self, answer):
-        print(f'this is the name of the task {answer}')
+        print(f'this is the group of the task {answer}')
 
         self.next_state = self.side
 
     def side(self, answer):
-        print(f'this is the name of the task {answer}')
+        print(f'this is the side of the task {answer}')
 
         self.next_state = self.end
         
@@ -110,6 +112,11 @@ class Conv_automat():
 
     def error(self, _):
         logger.warning('not handelt state')
+
+
+def error(update, context):
+    """Log Errors caused by Updates."""
+    logger.warning('Update with id: "%s" caused error "%s"', update['update_id'], context.error)
 
 
 def main():
@@ -124,12 +131,13 @@ def main():
 
     # create a instanc of the conversation automat:
     ca = Conv_automat()
-    # on different commands - answer in Telegram
-    dp.add_handler(MessageHandler(Filters.regex('^[a-zA-Z0-9]'), ca.interpret_text))
-    #dp.add_handler(CommandHandler("help", help))
+
+    dp.add_handler(MessageHandler(Filters.regex('^[a-zA-Z0-9]'), ca.handle_answer))
+    #dp.add_handler(MessageHandler(Filters.text, ca.interpret_text))
+    dp.add_handler(CommandHandler('help', error))
 
     # log all errors
-    # dp.add_error_handler(error)
+    dp.add_error_handler(error)
 
     # Start the Bot
     updater.start_polling()
