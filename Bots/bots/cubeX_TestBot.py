@@ -14,9 +14,11 @@ bot.
 """
 
 import logging, configparser
+import re
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, CallbackQueryHandler
 
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler
 
+#NOTE: is there a nicer way than global?
 curr_cube_id = None
 
 # Enable logging
@@ -25,17 +27,24 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 logger = logging.getLogger(__name__)
 
+# Read configfile
 config = configparser.ConfigParser()
 
 config_filename = ".bot.conf"
-
 config.read(config_filename)
 
-username = 'max-di'
-bot_token = config[username]['token']
+username = input('please insert your username: ')
+
+try:
+    bot_token = config[username]['token']
+except KeyError:
+    bot_token = input('''please insert you token from Botfather or create a ~/CubeX/Bots/.bot.conf file like this
+[<username>]
+token=<token>
+and insert your username and token ther
+''')
 
 logger.info('Read config')
-
 
 # Define a few command handlers. These usually take the two arguments update and
 # context. Error handlers also receive the raised TelegramError object in error.
@@ -46,28 +55,67 @@ def start(update, context):
 
 def help(update, context):
     """Send a message when the command /help is issued."""
+
     update.message.reply_text("""You can use the following commands:
     /help - See available commands
     /ct - Create a new task
     /sc - Select a cube""")
 
-def select_cube(update, context):
-    """Select currently used Cube"""
+def get_select_cube_conv(update, context):
 
     def process_results(answers):
         """Update selected cube"""
+        global curr_cube_id
         curr_cube_id = answers[0]
+        print("ID set")
 
-    add_conv_handler(update, context, create_conv_handler(["Enter Cube_ID"], process_results))
+    return  [create_conv_handler(update, context, [], process_results), "Enter Cube_ID"]
+    
+def select_cube(update, context):
+    """Select currently used Cube"""
+    get_handler = get_select_cube_conv(update, context)
+    start_conversation(update, context, get_handler[0], get_handler[1])
 
+def get_create_task_conv(update, context):
+
+    def process_results(answers):
+        pass
+
+    return  [create_conv_handler(update, context, [], process_results), "Enter name"]
 
 def create_task(update, context):
     """Create a new task for the cube"""
-    add_conv_handler(update, context, create_conv_handler(["Enter name", "Enter group"]))
+    get_handler = get_create_task_conv(update, context)
+    start_conversation(update, context, get_handler[0], get_handler[1])
+
+def get_map_task_conv(update, context):
+
+    def process_results(answers):
+        """Update selected cube"""
+        task_name = answers[0]
+        cube_side = answers[1]
+        #Actual processing
+
+    args = ["Please insert the name of the task", "Please insert the number of the side of the cube"]
+
+    if not curr_cube_id:
+        args[0:0] = ["No Cube selected yet...", get_select_cube_conv(update, context)]
+        print(args)
+
+    return  [create_conv_handler(update, context, ["Please insert the number of the side of the cube"], process_results), "Please insert the name of the task"]
+
+def map_task(update, context):
+    """Map a given Task to a Side of the current Cube """
+    if not curr_cube_id:
+        args = ["No Cube selected yet...", ]
+    else:
+
+        start_conversation(update, context, ["Please insert the name of the task", "Please insert the number of the side of the cube"], process_results)
 
 def error(update, context):
     """Log Errors caused by Updates."""
-    logger.warning('Update "%s" caused error "%s"', update, context.error)
+    logger.warning('Update with id: "%s" caused error "%s"', update['update_id'], context.error)
+
 
 def main():
     """Start the bot."""
@@ -86,8 +134,11 @@ def main():
     # command to create new task
     dp.add_handler(CommandHandler("ct", create_task))
 
-    #command to select current cube
+    # command to select current cube
     dp.add_handler(CommandHandler("sc", select_cube))
+
+    # command to map task
+    dp.add_handler(CommandHandler("mt", map_task))
 
     # log all errors
     dp.add_error_handler(error)
@@ -103,19 +154,12 @@ def main():
 
  ###################################################### Helpers #######################################################
 
-def create_conv_handler(questions, process_results=lambda answers: None):
+def create_conv_handler(update, context, questions, process_results=lambda answers: None):
     """Creates and returns a ConversationHandler asking the User the given questions"""
     answers = [] #Save Useres answers
-    
-    def i_start(update, context):
-        """
-        Entry function for ConversationHandler asking the User the first question
-        
-        Returns:
-        First state of the ConversationHandler for next question
-        """
-        update.message.reply_text(questions[0])
-        return 0
+
+    #Store and clear handlery temporaryly
+    handlers_tmp = context.dispatcher.handlers[0]
 
     def i_end(update, context):
         """
@@ -128,17 +172,17 @@ def create_conv_handler(questions, process_results=lambda answers: None):
         process_results(answers)
         update.message.reply_text(f'Answers: {str(answers)}')
         #Reset handlers
-        context.dispatcher.remove_handler(conv_handler)
+        set_handlers(context, handlers_tmp)
         return ConversationHandler.END
 
     def i_wrong_input(update, context):
         update.message.reply_text("Wrong input, command stopped.")
-        context.dispatcher.remove_handler(conv_handler)
+        set_handlers(context, handlers_tmp)
         return ConversationHandler.END
 
     conv_handlers = [] #Handlers for each state of the ConversationHandler
 
-    for i in range(len(questions)-1):
+    for i in range(len(questions)):
 
         def i_ask_answer_funtion(update, context):
             """
@@ -148,32 +192,45 @@ def create_conv_handler(questions, process_results=lambda answers: None):
             Next state for the ConversationHandler
             """
             answers.append(update.message.text)
-            update.message.reply_text(questions[i+1])
+            update.message.reply_text(questions[i])
             return i+1
         
-        conv_handlers.append([MessageHandler(Filters.text, i_ask_answer_funtion)])
+        conv_handlers.append([MessageHandler(Filters.regex('^[0-9a-zA-Z]'), i_ask_answer_funtion), MessageHandler(Filters.all, i_wrong_input)])
 
-    conv_handlers.append([MessageHandler(Filters.text, i_end)])
+    conv_handlers.append([MessageHandler(Filters.regex('^[0-9a-zA-Z]'), i_end), MessageHandler(Filters.all, i_wrong_input)])
 
     #Create actual ConversationHandler
     conv_handler = ConversationHandler(
-        #Workaround to automatically start ConversationHandler
-        entry_points=[MessageHandler(Filters.regex('regex_token'), i_start)],
+        entry_points=[], #Starts automated
 
-        states=dict(zip(range(len(questions)), conv_handlers)), #Map each handler to the numbers 0..x
+        states=dict(zip(range(len(questions)+1), conv_handlers)), #Map each handler to the numbers 0..x
 
         fallbacks=[MessageHandler(Filters.command, i_wrong_input)]
     )
 
     return conv_handler
 
-def add_conv_handler(update, context, conv_handler):
-    """Adds a given ConversationHandler to the current dispatcher and autostarts it"""
-    context.dispatcher.add_handler(conv_handler)
+def start_conversation(update, context, conv_handler, initial_response):
+
+    def i_start(bot, update):
+        """
+        Entry function for ConversationHandler asking the User the first question
+        
+        Returns:
+        First state of the ConversationHandler for next question
+        """
+        update.message.reply_text(initial_response)
+        return 0
+
+    #Add handler temporaryly to current dispatcher
+    set_handlers(context, [conv_handler])
+
     #Autostart ConversationHandler
-    update_tmp = update
-    update_tmp.message.text = "^regex_token$"
-    context.dispatcher.process_update(update_tmp)
+    conv_handler.handle_update(update, context.dispatcher, (conv_handler._get_key(update), MessageHandler(Filters.regex('^$'), i_start),re.match('^$','')))
+
+def set_handlers(context, handlers):
+    context.dispatcher.handlers[0] = []
+    any(context.dispatcher.add_handler(handler) for handler in handlers)
 
 ################################################### Helpers End ######################################################   
 
