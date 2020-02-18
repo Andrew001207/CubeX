@@ -14,7 +14,7 @@ bot.
 """
 
 import logging, configparser
-import re
+import re, automat
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, CallbackQueryHandler
 
 
@@ -46,6 +46,14 @@ and insert your username and token ther
 
 logger.info('Read config')
 
+
+class Conversation_automat():
+    _machine = automat.MethodicalMachine()
+    def __init__(self):
+        pass
+    @_machine.state()
+    def end(self):
+        pass
 # Define a few command handlers. These usually take the two arguments update and
 # context. Error handlers also receive the raised TelegramError object in error.
 def start(update, context):
