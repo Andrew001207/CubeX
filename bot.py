@@ -24,12 +24,6 @@ class Conv_automat():
         # BEFOR your function will be called with the answer,
         # or mape your function to a function with returns a string for the user
         self.state_texts = {
-            self.select_cube:'Please insert your cube id'
-            self.side:'please choose a side of the cube',
-            self.name:'give the task a name: ',
-            self.group:'give the task a group: ',
-            self.end : 'task creation finished!',
-            'error':self.error
             }
 
     def handle_answer(self, update, context):
@@ -62,42 +56,8 @@ class Conv_automat():
         self.next_state = None
 
         logger.debug(f'changed state to {self.curr_state}')
-    def select_cube(self, answer):
-        if self.cube_exists(int(answer)):
-            self.next_state = self.name
-        else:
-            self.next_state = self.select_cube
-        
 
-    def start(self, answer):
-        """this is a method which handles the answer and changes the state"""
-
-        if answer.lower().strip == 'help':
-            self.next_state = self.help
-        # set here the following state
-        self.next_state = self.select_cube
-
-    def name(self, answer):
-        """this is a method which handles the answer and changes the state"""
-        print(f'this is the name of the task {answer}')
-
-        self.next_state = self.group
-
-    def group(self, answer):
-        """this is a method which handles the answer and changes the state"""
-        print(f'this is the group of the task {answer}')
-
-        self.next_state = self.side
-
-    def side(self, answer):
-        """this is a method which handles the answer and changes the state"""
-        print(f'this is the side of the task {answer}')
-
-        self.next_state = self.end_create_task
-
-    def end_create_task(self, _):
-        pass
-
-    def error(self, _):
-        logger.warning('not handelt state')
-
+class State():
+    def __init__(self, pre_enter, state_methode):
+        self.pre_enter = pre_enter
+        self.state_methode = state_methode

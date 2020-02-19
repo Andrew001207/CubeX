@@ -1,4 +1,4 @@
-from bots import bot
+from bot import State, Conv_automat
 # Read configfile
 config = configparser.ConfigParser()
 
@@ -18,12 +18,69 @@ and insert your username and token ther
 
 logger.info('Read config')
 
+def __init__():
 
-def error(update, context):
-    """Log Errors caused by Updates."""
-    logger.warning('Update with id: "%s" caused error "%s"', update['update_id'], context.error)
+    state_list = []
+    
+    def error(update, context):
+        """Log Errors caused by Updates."""
+        logger.warning('Update with id: "%s" caused error "%s"', update['update_id'], context.error)
+
+    def select_cube(self, answer):
+        if self.cube_exists(int(answer)):
+            self.next_state = self.name
+        else:
+            self.next_state = self.select_cube
+        
+    def _pre_map_task(self, answer):
+
+        
+    def map_task(self, answer):
+
+                self.select_cube:'Please insert your cube id',
+                self.side:'please choose a side of the cube',
+                self.name:'give the task a name: ',
+                self.group:'give the task a group: ',
+                self.end : 'task creation finished!',
+                'error':self.error
+
+    def start(self, answer):
+        """this is a method which handles the answer and changes the state"""
+
+        if answer.lower().strip == 'help':
+            self.next_state = self.help
+        # set here the following state
+        self.next_state = self.select_cube
+
+    start = State('Please select a command, for avaiable commands enter "help"', start)
+    state_list.append(start)
+
+    def name(self, answer):
+        """this is a method which handles the answer and changes the state"""
+        print(f'this is the name of the task {answer}')
+
+        self.next_state = self.group
+
+    def group(self, answer):
+        """this is a method which handles the answer and changes the state"""
+        print(f'this is the group of the task {answer}')
+
+        self.next_state = self.side
+
+    def side(self, answer):
+        """this is a method which handles the answer and changes the state"""
+        print(f'this is the side of the task {answer}')
+
+        self.next_state = self.end_create_task
+
+    def end_create_task(self, _):
+        pass
+
+    def error(self, _):
+        logger.warning('not handelt state')
 
 
+    return state_list
 def main(bot_token):
     """Start the bot."""
     # Create the Updater and pass it your bot's token.
