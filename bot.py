@@ -12,7 +12,9 @@ logger = logging.getLogger(__name__)
 from sql import sql_Connector
 
 class Conv_automat():
-    def __init__(self):
+    def __init__(self, cube_exists):
+        self.cube_exists = cube_exists
+
         self.last_state = None
         self.curr_state = self.start
         self.next_state = None # will be set by the current methode
@@ -22,6 +24,7 @@ class Conv_automat():
         # BEFOR your function will be called with the answer,
         # or mape your function to a function with returns a string for the user
         self.state_texts = {
+            self.select_cube:'Please insert your cube id'
             self.side:'please choose a side of the cube',
             self.name:'give the task a name: ',
             self.group:'give the task a group: ',
@@ -59,6 +62,12 @@ class Conv_automat():
         self.next_state = None
 
         logger.debug(f'changed state to {self.curr_state}')
+    def select_cube(self, answer):
+        if self.cube_exists(int(answer)):
+            self.next_state = self.name
+        else:
+            self.next_state = self.select_cube
+        
 
     def start(self, answer):
         """this is a method which handles the answer and changes the state"""
@@ -66,7 +75,7 @@ class Conv_automat():
         if answer.lower().strip == 'help':
             self.next_state = self.help
         # set here the following state
-        self.next_state = self.name
+        self.next_state = self.select_cube
 
     def name(self, answer):
         """this is a method which handles the answer and changes the state"""
