@@ -9,10 +9,11 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 logger = logging.getLogger(__name__)
 
+from sql import sql_Connector
 
 class Conv_automat():
     def __init__(self):
-        #self.last_state = None
+        self.last_state = None
         self.curr_state = self.start
         self.next_state = None # will be set by the current methode
 
@@ -29,6 +30,7 @@ class Conv_automat():
             }
 
     def handle_answer(self, update, context):
+        """this is the method which handles the state changes"""
 
         answer = update.message.text
 
@@ -59,29 +61,34 @@ class Conv_automat():
         logger.debug(f'changed state to {self.curr_state}')
 
     def start(self, answer):
+        """this is a method which handles the answer and changes the state"""
 
+        if answer.lower().strip == 'help':
+            self.next_state = self.help
         # set here the following state
         self.next_state = self.name
 
     def name(self, answer):
+        """this is a method which handles the answer and changes the state"""
         print(f'this is the name of the task {answer}')
 
         self.next_state = self.group
 
     def group(self, answer):
+        """this is a method which handles the answer and changes the state"""
         print(f'this is the group of the task {answer}')
 
         self.next_state = self.side
 
     def side(self, answer):
+        """this is a method which handles the answer and changes the state"""
         print(f'this is the side of the task {answer}')
 
-        self.next_state = self.end
+        self.next_state = self.end_create_task
 
-    def end(self, _):
+    def end_create_task(self, _):
         pass
 
     def error(self, _):
         logger.warning('not handelt state')
-
 
