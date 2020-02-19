@@ -112,7 +112,7 @@ def execute_Scripts_From_File(filename):
             print("Command skipped: ", msg)
 
 
-def create_task_from_json(file_path):
+def create_task_from_json(cube_id, file_path):
     """
     takes the json file and creates all task that are in it
 
@@ -123,7 +123,7 @@ def create_task_from_json(file_path):
         data = json.load(json_file)
         for group in data['groups']:
             for task in data[group]['tasks']:
-                create_task(1, task, group)
+                create_task(cube_id, task, group)
 
 def set_task_on_side(cube_id, filepath):
     """
@@ -199,14 +199,14 @@ def write_cube_state_json(cube_id):
     sides = fetch_data("select * from side where Cube_ID = {}".format(cube_id))
     data = {}
     data['side']= []
-    for i in sides:
+    for side in sides:
 
         data['side'].append(
             {
-                'side': i[0],
-                'cube_id': i[1],
-                'task': i[2],
-                'group': i[3]
+                'side': side[0],
+                'cube_id': side[1],
+                'task': side[2],
+                'group': side[3]
 
             }
         )
