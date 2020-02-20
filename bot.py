@@ -19,12 +19,13 @@ class Conv_automat():
 
         # mape each state name to the state object:
         for state in state_list:
-            self.state_dict[state.__name__] = state
+            self.state_dict[state.state_methode.__name__] = state
 
         self.cube_exists = cube_exists
 
         self.last_state = None
-        self.curr_state = self.start
+        #TODO: catch index error:
+        self.curr_state = state_list[0]
         self.next_state = None # will be set by the current methode
 
         # if more questions are required to get all attributs to create a new object:
@@ -36,7 +37,7 @@ class Conv_automat():
         answer = update.message.text
 
         # here the function has to return the next_state in a dict:
-        return_dict = self.curr_state(answer, {'return_again':self.state_glob}) 
+        return_dict = self.curr_state.state_methode(answer, {'return_again':self.state_glob}) 
         
 
         if 'next_state' not in return_dict:
@@ -47,11 +48,10 @@ class Conv_automat():
 
         state_name = return_dict['next_state']
         
-        try:
-            befor = self.state_dict[  state_name  ].pre_enter
-        except KeyError as e:
-            # TODO: handel errors better
-            befor = 'an error okkured: keyerror'
+        if state_name not in self.state_dict:
+            raise Exception('Not handelt state')
+
+        befor = self.state_dict[  state_name  ].pre_enter
 
         self.next_state = self.state_dict[  state_name  ].state_methode
 
