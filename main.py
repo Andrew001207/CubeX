@@ -18,7 +18,7 @@ and insert your username and token ther
 
 logger.info('Read config')
 
-def __init__():
+def generate_stats():
 
     state_list = []
     
@@ -81,7 +81,7 @@ def __init__():
 
 
     return state_list
-def main(bot_token):
+def main():
     """Start the bot."""
     # Create the Updater and pass it your bot's token.
     # Make sure to set use_context=True to use the new context based callbacks
@@ -93,7 +93,7 @@ def main(bot_token):
     dp = updater.dispatcher
 
     # create a instanc of the conversation automat:
-    ca = Conv_automat()
+    ca = Conv_automat(generate_states(), bot_token)
 
     dp.add_handler(MessageHandler(Filters.regex('^[a-zA-Z0-9]'), ca.handle_answer))
     #dp.add_handler(MessageHandler(Filters.text, ca.interpret_text))
