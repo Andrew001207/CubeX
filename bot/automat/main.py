@@ -1,4 +1,4 @@
-from bot import State, Conv_automat
+from bot import State, Conv_automat, Builder
 # Read configfile
 config = configparser.ConfigParser()
 
@@ -24,20 +24,16 @@ def init_states():
 
     def start(self, answer, **kwargs):
         """this is a method which handles the answer and changes the state"""
-        return _return_dict(answer, None)
-        # next_states = {
-        #     'help': self.help
-        #     'select_cube': 
-        # }
+        return _return_dict(answer)
     state_list.append(State('Please select a command, for avaiable commands enter "help"', start))
 
     def help(self, answer, **kwargs):
-        return _return_dict("start", None)
+        return _return_dict("start")
     state_list.append(State('help text', help))
 
     def cancel(self, answer, **kwargs):
         #TODO Clear builder
-        return _return_dict("start", None)
+        return _return_dict("start")
     state_list.append(State("Command cancelled", cancel))
     
     def error(update, answer, **kwargs):
@@ -79,7 +75,7 @@ def init_states():
         """this is a method which handles the answer and changes the state"""
         #Replace true with DB method group exists
         if True and "builder" in kwargs:
-            return _return_dict("select_side", None)
+            return _return_dict("select_side")
         elif False and "builder" in kwargs:
             return _return_dict("select_group", f"Group {answer} does not exist, please try again")
         else:
@@ -98,19 +94,21 @@ def init_states():
     state_list.append(State("Please enter the number of the side you want to select", select_side))
 
     def map_task(self, answer, **kwargs):
-        #TODO create builder
+        #TODO DB function map_task instead of none
+        Builder b = Builder(None)
         if #cube set?:
-            _return_dict("select_task", None)
+            _return_dict("select_task", None, b)
         else:
-            _return_dict("select_cube", "No cube selected yet")
+            _return_dict("select_cube", "No cube selected yet", b)
     state_list.append(State(None, map_task))
 
     return state_list
 
-def _return_dict(next_state, reply):
+def _return_dict(next_state, reply=None, builder=None):
     return {
         "next_state": next_state
         "reply": reply
+        "builder": builder
     }
 
 def main(bot_token):
