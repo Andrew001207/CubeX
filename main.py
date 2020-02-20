@@ -1,5 +1,6 @@
-import traceback, logging
+import traceback, logging, configparser
 
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from bot import State, Conv_automat, Builder
 from cubeX import CubeX
 # Read configfile
@@ -9,6 +10,13 @@ config_filename = ".bot.conf"
 config.read(config_filename)
 
 username = input('please insert your username: ')
+
+# Enable logging
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                    level=logging.DEBUG)
+
+logger = logging.getLogger(__name__)
+
 
 try:
     bot_token = config[username]['token']
@@ -38,7 +46,7 @@ def init_states():
         #TODO Clear builder
         return _return_dict("start")
     state_list.append(State("Command cancelled", cancel))
-    
+
     def error(update, answer, arg_dict, **kwargs):
         """Log Errors caused by Updates."""
         return _return_dict("start")
@@ -55,10 +63,10 @@ def init_states():
 
     def select_cube(self, answer, arg_dict, **kwargs):
         #Replace true with DB method cube exists
-        if True and kwargs[builder]:
+        if True and kwargs['builder']:
             cubeX = CubeX(answer)
             return _return_dict("select_task", builder=Builder(cubeX.setTask), cubeX=cubeX)
-        elif True and kwargs[builder]:
+        elif True and kwargs['builder']:
             return _return_dict("start", f"Selcted cube {answer}")
         else:
             return _return_dict("select_cube", f"Cube {answer} does not exist, please try again")
@@ -68,7 +76,7 @@ def init_states():
         """this is a method which handles the answer and changes the state"""
         #Replace true with DB method task exists
         if True and "builder" in kwargs:
-            return _return_dict("select_group", None) 
+            return _return_dict("select_group", None)
         elif False and "builder" in kwargs:
             return _return_dict("select_task", f"Task {answer} does not exist, please try again")
         else:
@@ -90,8 +98,8 @@ def init_states():
         #Replace true with DB method group exists
         if True and "builder" in kwargs:
             try:
-                build_result = builder.build()
-            except Exception e:
+                build_result = kwargs['builder'].build()
+            except Exception as e:
                 _return_dict("error", "Something went wrong")
             return _return_dict("start", None) #Any answer from builder instead of None
         elif False and "builder" in kwargs:
@@ -113,9 +121,9 @@ def init_states():
 def _return_dict(next_state, reply=None, builder=None, **self_return):
     print(type(self_return))
     return {
-        "next_state": next_state
-        "reply": reply
-        "builder": builder
+        "next_state": next_state,
+        "reply": reply,
+        "builder": builder,
         "return_again": self_return
     }
 
@@ -134,8 +142,6 @@ def main(bot_token):
     ca = Conv_automat(init_states(), bot_token)
 
     dp.add_handler(MessageHandler(Filters.regex('^[a-zA-Z0-9]'), ca.handle_answer))
-    #dp.add_handler(MessageHandler(Filters.text, ca.interpret_text))
-    dp.add_handler(CommandHandler('help', error))
 
     # log all errors
     dp.add_error_handler(error)
