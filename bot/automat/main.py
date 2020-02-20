@@ -104,11 +104,12 @@ def init_states():
 
     return state_list
 
-def _return_dict(next_state, reply=None, builder=None):
+def _return_dict(next_state, reply=None, builder=None, **self_return):
     return {
         "next_state": next_state
         "reply": reply
         "builder": builder
+        "return_again": self_return
     }
 
 def main(bot_token):
