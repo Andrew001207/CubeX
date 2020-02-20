@@ -29,7 +29,7 @@ class Conv_automat():
         self.next_state = None # will be set by the current methode
 
         # if more questions are required to get all attributs to create a new object:
-        self.curr_builder = None 
+        self.curr_builder = None
 
     def handle_answer(self, update, context):
         """this is the method which handles the state changes"""
@@ -37,8 +37,8 @@ class Conv_automat():
         answer = update.message.text
 
         # here the function has to return the next_state in a dict:
-        return_dict = self.curr_state.state_methode(answer, {'return_again':self.state_glob}) 
-        
+        return_dict = self.curr_state.state_methode(answer, {'return_again':self.state_glob})
+
 
         if 'next_state' not in return_dict:
             # TODO: handel errors better
@@ -47,7 +47,7 @@ class Conv_automat():
             self.builder = return_dict['builder']
 
         state_name = return_dict['next_state']
-        
+
         if state_name not in self.state_dict:
             raise Exception('Not handelt state')
 

@@ -68,7 +68,7 @@ def init_states():
         """this is a method which handles the answer and changes the state"""
         #Replace true with DB method task exists
         if True and arg_dict["result_function"]:
-            return _return_dict("select_group", None) 
+            return _return_dict("select_group", None)
         elif False and arg_dict["result_function"]:
             return _return_dict("select_task", f"Task {answer} does not exist, please try again")
         else:
