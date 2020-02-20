@@ -1,3 +1,5 @@
+import traceback, logging
+
 from bot import State, Conv_automat, Builder
 # Read configfile
 config = configparser.ConfigParser()
@@ -38,7 +40,7 @@ def init_states():
     
     def error(update, answer, **kwargs):
         """Log Errors caused by Updates."""
-        logger.warning('Update with id: "%s" caused error "%s"', update['update_id'], context.error)
+        return _return_dict("start")
 
     def create_task(self, answer, **kwargs):
         #TODO call db method
@@ -85,7 +87,10 @@ def init_states():
     def select_side(self, answer, **kwargs):
         #Replace true with DB method group exists
         if True and "builder" in kwargs:
-            builder.build()
+            try:
+                build_result = builder.build()
+            except Exception e:
+                _return_dict("error", "Something went wrong")
             return _return_dict("start", None) #Any answer from builder instead of None
         elif False and "builder" in kwargs:
             return _return_dict("select_side", f"Side {answer} does not exist, please try again")
