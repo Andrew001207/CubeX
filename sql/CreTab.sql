@@ -30,3 +30,10 @@ CREATE TABLE Side (
 	FOREIGN KEY (Task_Name, Group_Name, Cube_ID) REFERENCES Task(Task_Name, Group_Name, Cube_ID),
 	Foreign KEY (Cube_ID) REFERENCES Cube(Cube_ID)
 );
+
+Create table Account (
+    Account_name VARCHAR (255) primary key not null,
+    password VARCHAR (255) not null,
+    Cube_id integer null,
+    FOREIGN KEY  (Cube_id) references Cube(Cube_id)
+);
