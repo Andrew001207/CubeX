@@ -43,25 +43,33 @@ class Conv_automat():
         if 'next_state' not in return_dict:
             # TODO: handel errors better
             raise Exception('can not handle answer: no next state defined')
-        if 'builder' in return_dict:
-            self.builder = return_dict['builder']
+        if 'reply' in return_dict and return_dict['reply']:
+            update.message.reply_text(return_dict['reply'])
+            
 
         state_name = return_dict['next_state']
 
         if state_name not in self.state_dict:
             raise Exception('Not handelt state')
 
-        befor = self.state_dict[  state_name  ].pre_enter
+        before = self.state_dict[state_name].pre_enter
 
-        self.next_state = self.state_dict[  state_name  ].state_methode
+        self.next_state = self.state_dict[state_name]
 
-        if isinstance(befor, str):
-            reply = befor
-        #TODO: elif callable(befor):
+        reply = None
+        if isinstance(before, str):
+            reply = before
+        elif callable(before):
+            reply = before({'return_again':self.state_glob})
+        elif before == None:
+            jump = update
+            jump.message.text = None
+            context.dispatcher.process_update(jump)
         else:
-            reply = befor({'return_again':self.state_glob})
+            raise Exception('Not handelt return value')
 
-        update.message.reply_text(reply)
+        if reply:
+            update.message.reply_text(reply)
 
         logger.debug(f'reply massage for user: {reply}')
 

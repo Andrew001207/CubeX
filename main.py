@@ -12,7 +12,7 @@ config.read(config_filename)
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                    level=logging.DEBUG)
+                    level=logging.INFO)
 
 logger = logging.getLogger(__name__)
 
@@ -55,10 +55,10 @@ def init_states():
 
     def select_cube(answer, arg_dict):
         #Replace true with DB method cube exists
-        if True and arg_dict["result_function"]:
+        if True and "result_function" in arg_dict:
             cubeX = CubeX(int(answer))
-            return _return_dict("select_task", result_function=cubeX.setTask, cubeX=cubeX, answers=[])
-        elif True and not arg_dict["result_function"]:
+            return _return_dict("select_task", result_function=cubeX.setTask, cubeX=cubeX, answers=[], **arg_dict)
+        elif True and not "result_function" in arg_dict:
             cubeX = CubeX(int(answer))
             return _return_dict("start", f"Selcted cube {answer}", cubeX=cubeX)
         else:
@@ -68,10 +68,10 @@ def init_states():
     def select_task(answer, arg_dict):
         """this is a method which handles the answer and changes the state"""
         #Replace true with DB method task exists
-        if True and arg_dict["result_function"]:
+        if True and "result_function" in arg_dict:
             arg_dict["answers"].append(answer)
-            return _return_dict("select_group", None) 
-        elif False and arg_dict["result_function"]:
+            return _return_dict("select_group",**arg_dict) 
+        elif False and "result_function" in arg_dict:
             return _return_dict("select_task", f"Task {answer} does not exist, please try again")
         else:
             return _return_dict("error", f"How the hell did you do this???")
@@ -80,10 +80,10 @@ def init_states():
     def select_group(answer, arg_dict):
         """this is a method which handles the answer and changes the state"""
         #Replace true with DB method group exists
-        if True and arg_dict["result_function"]:
+        if True and "result_function" in arg_dict:
             arg_dict["answers"].append(answer)
-            return _return_dict("select_side")
-        elif False and arg_dict["result_function"]:
+            return _return_dict("select_side", **arg_dict)
+        elif False and "result_function" in arg_dict:
             return _return_dict("select_group", f"Group {answer} does not exist, please try again")
         else:
             return _return_dict("error", f"How the hell did you do this???")
@@ -91,7 +91,7 @@ def init_states():
 
     def select_side(answer, arg_dict):
         #Replace true with DB method group exists
-        if True and arg_dict["result_function"]:
+        if True and "result_function" in arg_dict:
             try:
                 arg_dict["answers"].append(answer)
                 build_result = arg_dict["result_function"](*arg_dict["answers"])
@@ -99,8 +99,8 @@ def init_states():
                     _return_dict("error", "Something went wrong")
             except Exception:
                 _return_dict("error", traceback.format_exc())
-            return _return_dict("start", None) #Any answer from builder instead of None
-        elif False and arg_dict["result_function"]:
+            return _return_dict("start") #Any answer from builder instead of None
+        elif False and "result_function" in arg_dict:
             return _return_dict("select_side", f"Side {answer} does not exist, please try again")
         else:
             return _return_dict("error", f"How the hell did you do this???")
@@ -108,16 +108,16 @@ def init_states():
 
     def map_task(answer, arg_dict):
         #TODO DB function map_task instead of none
-        if arg_dict["cubeX"]:
-            _return_dict("select_task", result_function=arg_dict["cubeX"].set_task, answers=[], **arg_dict)
+        import pdb; pdb.set_trace()
+        if "cubeX" in arg_dict:
+            _return_dict("select_task", result_function=arg_dict["cubeX"].setTask, answers=[], **arg_dict)
         else:
-            _return_dict("select_cube", "No cube selected yet", result_function="To be set", **arg_dict)
+            _return_dict("select_cube", "No cube selected yet", result_function="TODO To be set", **arg_dict)
     state_list.append(State(None, map_task))
 
     return state_list
 
 def _return_dict(next_state, reply=None, **self_return):
-    print(type(self_return))
     return {
         "next_state": next_state,
         "reply": reply,
