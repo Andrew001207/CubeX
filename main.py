@@ -25,16 +25,16 @@ def init_states():
 
     state_list = []
 
-    def start(self, answer, arg_dict):
+    def start(answer, arg_dict):
         """this is a method which handles the answer and changes the state"""
         return _return_dict(answer)
     state_list.append(State('Please select a command, for avaiable commands enter "help"', start))
 
-    def help(self, answer, arg_dict):
+    def help(answer, arg_dict):
         return _return_dict("start")
     state_list.append(State('help text', help))
 
-    def cancel(self, answer, arg_dict):
+    def cancel(answer, arg_dict):
         #TODO Clear builder
         return _return_dict("start")
     state_list.append(State("Command cancelled", cancel))
@@ -43,17 +43,17 @@ def init_states():
         """Log Errors caused by Updates."""
         return _return_dict("start")
 
-    def create_task(self, answer, arg_dict):
+    def create_task(answer, arg_dict):
         #TODO call db method
         return _return_dict("start", f"Following task was created: {answer}")
     state_list.append(State("Please enter the name for the new task", create_task))
 
-    def create_group(self, answer, arg_dict):
+    def create_group(answer, arg_dict):
         #TODO call db method
         return _return_dict("start", f"Following group was created: {answer}")
     state_list.append(State("Please enter the name for the new group", create_group))
 
-    def select_cube(self, answer, arg_dict):
+    def select_cube(answer, arg_dict):
         #Replace true with DB method cube exists
         if True and arg_dict["result_function"]:
             cubeX = CubeX(int(answer))
@@ -65,7 +65,7 @@ def init_states():
             return _return_dict("select_cube", f"Cube {answer} does not exist, please try again")
     state_list.append(State("Please enter the ID of the cube you want to select", select_cube))
 
-    def select_task(self, answer, arg_dict):
+    def select_task(answer, arg_dict):
         """this is a method which handles the answer and changes the state"""
         #Replace true with DB method task exists
         if True and arg_dict["result_function"]:
@@ -76,7 +76,7 @@ def init_states():
             return _return_dict("error", f"How the hell did you do this???")
     state_list.append(State("Please enter the name of the task you want to select", select_task))
 
-    def select_group(self, answer, arg_dict):
+    def select_group(answer, arg_dict):
         """this is a method which handles the answer and changes the state"""
         #Replace true with DB method group exists
         if True and arg_dict["result_function"]:
@@ -87,7 +87,7 @@ def init_states():
             return _return_dict("error", f"How the hell did you do this???")
     state_list.append(State("Please enter the name of the group you want to select", select_group))
 
-    def select_side(self, answer, arg_dict):
+    def select_side(answer, arg_dict):
         #Replace true with DB method group exists
         if True and arg_dict["result_function"]:
             try:
@@ -101,7 +101,7 @@ def init_states():
             return _return_dict("error", f"How the hell did you do this???")
     state_list.append(State("Please enter the number of the side you want to select", select_side))
 
-    def map_task(self, answer, arg_dict):
+    def map_task(answer, arg_dict):
         #TODO DB function map_task instead of none
         if arg_dict["cubeX"]:
             _return_dict("select_task", result_function=arg_dict["cubeX"].set_task, **arg_dict)
