@@ -1,4 +1,4 @@
-from bot import State, Conv_automat
+from bot import State, Conv_automat, Builder
 # Read configfile
 config = configparser.ConfigParser()
 
@@ -18,70 +18,101 @@ and insert your username and token ther
 
 logger.info('Read config')
 
-def generate_stats():
+def init_states():
 
     state_list = []
+
+    def start(self, answer, **kwargs):
+        """this is a method which handles the answer and changes the state"""
+        return _return_dict(answer)
+    state_list.append(State('Please select a command, for avaiable commands enter "help"', start))
+
+    def help(self, answer, **kwargs):
+        return _return_dict("start")
+    state_list.append(State('help text', help))
+
+    def cancel(self, answer, **kwargs):
+        #TODO Clear builder
+        return _return_dict("start")
+    state_list.append(State("Command cancelled", cancel))
     
-    def error(update, context):
+    def error(update, answer, **kwargs):
         """Log Errors caused by Updates."""
         logger.warning('Update with id: "%s" caused error "%s"', update['update_id'], context.error)
 
-    def select_cube(self, answer):
-        if self.cube_exists(int(answer)):
-            self.next_state = self.name
+    def create_task(self, answer, **kwargs):
+        #TODO call db method
+        return _return_dict("start", f"Following task was created: {answer}")
+    state_list.append(State("Please enter the name for the new task", create_task))
+
+    def create_group(self, answer, **kwargs):
+        #TODO call db method
+        return _return_dict("start", f"Following group was created: {answer}")
+    state_list.append(State("Please enter the name for the new group", create_group))
+
+    def select_cube(self, answer, **kwargs):
+        #Replace true with DB method cube exists
+        if True and "builder" in kwargs:
+            return _return_dict("select_task", None)
+        elif True and not "builder" in kwargs:
+            return _return_dict("start", f"Selcted cube {answer}")
         else:
-            self.next_state = self.select_cube
-        
-    def _pre_map_task(self, answer):
+            return _return_dict("select_cube", f"Cube {answer} does not exist, please try again")
+    state_list.append(State("Please enter the ID of the cube you want to select", select_cube))
 
-        
-    def map_task(self, answer):
-
-                self.select_cube:'Please insert your cube id',
-                self.side:'please choose a side of the cube',
-                self.name:'give the task a name: ',
-                self.group:'give the task a group: ',
-                self.end : 'task creation finished!',
-                'error':self.error
-
-    def start(self, answer):
+    def select_task(self, answer, **kwargs):
         """this is a method which handles the answer and changes the state"""
+        #Replace true with DB method task exists
+        if True and "builder" in kwargs:
+            return _return_dict("select_group", None) 
+        elif False and "builder" in kwargs:
+            return _return_dict("select_task", f"Task {answer} does not exist, please try again")
+        else:
+            return _return_dict("error", f"How the hell did you do this???")
+    state_list.append(State("Please enter the name of the task you want to select", select_task))
 
-        if answer.lower().strip == 'help':
-            self.next_state = self.help
-        # set here the following state
-        self.next_state = self.select_cube
-
-    start = State('Please select a command, for avaiable commands enter "help"', start)
-    state_list.append(start)
-
-    def name(self, answer):
+    def select_group(self, answer, **kwargs):
         """this is a method which handles the answer and changes the state"""
-        print(f'this is the name of the task {answer}')
+        #Replace true with DB method group exists
+        if True and "builder" in kwargs:
+            return _return_dict("select_side")
+        elif False and "builder" in kwargs:
+            return _return_dict("select_group", f"Group {answer} does not exist, please try again")
+        else:
+            return _return_dict("error", f"How the hell did you do this???")
+    state_list.append(State("Please enter the name of the group you want to select", select_group))
 
-        self.next_state = self.group
+    def select_side(self, answer, **kwargs):
+        #Replace true with DB method group exists
+        if True and "builder" in kwargs:
+            builder.build()
+            return _return_dict("start", None) #Any answer from builder instead of None
+        elif False and "builder" in kwargs:
+            return _return_dict("select_side", f"Side {answer} does not exist, please try again")
+        else:
+            return _return_dict("error", f"How the hell did you do this???")
+    state_list.append(State("Please enter the number of the side you want to select", select_side))
 
-    def group(self, answer):
-        """this is a method which handles the answer and changes the state"""
-        print(f'this is the group of the task {answer}')
-
-        self.next_state = self.side
-
-    def side(self, answer):
-        """this is a method which handles the answer and changes the state"""
-        print(f'this is the side of the task {answer}')
-
-        self.next_state = self.end_create_task
-
-    def end_create_task(self, _):
-        pass
-
-    def error(self, _):
-        logger.warning('not handelt state')
-
+    def map_task(self, answer, **kwargs):
+        #TODO DB function map_task instead of none
+        Builder b = Builder(None)
+        if #cube set?:
+            _return_dict("select_task", None, b)
+        else:
+            _return_dict("select_cube", "No cube selected yet", b)
+    state_list.append(State(None, map_task))
 
     return state_list
-def main():
+
+def _return_dict(next_state, reply=None, builder=None, **self_return):
+    return {
+        "next_state": next_state
+        "reply": reply
+        "builder": builder
+        "return_again": self_return
+    }
+
+def main(bot_token):
     """Start the bot."""
     # Create the Updater and pass it your bot's token.
     # Make sure to set use_context=True to use the new context based callbacks
@@ -93,7 +124,7 @@ def main():
     dp = updater.dispatcher
 
     # create a instanc of the conversation automat:
-    ca = Conv_automat(generate_states(), bot_token)
+    ca = Conv_automat(init_states(), bot_token)
 
     dp.add_handler(MessageHandler(Filters.regex('^[a-zA-Z0-9]'), ca.handle_answer))
     #dp.add_handler(MessageHandler(Filters.text, ca.interpret_text))
