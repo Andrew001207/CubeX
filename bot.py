@@ -66,9 +66,16 @@ class Conv_automat():
             reply = before({'return_again':self.state_glob})
             logger.debug(f'called method "{before.__name__}"')
         elif before == None:
+            self.last_state = self.curr_state
+            self.curr_state = self.next_state
+            self.next_state = None
             jump = update
-            jump.message.text = None
+            jump.message.text = ''
+            self.handle_answer(jump, context) # recursiv call
             context.dispatcher.process_update(jump)
+            #TODO: implement jump of state for fast state transfer
+            pass
+        # the state object will have to set this, based of the users answer or her desision:
         else:
             raise Exception('Not handelt return value')
 

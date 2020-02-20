@@ -109,9 +109,9 @@ def init_states():
     def map_task(answer, arg_dict):
         #TODO DB function map_task instead of none
         if "cubeX" in arg_dict:
-            _return_dict("select_task", result_function=arg_dict["cubeX"].setTask, answers=[], **arg_dict)
+            return _return_dict("select_task", result_function=arg_dict["cubeX"].setTask, answers=[], **arg_dict)
         else:
-            _return_dict("select_cube", "No cube selected yet", result_function="TODO To be set", **arg_dict)
+            return _return_dict("select_cube", "No cube selected yet", result_function="TODO To be set", **arg_dict)
     state_list.append(State(None, map_task))
 
     return state_list
