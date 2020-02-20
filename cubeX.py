@@ -63,7 +63,7 @@ class CubeX:
 
     def loadState(self):
         json = write_cube_state_json(self.cubeId)
-        self.connection.send('/CubeX/{}/task'.format(self.cubeId), json)
+        self.connection.send('/CubeX/{}/tasks'.format(self.cubeId), json)
         pass
 
     def taskMessageAction(self, client, userdata, message):
