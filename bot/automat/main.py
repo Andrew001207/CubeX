@@ -35,21 +35,19 @@ def init_states():
         #     'select_cube': 
         # }
 
-    def help(self, answer):
+    def help(self, answer, **kwargs):
 
-
-    def cancel(self, answer):
-
+    def cancel(self, answer, **kwargs):
     
-    def error(update, context):
+    def error(update, answer, **kwargs):
         """Log Errors caused by Updates."""
         logger.warning('Update with id: "%s" caused error "%s"', update['update_id'], context.error)
 
-    def create_task(self, answer):
+    def create_task(self, answer, **kwargs):
         #TODO call db method
         return _return_dict("start", f"Following task was created: {answer}")
 
-    def create_group(self, answer):
+    def create_group(self, answer, **kwargs):
         #TODO call db method
         return _return_dict("start", f"Following group was created: {answer}")
 
@@ -62,7 +60,7 @@ def init_states():
         else:
             return _return_dict("select_cube", f"Cube {answer} does not exist, please try again")
 
-    def select_task(self, answer):
+    def select_task(self, answer, **kwargs):
         """this is a method which handles the answer and changes the state"""
         #Replace true with DB method task exists
         if True and "builder" in kwargs:
@@ -72,7 +70,7 @@ def init_states():
         else:
             return _return_dict("error", f"How the hell did you do this???")
 
-    def select_group(self, answer):
+    def select_group(self, answer, **kwargs):
         """this is a method which handles the answer and changes the state"""
         #Replace true with DB method group exists
         if True and "builder" in kwargs:
@@ -82,7 +80,7 @@ def init_states():
         else:
             return _return_dict("error", f"How the hell did you do this???")
 
-    def select_side(self, answer):
+    def select_side(self, answer, **kwargs):
         #Replace true with DB method group exists
         if True and "builder" in kwargs:
             builder.build()
@@ -91,6 +89,13 @@ def init_states():
             return _return_dict("select_side", f"Side {answer} does not exist, please try again")
         else:
             return _return_dict("error", f"How the hell did you do this???")
+
+    def map_task(self, answer, **kwargs):
+        #TODO create builder
+        if #cube set?:
+            _return_dict("select_task", None)
+        else:
+            _return_dict("select_cube", "No cube selected yet")
 
     return state_list
 
