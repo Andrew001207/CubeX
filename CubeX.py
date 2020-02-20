@@ -8,7 +8,7 @@ Created on Fri Feb 17 11:34:30 2020
 """
 from sql.aws_Connector import AwsConnecter
 from configparser import ConfigParser
-from sql.sql_Connector import set_task, delete_task, write_cube_state_json, create_task, create_cube, check_cube
+from sql.sql_Connector import set_task, delete_task, write_cube_state_json, create_task, create_cube, check_cube, update_event
 import time
 
 class CubeX:
@@ -67,15 +67,16 @@ class CubeX:
         pass
 
     def taskMessageAction(self, client, userdata, message):
-        print("i do something")
-        print(message.payload)
-        #Action to be performed when a message is received at /Cubex/<CubeId>/Tasks
+        a = str(message.payload)
+        a = a.strip('b')
+        a = a.strip("'")
+        update_event(a,self.cubeId)
         pass
 
     def start(self):
         if check_cube(a.cubeId) == True:
             a.loadState()
-        a.connection.subscribe('/CubeX/{}'.format(a.cubeId), a.taskMessageAction)
+        a.connection.subscribe('/CubeX/{}/status'.format(a.cubeId), a.taskMessageAction)
         while True:
             time.sleep(1)
 

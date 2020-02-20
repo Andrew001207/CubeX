@@ -207,6 +207,26 @@ def check_cube(cube_id):
         if cube_id in cube:
             check = True
     return check
+def write_cube_information_json(cube_id):
+    #all the tasks,
+    groups = fetch_data("select distinct group_name from task where cube_id = {};".format(cube_id))
+    tasks = fetch_data("select * from task where cube_id = {};".format(cube_id))
+    events = fetch_data("select * from event where cube_id = {};".format(cube_id))
+    data = {}
+    data['groups'] = []
+    for group in groups:
+        data['groups'].append(group[0])
+        data[group[0]] = []
+    for task in tasks:
+        data[task[1]].append(task[0])
+    data['events'] = []
+    for event in events:
+        data['events'].append([event[1],event[2],event[4],event[5]])
+    return data
+
+
+
+
 
 def write_cube_state_json(cube_id):
     sides = fetch_data("select * from side where Cube_ID = {}".format(cube_id))
@@ -261,3 +281,7 @@ def create_user(user_name,user_password):
     hash = hash_password(user_password)
     execute_command("insert into account values ('{}','{}',NULL );".format(user_name,hash))
 
+def update_event(side, cube_id):
+    data = fetch_data("select group_name, task_name from side where side_id = {} and cube_id = {}".format(side, cube_id))
+    execute_command("update event set end_time = clock_timestamp() where start_time = (select max(start_time) from event);")
+    execute_command("insert into event values (default , '{}', '{}', {}, clock_timestamp(), null );".format(data[0][1], data[0][0], cube_id))
