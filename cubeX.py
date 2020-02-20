@@ -79,7 +79,3 @@ class CubeX:
         while True:
             time.sleep(1)
 
-if __name__ == "__main__":
-    print("Test run")
-    a = CubeX(1)
-    a.start()
