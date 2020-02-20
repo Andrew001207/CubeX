@@ -1,6 +1,7 @@
 import traceback, logging
 
 from bot import State, Conv_automat, Builder
+from cubeX import CubeX
 # Read configfile
 config = configparser.ConfigParser()
 
@@ -24,45 +25,46 @@ def init_states():
 
     state_list = []
 
-    def start(self, answer, **kwargs):
+    def start(self, answer, arg_dict, **kwargs):
         """this is a method which handles the answer and changes the state"""
         return _return_dict(answer)
     state_list.append(State('Please select a command, for avaiable commands enter "help"', start))
 
-    def help(self, answer, **kwargs):
+    def help(self, answer, arg_dict, **kwargs):
         return _return_dict("start")
     state_list.append(State('help text', help))
 
-    def cancel(self, answer, **kwargs):
+    def cancel(self, answer, arg_dict, **kwargs):
         #TODO Clear builder
         return _return_dict("start")
     state_list.append(State("Command cancelled", cancel))
     
-    def error(update, answer, **kwargs):
+    def error(update, answer, arg_dict, **kwargs):
         """Log Errors caused by Updates."""
         return _return_dict("start")
 
-    def create_task(self, answer, **kwargs):
+    def create_task(self, answer, arg_dict, **kwargs):
         #TODO call db method
         return _return_dict("start", f"Following task was created: {answer}")
     state_list.append(State("Please enter the name for the new task", create_task))
 
-    def create_group(self, answer, **kwargs):
+    def create_group(self, answer, arg_dict, **kwargs):
         #TODO call db method
         return _return_dict("start", f"Following group was created: {answer}")
     state_list.append(State("Please enter the name for the new group", create_group))
 
-    def select_cube(self, answer, **kwargs):
+    def select_cube(self, answer, arg_dict, **kwargs):
         #Replace true with DB method cube exists
-        if True and "builder" in kwargs:
-            return _return_dict("select_task", None)
-        elif True and not "builder" in kwargs:
+        if True and kwargs[builder]:
+            cubeX = CubeX(answer)
+            return _return_dict("select_task", builder=Builder(cubeX.setTask), cubeX=cubeX)
+        elif True and kwargs[builder]:
             return _return_dict("start", f"Selcted cube {answer}")
         else:
             return _return_dict("select_cube", f"Cube {answer} does not exist, please try again")
     state_list.append(State("Please enter the ID of the cube you want to select", select_cube))
 
-    def select_task(self, answer, **kwargs):
+    def select_task(self, answer, arg_dict, **kwargs):
         """this is a method which handles the answer and changes the state"""
         #Replace true with DB method task exists
         if True and "builder" in kwargs:
@@ -73,7 +75,7 @@ def init_states():
             return _return_dict("error", f"How the hell did you do this???")
     state_list.append(State("Please enter the name of the task you want to select", select_task))
 
-    def select_group(self, answer, **kwargs):
+    def select_group(self, answer, arg_dict, **kwargs):
         """this is a method which handles the answer and changes the state"""
         #Replace true with DB method group exists
         if True and "builder" in kwargs:
@@ -84,7 +86,7 @@ def init_states():
             return _return_dict("error", f"How the hell did you do this???")
     state_list.append(State("Please enter the name of the group you want to select", select_group))
 
-    def select_side(self, answer, **kwargs):
+    def select_side(self, answer, arg_dict, **kwargs):
         #Replace true with DB method group exists
         if True and "builder" in kwargs:
             try:
@@ -98,18 +100,18 @@ def init_states():
             return _return_dict("error", f"How the hell did you do this???")
     state_list.append(State("Please enter the number of the side you want to select", select_side))
 
-    def map_task(self, answer, **kwargs):
+    def map_task(self, answer, arg_dict, **kwargs):
         #TODO DB function map_task instead of none
-        Builder b = Builder(None)
-        if #cube set?:
-            _return_dict("select_task", None, b)
+        if arg_dict["cubeX"]:
+            _return_dict("select_task", None, Builder(arg_dict["cubeX"].set_task))
         else:
-            _return_dict("select_cube", "No cube selected yet", b)
+            _return_dict("select_cube", "No cube selected yet", "Need to build Builder", **arg_dict)
     state_list.append(State(None, map_task))
 
     return state_list
 
 def _return_dict(next_state, reply=None, builder=None, **self_return):
+    print(type(self_return))
     return {
         "next_state": next_state
         "reply": reply
