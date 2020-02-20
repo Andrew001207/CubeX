@@ -23,36 +23,36 @@ def init_states():
 
     state_list = []
 
-    def start(answer, arg_dict, **kwargs):
+    def start(answer, arg_dict):
         """this is a method which handles the answer and changes the state"""
         #TODO: implement me!
         return _return_dict(answer)
     state_list.append(State('Please select a command, for avaiable commands enter "help"', start))
 
-    def help(answer, arg_dict, **kwargs):
+    def help(answer, arg_dict):
         return _return_dict("start")
     state_list.append(State('help text', help))
 
-    def cancel(answer, arg_dict, **kwargs):
+    def cancel(answer, arg_dict):
         #TODO Clear builder
         return _return_dict("start")
     state_list.append(State("Command cancelled", cancel))
 
-    def error(update, answer, arg_dict, **kwargs):
+    def error(update, answer, arg_dict):
         """Log Errors caused by Updates."""
         return _return_dict("start")
 
-    def create_task(answer, arg_dict, **kwargs):
+    def create_task(answer, arg_dict):
         #TODO call db method
         return _return_dict("start", f"Following task was created: {answer}")
     state_list.append(State("Please enter the name for the new task", create_task))
 
-    def create_group(answer, arg_dict, **kwargs):
+    def create_group(answer, arg_dict):
         #TODO call db method
         return _return_dict("start", f"Following group was created: {answer}")
     state_list.append(State("Please enter the name for the new group", create_group))
 
-    def select_cube(answer, arg_dict, **kwargs):
+    def select_cube(answer, arg_dict):
         #Replace true with DB method cube exists
         if True and kwargs['builder']:
             cubeX = CubeX(answer)
@@ -63,7 +63,7 @@ def init_states():
             return _return_dict("select_cube", f"Cube {answer} does not exist, please try again")
     state_list.append(State("Please enter the ID of the cube you want to select", select_cube))
 
-    def select_task(answer, arg_dict, **kwargs):
+    def select_task(answer, arg_dict):
         """this is a method which handles the answer and changes the state"""
         #Replace true with DB method task exists
         if True and "builder" in kwargs:
@@ -74,7 +74,7 @@ def init_states():
             return _return_dict("error", f"How the hell did you do this???")
     state_list.append(State("Please enter the name of the task you want to select", select_task))
 
-    def select_group(answer, arg_dict, **kwargs):
+    def select_group(answer, arg_dict):
         """this is a method which handles the answer and changes the state"""
         #Replace true with DB method group exists
         if True and "builder" in kwargs:
@@ -85,7 +85,7 @@ def init_states():
             return _return_dict("error", f"How the hell did you do this???")
     state_list.append(State("Please enter the name of the group you want to select", select_group))
 
-    def select_side(answer, arg_dict, **kwargs):
+    def select_side(answer, arg_dict):
         #Replace true with DB method group exists
         if True and "builder" in kwargs:
             try:
@@ -99,7 +99,7 @@ def init_states():
             return _return_dict("error", f"How the hell did you do this???")
     state_list.append(State("Please enter the number of the side you want to select", select_side))
 
-    def map_task(answer, arg_dict, **kwargs):
+    def map_task(answer, arg_dict):
         #TODO DB function map_task instead of none
         if arg_dict["cubeX"]:
             _return_dict("select_task", None, Builder(arg_dict["cubeX"].set_task))
