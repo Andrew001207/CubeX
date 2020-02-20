@@ -151,7 +151,6 @@ bot/
 cert/
 database.ini
 
-#Test directory
-bot/test/
-__init__.py
+#VS Code
+.vscode/
 

@@ -1,4 +1,4 @@
-import logging, configparser
+import logging, configparser, traceback
 
 from telegram.ext import Updater, MessageHandler, Filters
 from bot import State, Conv_automat, Builder
@@ -40,7 +40,8 @@ def init_states():
 
     def error(update, answer, arg_dict):
         """Log Errors caused by Updates."""
-        return _return_dict("start")
+        return _return_dict("start", "Trying to start over...")
+    state_list.append(State("Something went wrong", error))
 
     def create_task(answer, arg_dict):
         #TODO call db method
@@ -56,7 +57,7 @@ def init_states():
         #Replace true with DB method cube exists
         if True and arg_dict["result_function"]:
             cubeX = CubeX(int(answer))
-            return _return_dict("select_task", result_function=cubeX.setTask, cubeX=cubeX)
+            return _return_dict("select_task", result_function=cubeX.setTask, cubeX=cubeX, answers=[])
         elif True and not arg_dict["result_function"]:
             cubeX = CubeX(int(answer))
             return _return_dict("start", f"Selcted cube {answer}", cubeX=cubeX)
@@ -68,6 +69,7 @@ def init_states():
         """this is a method which handles the answer and changes the state"""
         #Replace true with DB method task exists
         if True and arg_dict["result_function"]:
+            arg_dict["answers"].append(answer)
             return _return_dict("select_group", None) 
         elif False and arg_dict["result_function"]:
             return _return_dict("select_task", f"Task {answer} does not exist, please try again")
@@ -79,6 +81,7 @@ def init_states():
         """this is a method which handles the answer and changes the state"""
         #Replace true with DB method group exists
         if True and arg_dict["result_function"]:
+            arg_dict["answers"].append(answer)
             return _return_dict("select_side")
         elif False and arg_dict["result_function"]:
             return _return_dict("select_group", f"Group {answer} does not exist, please try again")
@@ -90,9 +93,12 @@ def init_states():
         #Replace true with DB method group exists
         if True and arg_dict["result_function"]:
             try:
-                build_result = kwargs['builder'].build()
-            except Exception as e:
-                _return_dict("error", "Something went wrong")
+                arg_dict["answers"].append(answer)
+                build_result = arg_dict["result_function"](*arg_dict["answers"])
+                if not build_result:
+                    _return_dict("error", "Something went wrong")
+            except Exception:
+                _return_dict("error", traceback.format_exc())
             return _return_dict("start", None) #Any answer from builder instead of None
         elif False and arg_dict["result_function"]:
             return _return_dict("select_side", f"Side {answer} does not exist, please try again")
@@ -103,7 +109,7 @@ def init_states():
     def map_task(answer, arg_dict):
         #TODO DB function map_task instead of none
         if arg_dict["cubeX"]:
-            _return_dict("select_task", result_function=arg_dict["cubeX"].set_task, **arg_dict)
+            _return_dict("select_task", result_function=arg_dict["cubeX"].set_task, answers=[], **arg_dict)
         else:
             _return_dict("select_cube", "No cube selected yet", result_function="To be set", **arg_dict)
     state_list.append(State(None, map_task))
@@ -113,8 +119,8 @@ def init_states():
 def _return_dict(next_state, reply=None, **self_return):
     print(type(self_return))
     return {
-        "next_state": next_state
-        "reply": reply
+        "next_state": next_state,
+        "reply": reply,
         "return_again": self_return
     }
 
