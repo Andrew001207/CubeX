@@ -108,7 +108,6 @@ def init_states():
 
     def map_task(answer, arg_dict):
         #TODO DB function map_task instead of none
-        import pdb; pdb.set_trace()
         if "cubeX" in arg_dict:
             _return_dict("select_task", result_function=arg_dict["cubeX"].setTask, answers=[], **arg_dict)
         else:

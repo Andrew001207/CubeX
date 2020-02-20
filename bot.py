@@ -5,7 +5,7 @@ from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                    level=logging.DEBUG)
+                    level=logging.INFO)
 
 logger = logging.getLogger(__name__)
 
@@ -34,10 +34,13 @@ class Conv_automat():
     def handle_answer(self, update, context):
         """this is the method which handles the state changes"""
 
+
         answer = update.message.text
 
         # here the function has to return the next_state in a dict:
         return_dict = self.curr_state.state_methode(answer, {'return_again':self.state_glob})
+        logger.debug(f'called method "{self.curr_state.state_methode.__name__}"')
+
 
 
         if 'next_state' not in return_dict:
@@ -61,6 +64,7 @@ class Conv_automat():
             reply = before
         elif callable(before):
             reply = before({'return_again':self.state_glob})
+            logger.debug(f'called method "{before.__name__}"')
         elif before == None:
             jump = update
             jump.message.text = None
@@ -78,7 +82,7 @@ class Conv_automat():
         # the state object will have to set this, based of the users answer or her desision:
         self.next_state = None
 
-        logger.debug(f'changed state to {self.curr_state}')
+        logger.debug(f'changed state to {self.curr_state.state_methode.__name__}')
 
 class State():
     def __init__(self, pre_enter, state_methode):
