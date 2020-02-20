@@ -1,6 +1,7 @@
-import traceback, logging
+import logging, configparser
 
-from bot import State, Conv_automat
+from telegram.ext import Updater, MessageHandler, Filters
+from bot import State, Conv_automat, Builder
 from cubeX import CubeX
 # Read configfile
 config = configparser.ConfigParser()
@@ -8,16 +9,13 @@ config = configparser.ConfigParser()
 config_filename = ".bot.conf"
 config.read(config_filename)
 
-username = input('please insert your username: ')
 
-try:
-    bot_token = config[username]['token']
-except KeyError:
-    bot_token = input('''please insert you token from Botfather or create a ~/CubeX/Bots/.bot.conf file like this
-[<username>]
-token=<token>
-and insert your username and token ther
-''')
+# Enable logging
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                    level=logging.DEBUG)
+
+logger = logging.getLogger(__name__)
+
 
 logger.info('Read config')
 
@@ -27,6 +25,7 @@ def init_states():
 
     def start(answer, arg_dict):
         """this is a method which handles the answer and changes the state"""
+        #TODO: implement me!
         return _return_dict(answer)
     state_list.append(State('Please select a command, for avaiable commands enter "help"', start))
 
@@ -38,7 +37,7 @@ def init_states():
         #TODO Clear builder
         return _return_dict("start")
     state_list.append(State("Command cancelled", cancel))
-    
+
     def error(update, answer, arg_dict):
         """Log Errors caused by Updates."""
         return _return_dict("start")
@@ -69,7 +68,7 @@ def init_states():
         """this is a method which handles the answer and changes the state"""
         #Replace true with DB method task exists
         if True and arg_dict["result_function"]:
-            return _return_dict("select_group", None) 
+            return _return_dict("select_group", None)
         elif False and arg_dict["result_function"]:
             return _return_dict("select_task", f"Task {answer} does not exist, please try again")
         else:
@@ -91,8 +90,8 @@ def init_states():
         #Replace true with DB method group exists
         if True and arg_dict["result_function"]:
             try:
-                build_result = builder.build()
-            except Exception e:
+                build_result = kwargs['builder'].build()
+            except Exception as e:
                 _return_dict("error", "Something went wrong")
             return _return_dict("start", None) #Any answer from builder instead of None
         elif False and arg_dict["result_function"]:
@@ -119,6 +118,10 @@ def _return_dict(next_state, reply=None, **self_return):
         "return_again": self_return
     }
 
+def error(update, context):
+    """Log Errors caused by Updates."""
+    logger.warning('Update with id: "%s" caused error "%s"', update['update_id'], context.error)
+
 def main(bot_token):
     """Start the bot."""
     # Create the Updater and pass it your bot's token.
@@ -134,8 +137,6 @@ def main(bot_token):
     ca = Conv_automat(init_states(), bot_token)
 
     dp.add_handler(MessageHandler(Filters.regex('^[a-zA-Z0-9]'), ca.handle_answer))
-    #dp.add_handler(MessageHandler(Filters.text, ca.interpret_text))
-    dp.add_handler(CommandHandler('help', error))
 
     # log all errors
     dp.add_error_handler(error)
@@ -151,3 +152,14 @@ def main(bot_token):
 
 if __name__ == '__main__':
     main(input('please insert your bot token: '))
+    #TODO:
+    #username = input('please insert your username: ')
+    #try:
+    #    bot_token = config[username]['token']
+    #except KeyError:
+    #    bot_token = input('''please create a ~/CubeX/Bots/.bot.conf file like this
+    #[<username>]
+    #token=<token>
+    #and insert your username and token ther
+    #or insert you token from Botfather directly here:
+    #''')
