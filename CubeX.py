@@ -8,7 +8,7 @@ Created on Fri Feb 17 11:34:30 2020
 """
 from sql.aws_Connector import AwsConnecter
 from configparser import ConfigParser
-from sql.sql_Connector import set_task, delete_task, write_cube_state_json
+from sql.sql_Connector import set_task, delete_task, write_cube_state_json, create_task, create_cube, check_cube
 import time
 
 class CubeX:
@@ -52,23 +52,36 @@ class CubeX:
     def setTask(self, group, name, side):
         set_task(self.cubeId, side, name, group)
         pass
+
+    def create_Task(self, group, name):
+        create_task(self.cubeId, group, name)
+        pass
+
     def deleteTask(self, group, name):
         delete_task(self.cubeId, group, name)
         pass
+
     def loadState(self):
         json = write_cube_state_json(self.cubeId)
         self.connection.send('/CubeX/{}'.format(self.cubeId), json)
         pass
+
     def taskMessageAction(self, client, userdata, message):
         print("i do something")
         print(message.payload)
         #Action to be performed when a message is received at /Cubex/<CubeId>/Tasks
         pass
 
+    def start(self):
+        if check_cube(a.cubeId) == True:
+            a.loadState()
+        a.connection.subscribe('/CubeX/{}'.format(a.cubeId), a.taskMessageAction)
+        while True:
+            time.sleep(1)
+
 if __name__ == "__main__":
     print("Test run")
     a = CubeX(1)
-    a.loadState()
-    a.connection.subscribe('/CubeX/{}'.format(a.cubeId), a.taskMessageAction)
-    while True:
-        time.sleep(1)
+    a.start()
+
+

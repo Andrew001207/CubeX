@@ -9,6 +9,8 @@ from sqlite3 import OperationalError
 import json
 import psycopg2
 import logging
+import hashlib, binascii, os
+
 
 logger = logging.getLogger("sqlconnecter")
 logger.setLevel(logging.WARNING)
@@ -194,6 +196,17 @@ def delete_task(cube_id, group_name, task_name):
     execute_command(
         "delete from task where(cube_Id = {} and group = '{}' and task = '{}');".format(cube_id, group_name, task_name))
 
+def check_cube(cube_id):
+    """"
+    checks if cube is aready existent
+
+    """
+    check = False
+    data = fetch_data("select * from cube where cube_id = {}".format(cube_id))
+    for cube in data:
+        if cube_id in cube:
+            check = True
+    return check
 
 def write_cube_state_json(cube_id):
     sides = fetch_data("select * from side where Cube_ID = {}".format(cube_id))
@@ -222,4 +235,29 @@ def get_all_group_name():
 
 def get_all_cube_id():
     return fetch_data("select cube_ID from cube")
+
+
+def hash_password(password):
+    """Hash a password for storing."""
+    salt = hashlib.sha256(os.urandom(60)).hexdigest().encode('ascii')
+    pwdhash = hashlib.pbkdf2_hmac('sha512', password.encode('utf-8'),
+                                  salt, 100000)
+    pwdhash = binascii.hexlify(pwdhash)
+    return (salt + pwdhash).decode('ascii')
+
+
+def verify_password(stored_password, provided_password):
+    """Verify a stored password against one provided by user"""
+    salt = stored_password[:64]
+    stored_password = stored_password[64:]
+    pwdhash = hashlib.pbkdf2_hmac('sha512',
+                                  provided_password.encode('utf-8'),
+                                  salt.encode('ascii'),
+                                  100000)
+    pwdhash = binascii.hexlify(pwdhash).decode('ascii')
+    return pwdhash == stored_password
+
+def create_user(user_name,user_password):
+    hash = hash_password(user_password)
+    execute_command("insert into account values ('{}','{}',NULL );".format(user_name,hash))
 
