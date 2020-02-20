@@ -1,68 +1,146 @@
-from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
-import logging
-import time
-import argparse
-import json
+from bot import State, Conv_automat, Builder
+# Read configfile
+config = configparser.ConfigParser()
 
-AllowedActions = ['both', 'publish', 'subscribe']
+config_filename = ".bot.conf"
+config.read(config_filename)
 
-mode = 'subscribe'
+username = input('please insert your username: ')
 
-# Custom MQTT message callback
-def customCallback(client, userdata, message):
-    print("Received a new message: ")
-    print(message.payload)
-    print("from topic: ")
-    print(message.topic)
-    print("--------------\n\n")
+try:
+    bot_token = config[username]['token']
+except KeyError:
+    bot_token = input('''please insert you token from Botfather or create a ~/CubeX/Bots/.bot.conf file like this
+[<username>]
+token=<token>
+and insert your username and token ther
+''')
 
-host = 'a19iauu3f7q9ce-ats.iot.us-west-2.amazonaws.com'
-rootCAPath = 'cert/AmazonRootCA1.pem'
-certificatePath = 'cert/5582d73565-certificate.pem.crt'
-privateKeyPath = 'cert/5582d73565-private.pem.key'
-port = 8883
-clientId = 'Cube'
-topic = '/CubeX_main'
+logger.info('Read config')
+
+def init_states():
+
+    state_list = []
+
+    def start(self, answer, **kwargs):
+        """this is a method which handles the answer and changes the state"""
+        return _return_dict(answer)
+    state_list.append(State('Please select a command, for avaiable commands enter "help"', start))
+
+    def help(self, answer, **kwargs):
+        return _return_dict("start")
+    state_list.append(State('help text', help))
+
+    def cancel(self, answer, **kwargs):
+        #TODO Clear builder
+        return _return_dict("start")
+    state_list.append(State("Command cancelled", cancel))
+    
+    def error(update, answer, **kwargs):
+        """Log Errors caused by Updates."""
+        logger.warning('Update with id: "%s" caused error "%s"', update['update_id'], context.error)
+
+    def create_task(self, answer, **kwargs):
+        #TODO call db method
+        return _return_dict("start", f"Following task was created: {answer}")
+    state_list.append(State("Please enter the name for the new task", create_task))
+
+    def create_group(self, answer, **kwargs):
+        #TODO call db method
+        return _return_dict("start", f"Following group was created: {answer}")
+    state_list.append(State("Please enter the name for the new group", create_group))
+
+    def select_cube(self, answer, **kwargs):
+        #Replace true with DB method cube exists
+        if True and "builder" in kwargs:
+            return _return_dict("select_task", None)
+        elif True and not "builder" in kwargs:
+            return _return_dict("start", f"Selcted cube {answer}")
+        else:
+            return _return_dict("select_cube", f"Cube {answer} does not exist, please try again")
+    state_list.append(State("Please enter the ID of the cube you want to select", select_cube))
+
+    def select_task(self, answer, **kwargs):
+        """this is a method which handles the answer and changes the state"""
+        #Replace true with DB method task exists
+        if True and "builder" in kwargs:
+            return _return_dict("select_group", None) 
+        elif False and "builder" in kwargs:
+            return _return_dict("select_task", f"Task {answer} does not exist, please try again")
+        else:
+            return _return_dict("error", f"How the hell did you do this???")
+    state_list.append(State("Please enter the name of the task you want to select", select_task))
+
+    def select_group(self, answer, **kwargs):
+        """this is a method which handles the answer and changes the state"""
+        #Replace true with DB method group exists
+        if True and "builder" in kwargs:
+            return _return_dict("select_side")
+        elif False and "builder" in kwargs:
+            return _return_dict("select_group", f"Group {answer} does not exist, please try again")
+        else:
+            return _return_dict("error", f"How the hell did you do this???")
+    state_list.append(State("Please enter the name of the group you want to select", select_group))
+
+    def select_side(self, answer, **kwargs):
+        #Replace true with DB method group exists
+        if True and "builder" in kwargs:
+            builder.build()
+            return _return_dict("start", None) #Any answer from builder instead of None
+        elif False and "builder" in kwargs:
+            return _return_dict("select_side", f"Side {answer} does not exist, please try again")
+        else:
+            return _return_dict("error", f"How the hell did you do this???")
+    state_list.append(State("Please enter the number of the side you want to select", select_side))
+
+    def map_task(self, answer, **kwargs):
+        #TODO DB function map_task instead of none
+        Builder b = Builder(None)
+        if #cube set?:
+            _return_dict("select_task", None, b)
+        else:
+            _return_dict("select_cube", "No cube selected yet", b)
+    state_list.append(State(None, map_task))
+
+    return state_list
+
+def _return_dict(next_state, reply=None, builder=None, **self_return):
+    return {
+        "next_state": next_state
+        "reply": reply
+        "builder": builder
+        "return_again": self_return
+    }
+
+def main(bot_token):
+    """Start the bot."""
+    # Create the Updater and pass it your bot's token.
+    # Make sure to set use_context=True to use the new context based callbacks
+    # Post version 12 this will no longer be necessary
+    updater = Updater(bot_token, use_context=True)
+    #TODO: check token
+
+    # Get the dispatcher to register handlers
+    dp = updater.dispatcher
+
+    # create a instanc of the conversation automat:
+    ca = Conv_automat()
+
+    dp.add_handler(MessageHandler(Filters.regex('^[a-zA-Z0-9]'), ca.handle_answer))
+    #dp.add_handler(MessageHandler(Filters.text, ca.interpret_text))
+    dp.add_handler(CommandHandler('help', error))
+
+    # log all errors
+    dp.add_error_handler(error)
+
+    # Start the Bot
+    updater.start_polling()
+
+    # Run the bot until you press Ctrl-C or the process receives SIGINT,
+    # SIGTERM or SIGABRT. This should be used most of the time, since
+    # start_polling() is non-blocking and will stop the bot gracefully.
+    updater.idle()
 
 
-# Configure logging
-logger = logging.getLogger("AWSIoTPythonSDK.core")
-logger.setLevel(logging.ERROR)
-streamHandler = logging.StreamHandler()
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-streamHandler.setFormatter(formatter)
-logger.addHandler(streamHandler)
-
-# Init AWSIoTMQTTClient
-myAWSIoTMQTTClient = None
-
-myAWSIoTMQTTClient = AWSIoTMQTTClient(clientId)
-myAWSIoTMQTTClient.configureEndpoint(host, port)
-myAWSIoTMQTTClient.configureCredentials(rootCAPath, privateKeyPath, certificatePath)
-
-# AWSIoTMQTTClient connection configuration
-myAWSIoTMQTTClient.configureAutoReconnectBackoffTime(1, 32, 20)
-myAWSIoTMQTTClient.configureOfflinePublishQueueing(-1)  # Infinite offline Publish queueing
-myAWSIoTMQTTClient.configureDrainingFrequency(2)  # Draining: 2 Hz
-myAWSIoTMQTTClient.configureConnectDisconnectTimeout(10)  # 10 sec
-myAWSIoTMQTTClient.configureMQTTOperationTimeout(5)  # 5 sec
-
-# Connect and subscribe to AWS IoT
-myAWSIoTMQTTClient.connect()
-if mode == 'both' or mode == 'subscribe':
-    myAWSIoTMQTTClient.subscribe(topic, 1, customCallback)
-time.sleep(2)
-
-# Publish to the same topic in a loop forever
-loopCount = 0
-while True:
-    if mode == 'both' or mode == 'publish':
-        message = {}
-        message['message'] = 'Hello, world'
-        message['sequence'] = loopCount
-        messageJson = json.dumps(message)
-        myAWSIoTMQTTClient.publish(topic, messageJson, 1)
-        if mode == 'publish' or mode == 'both':
-            print('Published topic %s: %s\n' % (topic, messageJson))
-        loopCount += 1
-    time.sleep(1)
+if __name__ == '__main__':
+    main(input('please insert your bot token: '))
