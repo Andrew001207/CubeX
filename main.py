@@ -122,7 +122,7 @@ def error(update, context):
     """Log Errors caused by Updates."""
     logger.warning('Update with id: "%s" caused error "%s"', update['update_id'], context.error)
 
-def main(bot_token):
+def main(db, bot_token, aws):
     """Start the bot."""
     # Create the Updater and pass it your bot's token.
     # Make sure to set use_context=True to use the new context based callbacks
@@ -132,7 +132,6 @@ def main(bot_token):
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
-    import pdb; pdb.set_trace()
 
     # create a instanc of the conversation automat:
     ca = Conv_automat(init_states(), bot_token)
@@ -162,9 +161,9 @@ if __name__ == '__main__':
 
     # read config file
     try:
-        db = config['postgresql']
+        db = dict(config['postgresql'])
         bot_token = config['bot']['token']
-        aws = config['AwsConnector']
+        aws = dict(config['AwsConnector'])
     except KeyError:
         raise Exception('A nessecary section was not found in the {0} file'.format(config_path))
 
