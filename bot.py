@@ -15,7 +15,7 @@ class Conv_automat():
     def __init__(self, state_list, cube_exists):
         self.state_dict = {}
 
-        self.state_glob = None
+        self.again_return = None
 
         # mape each state name to the state object:
         for state in state_list:
@@ -38,7 +38,8 @@ class Conv_automat():
         answer = update.message.text
 
         # here the function has to return the next_state in a dict:
-        return_dict = self.curr_state.state_methode(answer, {'return_again':self.state_glob})
+        return_dict = self.curr_state.state_methode(answer, {'return_again':self.again_return})
+        self.again_return = return_dict['return_again']
         logger.debug(f'called method "{self.curr_state.state_methode.__name__}"')
 
 
@@ -63,7 +64,7 @@ class Conv_automat():
         if isinstance(before, str):
             reply = before
         elif callable(before):
-            reply = before({'return_again':self.state_glob})
+            reply = before({'return_again':self.again_return})
             logger.debug(f'called method "{before.__name__}"')
         elif before == None:
             self.last_state = self.curr_state
@@ -73,8 +74,9 @@ class Conv_automat():
             jump.message.text = ''
             self.handle_answer(jump, context) # recursiv call
             context.dispatcher.process_update(jump)
-            #TODO: implement jump of state for fast state transfer
-            pass
+            if reply:
+                update.message.reply_text(reply)
+            return 
         # the state object will have to set this, based of the users answer or her desision:
         else:
             raise Exception('Not handelt return value')
