@@ -156,9 +156,8 @@ def main(bot_token):
 
 
 if __name__ == '__main__':
-    main(input('please insert your bot token: '))
-    #TODO:
-    #username = input('please insert your username: ')
+
+    username = input('please insert your username: ')
     #try:
     #    bot_token = config[username]['token']
     #except KeyError:
@@ -168,3 +167,39 @@ if __name__ == '__main__':
     #and insert your username and token ther
     #or insert you token from Botfather directly here:
     #''')
+    ## load config   
+    ## create a parser
+    #parser = ConfigParser()
+    ## read config file
+    #parser.read(filename)
+    #section='postgresql'
+
+    ## get section, default to postgresql
+    #db = {}
+    #if parser.has_section(section):
+    #    params = parser.items(section)
+    #    for param in params:
+    #        db[param[0]] = param[1]
+    #else:
+    #    raise Exception('Section {0} not found in the {1} file'.format(section, filename))
+
+    #return db
+
+    #def loadAWSConfig(self, path='config.ini', section='AwsConnector'):
+    #    # create a parser
+    #    parser = ConfigParser()
+    #    # read config file
+    #    parser.read(path)
+    #    # get section, default to postgresql
+    #    conf = {}
+    #    if parser.has_section(section):
+    #        params = parser.items(section)
+    #        for param in params:
+    #            conf[param[0]] = param[1]
+    #    else:
+    #        raise Exception('Section {0} not found in the {1} file'.format(section, path))
+    #    return conf
+
+
+
+    #main(input('please insert your bot token: '))

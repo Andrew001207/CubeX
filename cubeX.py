@@ -13,10 +13,9 @@ import time
 
 class CubeX:
 
-    def __init__(self, cubeId):
+    def __init__(self, cubeId, conf):
         self.cubeId = cubeId
         self.clientId = 'Manager_' + str(cubeId)
-        conf = self.loadAWSConfig()
         self.connection = AwsConnecter(
                                         conf['host'],
                                         conf['rootcapath'],
@@ -32,20 +31,6 @@ class CubeX:
 
         # TODO Connect database instance
 
-    def loadAWSConfig(self, path='config.ini', section='AwsConnector'):
-        # create a parser
-        parser = ConfigParser()
-        # read config file
-        parser.read(path)
-        # get section, default to postgresql
-        conf = {}
-        if parser.has_section(section):
-            params = parser.items(section)
-            for param in params:
-                conf[param[0]] = param[1]
-        else:
-            raise Exception('Section {0} not found in the {1} file'.format(section, path))
-        return conf
 
     # TODO Implement following methods
 
