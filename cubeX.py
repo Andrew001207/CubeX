@@ -79,4 +79,3 @@ class CubeX:
         a.connection.subscribe('/CubeX/{}/status'.format(a.cubeId), a.taskMessageAction)
         while True:
             time.sleep(1)
-
