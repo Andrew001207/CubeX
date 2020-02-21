@@ -281,9 +281,8 @@ def create_user(user_name,user_password):
     hash = hash_password(user_password)
     execute_command("insert into account values ('{}','{}',NULL );".format(user_name,hash))
 
-def update_event(side, cube_id):
-    data = fetch_data("select group_name, task_name from side where side_id = {} and cube_id = {}".format(side, cube_id))
+def update_event(task_name, cube_id):
+    data = fetch_data("select group_name, task_name from side where task_name = '{}' and cube_id = {}".format(task_name, cube_id))
     execute_command("update event set end_time = clock_timestamp() where start_time = (select max(start_time) from event);")
     execute_command("insert into event values (default , '{}', '{}', {}, clock_timestamp(), null );".format(data[0][1], data[0][0], cube_id))
 
-print(write_cube_information_json(1))
