@@ -145,10 +145,12 @@ bots/.bot.conf
 
 #cubexproject
 .cert/
+bot/
+
 #AWS Certificates
 cert/
 database.ini
 
-#Test directory
-bot/test/
-__init__.py
+#VS Code
+.vscode/
+
