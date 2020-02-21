@@ -2,12 +2,7 @@ import logging, configparser, traceback
 
 from telegram.ext import Updater, MessageHandler, Filters
 from bot import State, Conv_automat, Builder
-from cubeX import CubeX
-# Read configfile
-config = configparser.ConfigParser()
-
-config_filename = ".bot.conf"
-config.read(config_filename)
+#from cubeX import CubeX
 
 
 # Enable logging
@@ -137,6 +132,7 @@ def main(bot_token):
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
+    import pdb; pdb.set_trace()
 
     # create a instanc of the conversation automat:
     ca = Conv_automat(init_states(), bot_token)
@@ -156,50 +152,20 @@ def main(bot_token):
 
 
 if __name__ == '__main__':
+# Read configfile
+    config = configparser.ConfigParser()
 
-    username = input('please insert your username: ')
-    #try:
-    #    bot_token = config[username]['token']
-    #except KeyError:
-    #    bot_token = input('''please create a ~/CubeX/Bots/.bot.conf file like this
-    #[<username>]
-    #token=<token>
-    #and insert your username and token ther
-    #or insert you token from Botfather directly here:
-    #''')
-    ## load config   
-    ## create a parser
-    #parser = ConfigParser()
-    ## read config file
-    #parser.read(filename)
-    #section='postgresql'
+    filename = 'cert/config.ini'
 
-    ## get section, default to postgresql
-    #db = {}
-    #if parser.has_section(section):
-    #    params = parser.items(section)
-    #    for param in params:
-    #        db[param[0]] = param[1]
-    #else:
-    #    raise Exception('Section {0} not found in the {1} file'.format(section, filename))
+    # create a parser
+    config.read(filename)
 
-    #return db
+    # read config file
+    try:
+        db = config['postgresql']
+        bot_token = config['bot']['token']
+        aws = config['AwsConnector']
+    except KeyError:
+        raise Exception('A nessecary section was not found in the {0} file'.format(config_path))
 
-    #def loadAWSConfig(self, path='config.ini', section='AwsConnector'):
-    #    # create a parser
-    #    parser = ConfigParser()
-    #    # read config file
-    #    parser.read(path)
-    #    # get section, default to postgresql
-    #    conf = {}
-    #    if parser.has_section(section):
-    #        params = parser.items(section)
-    #        for param in params:
-    #            conf[param[0]] = param[1]
-    #    else:
-    #        raise Exception('Section {0} not found in the {1} file'.format(section, path))
-    #    return conf
-
-
-
-    #main(input('please insert your bot token: '))
+    main(db, bot_token, aws)
