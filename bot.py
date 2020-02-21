@@ -9,8 +9,6 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 logger = logging.getLogger(__name__)
 
-from sql import sql_Connector
-
 class Conv_automat():
     def __init__(self, state_list, cube_exists):
         self.state_dict = {}
