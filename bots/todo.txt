@@ -7,7 +7,7 @@
 #     select_cube_with_photo(..)
 #     massage_action(msg)
 # class AWS_mqtt_client
-#    string send to cube : '/CubeX/Cube_id/task'
+#    string send to cube : '/CubeX/Cube_id/tasks'
 #    string send to cube : '/CubeX/Cube_id/state'
 #    string send to cube : '/CubeX/Cube_id/service'
 # class database():
