@@ -32,7 +32,7 @@ class CubeX:
 
         # TODO Connect database instance
 
-    def loadAWSConfig(self, path='config.ini', section='AwsConnector'):
+    def loadAWSConfig(self, path='cert/config.ini', section='AwsConnector'):
         # create a parser
         parser = ConfigParser()
         # read config file
