@@ -20,7 +20,7 @@ streamHandler.setFormatter(formatter)
 logger.addHandler(streamHandler)
 
 
-def config(filename='config.ini', section='postgresql'):
+def config(filename='../cert/config.ini', section='postgresql'):
     # create a parser
     parser = ConfigParser()
     # read config file
