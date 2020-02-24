@@ -286,3 +286,4 @@ def update_event(task_name, cube_id):
     execute_command("update event set end_time = clock_timestamp() where start_time = (select max(start_time) from event);")
     execute_command("insert into event values (default , '{}', '{}', {}, clock_timestamp(), null );".format(data[0][1], data[0][0], cube_id))
 
+print(write_cube_information_json(1))
