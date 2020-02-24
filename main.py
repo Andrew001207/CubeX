@@ -50,7 +50,11 @@ def init_states():
 
     def create_group(answer, arg_dict):
         #TODO call db method
-        return _return_dict("start", f"Following group was created: {answer}")
+        if arg_dict["result_function"].__name__ == "create_Task":
+            arg_dict["result_function"](answer, arg_dict["answers"][0])
+            return _return_dict("start", f"Following group was created: {answer}")
+        else:
+            return _return_dict("error", "How the hell did you do this???")
     state_list.append(State("Please enter the name for the new group", create_group))
 
     def select_cube(answer, arg_dict):
@@ -80,7 +84,9 @@ def init_states():
     def select_group(answer, arg_dict):
         """this is a method which handles the answer and changes the state"""
         #Replace true with DB method group exists
-        if True and "result_function" in arg_dict:
+        if(answer == "create_group"):
+            return _return_dict("create_group", **arg_dict)
+        elif True and "result_function" in arg_dict:
             arg_dict["answers"].append(answer)
             return _return_dict("select_side", **arg_dict)
         elif False and "result_function" in arg_dict:
