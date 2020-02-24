@@ -6,11 +6,12 @@ Created on Thu Feb 13 12:50:37 2020
 """
 from configparser import ConfigParser
 from sqlite3 import OperationalError
+
 import json
-import psycopg2
 import logging
 import hashlib, binascii, os
 
+import psycopg2
 
 logger = logging.getLogger("sqlconnecter")
 logger.setLevel(logging.WARNING)
@@ -55,22 +56,22 @@ def fetch_data(cmd):
     :param cmd: sql command in string format
     :return: the requested data as list of touple
     """
-    if "select" in cmd:
-        conn = make_conn()
-        result = []
-        logger.info("Now executing: %s" % (cmd))
-        cursor = conn.cursor()
-        cursor.execute(cmd)
-        raw = cursor.fetchall()
-        for line in raw:
-            result.append(line)
-        cursor.close()
-        conn.close()
-        return result
-    else:
+    if "select" not in cmd:
         logger.warning("tryed to fetch data with \
                        a cmd that return nothing")
-        return
+        return None
+
+    conn = make_conn()
+    result = []
+    logger.info("Now executing: %s" % (cmd))
+    cursor = conn.cursor()
+    cursor.execute(cmd)
+    raw = cursor.fetchall()
+    for line in raw:
+        result.append(line)
+    cursor.close()
+    conn.close()
+    return result
 
 
 def execute_command(cmd):
@@ -87,7 +88,6 @@ def execute_command(cmd):
     conn.commit()
     cursor.close()
     conn.close()
-    return
 
 
 def execute_Scripts_From_File(filename):
@@ -175,13 +175,13 @@ def set_task(cube_id, side_id, task_name, group_name):
     :return: nothing
     """
     #creates and sets tasks if wanted
-    #create_task(cube_id ,task_name, group_name)
+    #create_task(cube_id, task_name, group_name)
     try:
-        print(cube_id,side_id,task_name,group_name)
-        execute_command("insert into side values ({},{},'{}','{}');".format(side_id, cube_id, task_name, group_name))
+        print(cube_id, side_id, task_name, group_name)
+        execute_command("insert into side values ({}, {}, '{}', '{}');".format(side_id, cube_id, task_name, group_name))
     except:
         print("sides vorhanden update side")
-        execute_command("update side set task_name = '{}' , group_name = '{}' where side_id = {} and cube_id = {};" \
+        execute_command("update side set task_name = '{}', group_name = '{}' where side_id = {} and cube_id = {};" \
                         .format(task_name, group_name, side_id, cube_id))
 
 
@@ -221,7 +221,7 @@ def write_cube_information_json(cube_id):
         data[task[1]].append(task[0])
     data['events'] = []
     for event in events:
-        data['events'].append([event[1],event[2],event[4],event[5]])
+        data['events'].append([event[1], event[2], event[4], event[5]])
     return data
 
 
@@ -231,7 +231,7 @@ def write_cube_information_json(cube_id):
 def write_cube_state_json(cube_id):
     sides = fetch_data("select * from side where Cube_ID = {}".format(cube_id))
     data = {}
-    data['side']= []
+    data['side'] = []
     for side in sides:
 
         data['side'].append(
@@ -277,13 +277,13 @@ def verify_password(stored_password, provided_password):
     pwdhash = binascii.hexlify(pwdhash).decode('ascii')
     return pwdhash == stored_password
 
-def create_user(user_name,user_password):
+def create_user(user_name, user_password):
     hash = hash_password(user_password)
-    execute_command("insert into account values ('{}','{}',NULL );".format(user_name,hash))
+    execute_command("insert into account values ('{}', '{}', NULL );".format(user_name, hash))
 
 def update_event(task_name, cube_id):
     data = fetch_data("select group_name, task_name from side where task_name = '{}' and cube_id = {}".format(task_name, cube_id))
     execute_command("update event set end_time = clock_timestamp() where start_time = (select max(start_time) from event);")
-    execute_command("insert into event values (default , '{}', '{}', {}, clock_timestamp(), null );".format(data[0][1], data[0][0], cube_id))
+    execute_command("insert into event values (default, '{}', '{}', {}, clock_timestamp(), null );".format(data[0][1], data[0][0], cube_id))
 
 print(write_cube_information_json(1))
