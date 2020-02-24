@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+{% extends "main_template.html" %}
+{% block title %}
+barchart
+{% endblock %}
+{% block content %}
+    <body>
+    <h1 style="text-align: center">Time spend on Group</h1>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+    <canvas id="barChart" style="background-color: white"></canvas>
+    <script>
+    var ctx = document.getElementById('barChart').getContext('2d');
+        var myBarChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: {{ group_list | safe}},
+            dataset: [{
+                labels: 'data',
+                backgroudColor : ['rgb(22, 255, 255)', 'rgb(255,2,55)'],
+                boderColor : ['rgb(25, 99, 132)'],
+                data : {{ time_spent }},
+
+            }]
+        },
+        options: {}
+});
+    </script>
+
+    </body>
+
+{% endblock %}
