@@ -2,39 +2,33 @@
 
 
 CREATE TABLE Cube (
-	Cube_ID serial PRIMARY KEY NOT NULL
+	Cube_ID serial PRIMARY KEY NOT NULL,
+	username varchar(150) not null,
+	foreign key username references auth_user(username)
 );
 
 CREATE TABLE Task(
+    task_id serial primary key not null,
 	Task_Name VarChar(255) NOT NULL,
 	Group_name VarChar(255) NOT NULL,
-	Cube_Id integer NOT NULL,
-	Primary KEY (Group_name, Task_Name, Cube_ID),
-	Foreign Key(Cube_Id) REFERENCES Cube(Cube_ID)
+	Cube_Id integer NULL,
+	username Varchar(150) not null,
+	Foreign Key(Cube_Id) REFERENCES Cube(Cube_ID),
+	foreign key(username) references auth_user(username),
+	unique (Task_Name,Group_name,username)
 	
 );
 
 CREATE TABLE event(
 	Event_ID serial Primary Key NOT NULL,
-	Task_Name VarChar(255) NOT NULL,
-	Group_Name VarChar (255) NOT NULL,
-    Cube_ID integer Not NULL,
+	task_id integer not null,
 	Start_Time timestamp NOT NULL,
 	End_Time timestamp NULL,
-	Foreign Key (Task_Name, Group_Name, Cube_ID) References Task(Task_Name, Group_Name, Cube_ID)
+	Foreign Key (task_id) References Task(task_id)
 );
 
 CREATE TABLE Side (
 	Side_ID integer PRIMARY KEY NOT NULL,
-	Cube_ID integer NOT NULL,
-	Task_Name VARCHAR(255) NULL,
-	Group_Name varchar(255) NOT Null,
-	FOREIGN KEY (Task_Name, Group_Name, Cube_ID) REFERENCES Task(Task_Name, Group_Name, Cube_ID)
-);
-
-Create table Account (
-    Account_name VARCHAR (255) primary key not null,
-    password VARCHAR (255) not null,
-    Cube_id integer null,
-    FOREIGN KEY  (Cube_id) references Cube(Cube_id)
+	task_id integer not null,
+	FOREIGN KEY (task_id) REFERENCES Task(task_id)
 );
