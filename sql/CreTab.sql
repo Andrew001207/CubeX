@@ -28,7 +28,10 @@ CREATE TABLE event(
 );
 
 CREATE TABLE Side (
-	Side_ID integer PRIMARY KEY NOT NULL,
+	Side_ID integer NOT NULL,
+	Cube_Id integer NOT NULL,
 	Task_Id INTEGER not null,
+	PRIMARY KEY (Side_ID,Cube_Id),
+	FOREIGN KEY (Cube_Id) REFERENCES Cube(Cube_ID),
 	FOREIGN KEY (Task_Id) REFERENCES Task(Task_Id)
 );

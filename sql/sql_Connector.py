@@ -10,6 +10,7 @@ import json
 import psycopg2
 import logging
 import hashlib, binascii, os
+import traceback
 
 
 logger = logging.getLogger("sqlconnecter")
@@ -121,11 +122,12 @@ def create_task_from_json(cube_id, file_path):
     :param json_file: json_file
     :return:
     """
+    username = "Paula"
     with open(file_path) as json_file:
         data = json.load(json_file)
         for group in data['groups']:
             for task in data[group]['tasks']:
-                create_task(cube_id, task, group)
+                create_task(username,cube_id, task, group)
 
 def set_task_on_side(cube_id, filepath):
     """
@@ -141,7 +143,7 @@ def set_task_on_side(cube_id, filepath):
             for task in data[group]['tasks']:
                 set_task(cube_id, data[group][task]['side'], task, group)
 
-def create_task(cube_id, task_name, group_name):
+def create_task(username,cube_id, task_name, group_name):
     """
     creates task on the aws database
 
@@ -150,10 +152,19 @@ def create_task(cube_id, task_name, group_name):
     :param group_name: string
     :return: none
     """
-    try:
-        execute_command("insert into task values ('{}', '{}', {});".format(task_name, group_name, cube_id))
-    except:
-        logger.warning("task schon vorhanden")
+    if cube_id is None:
+        try:
+            execute_command("insert into task values (default,'{}','{}', null, '{}');".format(task_name, group_name,username))
+        except:
+            print(traceback.format_exc())
+            logger.warning("task schon vorhanden")
+    else: 
+        try:
+            execute_command("insert into task values (default,'{}','{}', {}, '{}');".format(task_name, group_name, cube_id, username))
+        except:
+            print("1",traceback.format_exc())
+            logger.warning("task schon vorhanden")
+
 
 
 def create_cube(cube_id):
@@ -163,10 +174,11 @@ def create_cube(cube_id):
     :param cube_id: integer
     :return:
     """
-    execute_command("insert into cube values ({});".format(cube_id))
+    username = "Paula"
+    execute_command("insert into cube values ({},'{}');".format(cube_id,username))
 
 
-def set_task(cube_id, side_id, task_name, group_name):
+def set_task(cube_id, side_id, task_name, group_name,username= "Paula"):
     """
     :param cube_id: integer
     :param side_id: integer
@@ -176,16 +188,20 @@ def set_task(cube_id, side_id, task_name, group_name):
     """
     #creates and sets tasks if wanted
     #create_task(cube_id ,task_name, group_name)
+
+    id = fetch_data("select Task_Id from task where Task_Name = '{}' and Group_name = '{}' and username = '{}' ".format(task_name, group_name, username))
+    task_id = id[0][0]
+
     try:
         print(cube_id,side_id,task_name,group_name)
-        execute_command("insert into side values ({},{},'{}','{}');".format(side_id, cube_id, task_name, group_name))
+        execute_command("insert into side values ({},{},{});".format(side_id, cube_id, task_id))
     except:
         print("sides vorhanden update side")
-        execute_command("update side set task_name = '{}' , group_name = '{}' where side_id = {} and cube_id = {};" \
-                        .format(task_name, group_name, side_id, cube_id))
+        execute_command("update side set Task_Id = {} where side_id = {} and cube_id = {};" \
+                        .format(task_id, side_id, cube_id))
 
 
-def delete_task(cube_id, group_name, task_name):
+def delete_task(username, group_name, task_name):
     """
 
     :param cube_id: integer
@@ -194,7 +210,7 @@ def delete_task(cube_id, group_name, task_name):
     :return: nothing
     """
     execute_command(
-        "delete from task where(cube_Id = {} and group = '{}' and task = '{}');".format(cube_id, group_name, task_name))
+        "delete from task where(username = {} and group = '{}' and task = '{}');".format(username, group_name, task_name))
 
 def check_cube(cube_id):
     """"
@@ -207,6 +223,7 @@ def check_cube(cube_id):
         if cube_id in cube:
             check = True
     return check
+
 def write_cube_information_json(cube_id):
     #all the tasks,
     groups = fetch_data("select distinct group_name from task where cube_id = {};".format(cube_id))
@@ -232,58 +249,39 @@ def write_cube_state_json(cube_id):
     sides = fetch_data("select * from side where Cube_ID = {}".format(cube_id))
     data = {}
     data['side']= []
+    
     for side in sides:
-
+        task = fetch_data("select Task_Name from task where Task_Id = {};".format(side[2]))
+        group = fetch_data("select Group_name from task where Task_Id = {};".format(side[2]))
         data['side'].append(
             {
                 'side': side[0],
                 'cube_id': side[1],
-                'task': side[2],
-                'group': side[3]
+                'task': task[0][0],
+                'group': group[0][0]
 
             }
         )
     return data
 
-def get_all_tasks():
-    return fetch_data("select task_name from task;")
+def get_all_tasks(username):
+    return fetch_data("select task_name from task where username = '{}';".format(username))
 
-
-def get_all_group_name():
-    return fetch_data("select group_name from task_group;")
-
+def get_all_group_name(username):
+    return fetch_data("select distinct Group_name from Task where username = '{}';".format(username))
 
 def get_all_cube_id():
     return fetch_data("select cube_ID from cube")
 
 
-def hash_password(password):
-    """Hash a password for storing."""
-    salt = hashlib.sha256(os.urandom(60)).hexdigest().encode('ascii')
-    pwdhash = hashlib.pbkdf2_hmac('sha512', password.encode('utf-8'),
-                                  salt, 100000)
-    pwdhash = binascii.hexlify(pwdhash)
-    return (salt + pwdhash).decode('ascii')
-
-
-def verify_password(stored_password, provided_password):
-    """Verify a stored password against one provided by user"""
-    salt = stored_password[:64]
-    stored_password = stored_password[64:]
-    pwdhash = hashlib.pbkdf2_hmac('sha512',
-                                  provided_password.encode('utf-8'),
-                                  salt.encode('ascii'),
-                                  100000)
-    pwdhash = binascii.hexlify(pwdhash).decode('ascii')
-    return pwdhash == stored_password
-
-def create_user(user_name,user_password):
-    hash = hash_password(user_password)
-    execute_command("insert into account values ('{}','{}',NULL );".format(user_name,hash))
 
 def update_event(task_name, cube_id):
-    data = fetch_data("select group_name, task_name from side where task_name = '{}' and cube_id = {}".format(task_name, cube_id))
+# Group_ID wird ignoriert
+    username = fetch_data("select username from cube where Cube_ID = {};".format(cube_id))[0][0]
+    task_id = fetch_data("select Task_Id from task where username = '{}' and Task_Name = '{}';".format(username,task_name))[0][0]
+    
     execute_command("update event set end_time = clock_timestamp() where start_time = (select max(start_time) from event);")
-    execute_command("insert into event values (default , '{}', '{}', {}, clock_timestamp(), null );".format(data[0][1], data[0][0], cube_id))
+    execute_command("insert into event values (default, {}, clock_timestamp(), null );".format(task_id))
 
-print(write_cube_information_json(1))
+
+#set_task_on_side(1,"C:/Users/Florian Wöster/Documents/CubeX/Examples/UpstreamExample.json")
