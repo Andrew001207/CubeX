@@ -38,12 +38,16 @@ class Pie_View (View):
         allEvents = Event.objects.all()
         task_list = []
         time_list = []
+        taskid_map = {}
+        i = 0
         for task in allTasks:
             task_list.append(task.task_name)
+            taskid_map[task.task_id] = i
+            i = i + 1
         for i in task_list:
             time_list.append(datetime.timedelta())
         for event in allEvents:
-            index = task_list.index(event.task_id)
+            index = taskid_map[event.task_id]
             if event.end_time is not None:
                 time_list[index] += event.end_time - event.start_time
         i = 0
@@ -77,9 +81,9 @@ class BarView(View):
         group_list = []
         time_spent = []
         for task in allTasks:
+            taskid_map[task.task_id] = task.group_name
             if task.group_name not in group_list:
                 group_list.append(task.group_name)
-                taskid_map[task.task_id] = task.group_name
                 time_spent.append(0)
         for event in allEvents:
             if event.end_time is not None:
