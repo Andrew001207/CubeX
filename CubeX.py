@@ -28,7 +28,7 @@ class CubeX:
             self.connection.connect()
             print(self.clientId + ' Successfully connected')
         except Exception as e:
-            print(e.message)
+            print("Fehler")
 
         # TODO Connect database instance
 
