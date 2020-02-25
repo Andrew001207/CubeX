@@ -22,7 +22,7 @@ streamHandler.setFormatter(formatter)
 logger.addHandler(streamHandler)
 
 
-def config(filename='../cert/config.ini', section='postgresql'):
+def config(filename='config.ini', section='postgresql'):
     # create a parser
     parser = ConfigParser()
     # read config file
@@ -263,22 +263,28 @@ def write_cube_state_json(cube_id):
         )
     return data
 
+
+def fetch_to_list(data):
+    liste = list()
+    for part in data:
+        liste.append(part[0])
+
+    return liste
+
 def get_all_tasks(username):
-    return fetch_data("select task_name from task where username = '{}';".format(username))
+    return fetch_to_list(fetch_data("select task_name from task where username = '{}';".format(username)))
 
 def get_all_group_name(username):
-    return fetch_data("select distinct Group_name from Task where username = '{}';".format(username))
+    return fetch_to_list(fetch_data("select distinct Group_name from Task where username = '{}';".format(username)))
 
 def get_all_cube_id(username):
-    return fetch_data("select cube_ID from cube where username = {}".format(username))
+    return fetch_to_list(fetch_data("select cube_ID from cube where username = '{}'".format(username)))
 
 def set_telegram_user(username,telegram_username):
     execute_command("update auth_user set telegram_id = {} where username = {}".format(telegram_username,username))
 #toDo boolean for if telegram user exists
 #toDo create user
 #toDo hashpassword of django
-
-
 
 def update_event(task_name, cube_id):
 # Group_ID wird ignoriert
