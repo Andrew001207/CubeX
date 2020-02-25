@@ -22,8 +22,10 @@ class Conv_automat():
         self.cube_exists = cube_exists
 
         self.last_state = None
-        #TODO: catch index error:
+        try:
         self.curr_state = state_list[0]
+        except IndexError:
+            raise Exception('first state of the automate is no defined')
         self.next_state = None # will be set by the current methode
 
         # if more questions are required to get all attributs to create a new object:
