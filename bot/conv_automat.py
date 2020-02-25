@@ -88,7 +88,10 @@ class Conv_automat():
         ############################## STATES ######################################
 
         def _init_states(self):
-            states = []
+            states = {
+                "direct": {}
+                "indirect": {}
+            }
 
             def _start(self, answer):
             """this is a method which handles the answer and changes the state"""
