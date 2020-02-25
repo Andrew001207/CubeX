@@ -96,7 +96,7 @@ class Conv_automat:
         states["error"] = (None, _error)
 
         def create_task(self, answer):
-            self.result_function = self.cubeX.create_task
+            self.result_function = self.userX.create_task
             #Task name conventions?
             self.answers["task_name"] = answer
             return _return_dict("select_group")
