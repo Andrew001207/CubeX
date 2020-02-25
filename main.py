@@ -2,7 +2,7 @@ import logging, configparser, traceback
 
 from telegram.ext import Updater, MessageHandler, Filters
 from bot import State, Conv_automat
-from sql.sql_Connector import get_all_cube_id, get_all_group_name, get_all_tasks
+from sql.sql_Connector import SqlConn
 from cubeX import CubeX
 #from cubeX import CubeX
 # Read configfile
