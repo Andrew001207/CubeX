@@ -14,7 +14,7 @@ class CubeX:
 
     def __init__(self, cubeId,connection):
         self.cubeId = cubeId
-        self.connection = connection
+        self.sqlconnection = connection
         self.clientId = 'Manager_' + str(cubeId)
         conf = self.loadAWSConfig()
         self.connection = AwsConnecter(
@@ -47,19 +47,19 @@ class CubeX:
     # TODO Implement following methods
 
     def setTask(self, group, name, side):
-        self.connection.set_task(self.cubeId, side, name, group)
+        self.sqlconnection.set_task(self.cubeId, side, name, group)
         pass
 
     def create_Task(self, group, name):
-        self.connection.create_task(self.cubeId, group, name)
+        self.sqlconnection.create_task(self.cubeId, group, name)
         pass
 
     def deleteTask(self, group, name):
-        self.connection.delete_task(self.cubeId, group, name)
+        self.sqlconnection.delete_task(self.cubeId, group, name)
         pass
 
     def loadState(self):
-        json = self.connection.write_cube_state_json(self.cubeId)
+        json = self.sqlconnection.write_cube_state_json(self.cubeId)
         self.connection.send('/CubeX/{}/tasks'.format(self.cubeId), json)
         pass
 
@@ -70,12 +70,12 @@ class CubeX:
         a = a.strip("{}")
         a = a.split(":")
         a = a[1].strip('"')
-        self.connection.update_event(a,self.cubeId)
+        self.sqlconnection.update_event(a,self.cubeId)
         #update_event(a,self.cubeId)
         pass
 
     def start(self):
-        if self.connection.check_cube(a.cubeId) == True:
+        if self.sqlconnection.check_cube(a.cubeId) == True:
             a.loadState()
         a.connection.subscribe('/CubeX/{}/status'.format(a.cubeId), a.taskMessageAction)
         while True:
