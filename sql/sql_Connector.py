@@ -14,6 +14,8 @@ import traceback
 
 import psycopg2
 
+from config_aware import ConfigAware
+
 logger = logging.getLogger("sqlconnecter")
 logger.setLevel(logging.WARNING)
 streamHandler = logging.StreamHandler()
@@ -21,15 +23,10 @@ formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(messag
 streamHandler.setFormatter(formatter)
 logger.addHandler(streamHandler)
 
-class SqlConn:
-
-
-    def __init__(self,configdict):
-        self.configdict = configdict
-
+class SqlConn(ConfigAware):
     def make_conn(self):
         conn = None
-        params = self.configdict
+        params = self.conf_aws
         try:
             conn = psycopg2.connect(**params)
         except:

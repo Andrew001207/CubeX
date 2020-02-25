@@ -1,14 +1,10 @@
-import logging, configparser, traceback
+import logging, traceback
+
+from config_aware import ConfigAware
 
 from telegram.ext import Updater, MessageHandler, Filters
 from bot import State, Conv_automat, Builder
 #from cubeX import CubeX
-# Read configfile
-config = configparser.ConfigParser()
-
-config_filename = ".bot.conf"
-config.read(config_filename)
-
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -127,7 +123,7 @@ def error(update, context):
     """Log Errors caused by Updates."""
     logger.warning('Update with id: "%s" caused error "%s"', update['update_id'], context.error)
 
-def main(db, bot_token, aws):
+def main(bot_token):
     """Start the bot."""
     # Create the Updater and pass it your bot's token.
     # Make sure to set use_context=True to use the new context based callbacks
@@ -156,20 +152,5 @@ def main(db, bot_token, aws):
 
 
 if __name__ == '__main__':
-# Read configfile
-    config = configparser.ConfigParser()
-
-    filename = 'cert/config.ini'
-
-    # create a parser
-    config.read(filename)
-
-    # read config file
-    try:
-        db = dict(config['postgresql'])
-        bot_token = config['bot']['token']
-        aws = dict(config['AwsConnector'])
-    except KeyError:
-        raise Exception('A nessecary section was not found in the {0} file'.format(config_path))
-
-    main(db, bot_token, aws)
+    conf = ConfigAware()
+    main(conf.conf_bot_token)

@@ -10,11 +10,13 @@ from sql.aws_Connector import AwsConnecter
 from configparser import ConfigParser
 import time
 import sql.sql_Connector
-class CubeX:
 
-    def __init__(self, cubeId,connection):
+from config_aware import ConfigAware
+class CubeX(ConfigAware):
+
+    def __init__(self, cubeId):
         self.cubeId = cubeId
-        self.sqlconnection = connection
+        self.sqlconnection = self.conf_db
         self.clientId = 'Manager_' + str(cubeId)
         self.connection = AwsConnecter(
                                         conf['host'],
