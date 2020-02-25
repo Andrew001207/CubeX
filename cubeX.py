@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import logging
-import time
+import logging, traceback, time
+from configparser import ConfigParser
+
 from sql.aws_Connector import AwsConnecter
 from sql.sql_Connector import SqlConn
 from config_aware import ConfigAware
+
 
 LOGGER = logging.getLogger("sqlconnecter")
 LOGGER.setLevel(logging.WARNING)
@@ -35,24 +37,14 @@ class CubeX(ConfigAware):
             raise Exception('Could not establish a connection to Amazon cloud Services')
 
     def set_task(self, task_id, side_id, username):
-        '''
-        maps a task on a cube side
-        '''
+        '''maps a task on a cube side'''
 
         self.sql_connection.set_task(self.cube_id, side_id, task_id, username="Paula")
 
-    def create_task(self, group_name, task_name, username):
-        '''
-        creates a task
-        '''
-        self.sql_connection.create_task(username, self.cube_id, task_name, group_name)
-
     def load_state(self):
-        '''
-        sends the tasks to aws
-        '''
-        json = self.sql_connection.write_cube_state_json(self.cube_id)
-        self.connection.send('/CubeX/{}/tasks'.format(self.cube_id), json)
+        '''sends the tasks to aws'''
+        json = self.sql_connection.write_cube_state_json(self.cubeId)
+        self.connection.send('/CubeX/{}/tasks'.format(self.cubeId), json)
 
     def task_message_action(self, client, userdata, message):
         "Callback function after a side change of the cube"
