@@ -28,7 +28,7 @@ class CubeX:
             self.connection.connect()
             print(self.clientId + ' Successfully connected')
         except Exception as e:
-            print(e.message)
+            print("Fehler")
 
         # TODO Connect database instance
 
@@ -65,9 +65,13 @@ class CubeX:
 
     def taskMessageAction(self, client, userdata, message):
         a = str(message.payload)
-        a = a.strip('b')
+        a = a.strip("b")
         a = a.strip("'")
+        a = a.strip("{}")
+        a = a.split(":")
+        a = a[1].strip('"')
         update_event(a,self.cubeId)
+        #update_event(a,self.cubeId)
         pass
 
     def start(self):

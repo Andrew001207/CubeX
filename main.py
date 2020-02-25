@@ -93,7 +93,7 @@ def _init_states():
         #Replace true with DB method task exists
         if True and "result_function" in arg_dict:
             arg_dict["answers"].append(answer)
-            return _return_dict("select_group",**arg_dict) 
+            return _return_dict("select_group", **arg_dict) 
         elif False and "result_function" in arg_dict:
             return _return_dict("select_task", f"Task {answer} does not exist, please try again")
         else:
