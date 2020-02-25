@@ -21,7 +21,7 @@ class Conv_automat:
 
         #temporary attributes for state collaboration
         self.result_function = None
-        self.answers = []
+        self.answers = dict()
 
         #TODO: catch index error:
         self.curr_state = "start"
@@ -98,22 +98,22 @@ class Conv_automat:
         def create_task(self, answer):
             self.result_function = self.cubeX.create_task
             #Task name conventions?
-            self.answers.append(answer)
+            self.answers["task_name"] = answer
             return _return_dict("select_group")
         states["create_task"] = ("Please enter the name for the new task", create_task)
 
         def _create_group(self, answer):
-            self.answers.append(answer)
+            self.answers["group_name"] = answer #name convention???
             return _return_dict("optional_add_cube")
         states["create_group"] = ("Please enter the name for the new group", _create_group)
 
         def _optional_add_cube(self, answer):
             if answer == "skip":
-                self.answers.append(None)
+                self.answers["cube_id"] = None
             else:
                 valid_answer = False if not answer.isdigit() else int(answer) in self.userX.list_cubes()
                 if valid_answer:
-                    self.answers.append(int(answer))
+                    self.answers["cube_id"] = int(answer)
                     ############ EXECUTE DB FUNCTION ################
                     self._execute_function()
                     return _return_dict("start", f"Following task was created: {self.answers}")
@@ -138,7 +138,7 @@ class Conv_automat:
             #Check if answer is an existing task_id
             valid_answer = False if not answer.isdigit() else int(answer) in [task[0] for task in self.userX.list_tasks(self.cubeX.get_cube_id())]
             if valid_answer:
-                self.answers.append(int(answer))
+                self.answers["task_id"] = int(answer)
                 return _return_dict("select_side")
             else:
                 return _return_dict("select_task", f"Task {answer} does not exist, please try again")
@@ -151,7 +151,7 @@ class Conv_automat:
             else:
                 valid_answer = False if not self.userX.list_groups() else answer in self.userX.list_groups()
                 if valid_answer:
-                    self.answers.append(answer)
+                    self.answers["group_name"] = answer
                     return _return_dict("optional_add_cube")
                 else:
                     return _return_dict("select_group", f"Group {answer} does not exist, please try again")
@@ -161,7 +161,7 @@ class Conv_automat:
         def _select_side(self, answer):
             valid_answer = False if not answer.isdigit() else int(answer) in range(1, 7)
             if valid_answer:
-                self.answers.append(answer)
+                self.answers["side_id"] = answer
                 ###################### EXECUTE DB FUNCTION #####################
                 self._execute_function() #Answer???
                 return _return_dict("start")
@@ -193,9 +193,9 @@ class Conv_automat:
 
     def _reset(self):
         self.result_function = None
-        self.answers = []
+        self.answers = dict()
 
     def _execute_function(self):
         #TODO Error handling
-        self.result_function(*self.answers)
+        self.result_function(**self.answers)
         self._reset()
