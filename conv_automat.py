@@ -12,7 +12,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logger = logging.getLogger(__name__)
 
 class Conv_automat:
-    
+
     def __init__(self):
         self.states = self._init_states()
 
@@ -38,14 +38,11 @@ class Conv_automat:
         return_dict = state_method(answer)
         logger.debug(f'called method "{state_method.__name__}"')
 
-
-
         if 'next_state' not in return_dict:
             # TODO: handel errors better
             raise Exception('can not handle answer: no next state defined')
         if 'reply' in return_dict and return_dict['reply']:
             update.message.reply_text(return_dict['reply'])
-
 
         next_state_name = return_dict['next_state']
 
@@ -66,9 +63,7 @@ class Conv_automat:
             jump = update
             jump.message.text = ''
             self.handle_answer(jump, context) # recursiv call
-            context.dispatcher.process_update(jump)
-            if pre_state_reply:
-                update.message.reply_text(pre_state_reply)
+            context.dispatcher.process_update(jump) #necessary???
             return
         else:
             raise Exception('Not handeled return value')
@@ -79,7 +74,6 @@ class Conv_automat:
         logger.debug(f'reply massage for user: {pre_state_reply}')
 
         self.curr_state = self.next_state
-        # following state will set this
         self.next_state = None
 
         logger.debug(f'changed state to {self.states[self.curr_state][1].__name__}') 
