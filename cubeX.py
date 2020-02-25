@@ -1,83 +1,78 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Fri Feb 17 11:34:30 2020
 
-@author: Andrew001207
-# Write edits here:
-"""
-from sql.aws_Connector import AwsConnecter
-from configparser import ConfigParser
+import logging
 import time
+from sql.aws_Connector import AwsConnecter
 from sql.sql_Connector import SqlConn
-
 from config_aware import ConfigAware
-class CubeX(ConfigAware):
 
-    def __init__(self, cubeId):
+LOGGER = logging.getLogger("sqlconnecter")
+LOGGER.setLevel(logging.WARNING)
+STREAM_HANDLER = logging.StreamHandler()
+FORMATTER = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+STREAM_HANDLER.setFormatter(FORMATTER)
+LOGGER.addHandler(STREAM_HANDLER)
+
+class CubeX(ConfigAware):
+    "Representation of a Cube"
+    def __init__(self, cube_id):
         super().__init__()
-        self.cubeId = cubeId
+        self.cube_id = cube_id
         self.sql_connection = SqlConn()
-        self.clientId = 'Manager_' + str(cubeId)
+        self.client_id = 'Manager_' + str(cube_id)
         self.connection = AwsConnecter(
             self.conf_aws['host'],
             self.conf_aws['rootcapath'],
             self.conf_aws['certificatepath'],
             self.conf_aws['privatekeypath'],
             int(self.conf_aws['port']),
-            self.clientId)
+            self.client_id)
         try:
             self.connection.connect()
-            logger.info(self.clientId + ' Successfully connected')
+            LOGGER.info(self.client_id + ' Successfully connected')
         except Exception:
             raise Exception('Could not establish a connection to Amazon cloud Services')
 
-    def loadAWSConfig(self, path='cert/config.ini', section='AwsConnector'):
-        # create a parser
-        parser = ConfigParser()
-        # read config file
-        parser.read(path)
-        # get section, default to postgresql
-        if parser.has_section(section):
-            conf = dict(parser.items(section))
-        else:
-            raise Exception('Section {0} not found in the {1} file'.format(section, path))
-        return conf
+    def set_task(self, task_id, side_id, username):
+        '''
+        maps a task on a cube side
+        '''
 
-    def setTask(self, task_id, side_id, username):
-        self.sql_connection.set_task(self.cubeId, side_id, task_id, username= "Paula")
-        pass
+        self.sql_connection.set_task(self.cube_id, side_id, task_id, username="Paula")
 
-    def create_Task(self, group_name, task_name, username):
-        self.sql_connection.create_task(username, self.cubeId, task_name, group_name)
-        pass
+    def create_task(self, group_name, task_name, username):
+        '''
+        creates a task
+        '''
+        self.sql_connection.create_task(username, self.cube_id, task_name, group_name)
 
-    def deleteTask(self, group_name, task_name, username):
-        self.sql_connection.delete_task(username, group_name, task_name)
-        pass
+    def load_state(self):
+        '''
+        sends the tasks to aws
+        '''
+        json = self.sql_connection.write_cube_state_json(self.cube_id)
+        self.connection.send('/CubeX/{}/tasks'.format(self.cube_id), json)
 
-    def loadState(self):
-        json = self.sql_connection.write_cube_state_json(self.cubeId)
-        self.connection.send('/CubeX/{}/tasks'.format(self.cubeId), json)
-        pass
-
-    def taskMessageAction(self, client, userdata, message):
+    def task_message_action(self, client, userdata, message):
+        "Callback function after a side change of the cube"
         cube_response = str(message.payload)
         cube_response = cube_response.strip("b")
         cube_response = cube_response.strip("'")
         cube_response = cube_response.strip("{}")
         cube_response = cube_response.split(":")
         cube_response = cube_response[1].strip('"')
-        self.sql_connection.update_event(cube_response, self.cubeId)
-        #update_event(a, self.cubeId)
-        pass
+        self.sql_connection.update_event(cube_response, self.cube_id)
+        #update_event(a, self.cube_id)
 
     def start(self):
-        if self.sql_connection.check_cube(self.cubeId) == True:
-            self.loadState()
-        self.connection.subscribe('/CubeX/{}/status'.format(self.cubeId), self.taskMessageAction)
+        "starts the connection"
+        if self.sql_connection.check_cube(self.cube_id) == True:
+            self.load_state()
+        self.connection.subscribe('/CubeX/{}/status'.format(self.cube_id), self.task_message_action)
         while True:
             time.sleep(1)
 
     def get_cube_id(self):
-        return self.cubeId
+        "getting the cube id"
+        return self.cube_id
