@@ -270,8 +270,8 @@ def get_all_tasks(username):
 def get_all_group_name(username):
     return fetch_data("select distinct Group_name from Task where username = '{}';".format(username))
 
-def get_all_cube_id():
-    return fetch_data("select cube_ID from cube")
+def get_all_cube_id(username):
+    return fetch_data("select cube_ID from cube where username = {}".format(username))
 
 
 
