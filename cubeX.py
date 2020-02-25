@@ -81,5 +81,8 @@ class CubeX:
         while True:
             time.sleep(1)
 
+    def get_cube_id(self):
+        return self.cubeId
+
 
 
