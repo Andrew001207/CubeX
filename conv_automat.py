@@ -78,8 +78,6 @@ class Conv_automat:
 
         logger.debug(f'changed state to {self.states[self.curr_state][1].__name__}') 
 
-        ############################## STATES ######################################
-
     def _init_states(self):
         states = dict()
 
@@ -113,7 +111,7 @@ class Conv_automat:
             if answer == "skip":
                 self.answers.append(None)
             else:
-                valid_answer = False if not answer.isdigit() else int(answer) in self.user.list_cubes()
+                valid_answer = False if not answer.isdigit() else int(answer) in self.userX.list_cubes()
                 if valid_answer:
                     self.answers.append(int(answer))
                     ############ EXECUTE DB FUNCTION ################
@@ -124,7 +122,7 @@ class Conv_automat:
         states["optional_add_cube"] = ("Select a cube the task should be bound to or enter 'skip'", _optional_add_cube)
 
         def select_cube(self, answer):
-            valid_answer = False if not answer.isdigit() else int(answer) in self.user.list_cubes()
+            valid_answer = False if not answer.isdigit() else int(answer) in self.userX.list_cubes()
             if valid_answer:
                 self.cubeX = CubeX(int(answer))
                 if self.result_function:
@@ -134,31 +132,31 @@ class Conv_automat:
             else:
                 return _return_dict("select_cube", f"Cube {answer} does not exist, please try again")
         states["select_cube"] = (f"Please enter the ID of the cube you want to select from "\
-                                  "the following:\n{self.userX.list_cubes()}", select_cube)
+                                f"the following:\n{self.userX.list_cubes()}", select_cube)
 
         def _select_task(self, answer):
             #Check if answer is an existing task_id
-            valid_answer = False if not answer.isdigit() else int(answer) in [task[0] for task in self.user.list_tasks(self.cubeX.get_cube_id())]
+            valid_answer = False if not answer.isdigit() else int(answer) in [task[0] for task in self.userX.list_tasks(self.cubeX.get_cube_id())]
             if valid_answer:
                 self.answers.append(int(answer))
                 return _return_dict("select_side")
             else:
                 return _return_dict("select_task", f"Task {answer} does not exist, please try again")
         states["select_task"] = (f"Please enter the ID of the task you want to select out of the following:"\
-                                  "\n(ID, Name, Group), {self.userX.list_tasks(self.cubeX.get_cube_id())}", _select_task)
+                                 f"\n(ID, Name, Group), {self.userX.list_tasks(self.cubeX.get_cube_id())}", _select_task)
 
         def _select_group(self, answer):
             if(answer == "create_group"):
                 return _return_dict("create_group")
             else:
-                valid_answer = False if not self.user.list_groups() else answer in self.user.list_groups()
+                valid_answer = False if not self.userX.list_groups() else answer in self.userX.list_groups()
                 if valid_answer:
                     self.answers.append(answer)
                     return _return_dict("optional_add_cube")
                 else:
                     return _return_dict("select_group", f"Group {answer} does not exist, please try again")
         states["select_group"] = (f"Please enter the name of the group you want to select from the following or enter "\
-                                   "create_group to create a new one\n{self.userX.list_groups()}", _select_group)
+                                  f"create_group to create a new one\n{self.userX.list_groups()}", _select_group)
 
         def _select_side(self, answer):
             valid_answer = False if not answer.isdigit() else int(answer) in range(1, 7)
@@ -179,7 +177,7 @@ class Conv_automat:
                 return _return_dict("select_cube")
         states["map_task"] = (None, map_task)
 
-        #Has to be last to cover all states in help text
+        #Has to be last state function to cover all states in help text
         def help(self, answer):
             #TODO add help text
             return _return_dict("start", 'help text')
