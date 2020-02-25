@@ -95,11 +95,3 @@ class State():
     def __init__(self, pre_enter, state_methode):
         self.pre_enter = pre_enter
         self.state_methode = state_methode
-
-
-class Builder():
-    def __init__(self, to_build):
-        self.to_build = to_build
-        self.argument_list = [None] * self.to_build.__code__.co_argcount
-    def build(self):
-        return self.to_build(*self.argument_list)

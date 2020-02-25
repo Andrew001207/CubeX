@@ -12,6 +12,17 @@ import time
 from sql.sql_Connector import SqlConn
 
 from config_aware import ConfigAware
+
+import logging, traceback
+# Enable logging
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                    level=logging.INFO)
+
+logger = logging.getLogger(__name__)
+
+
+logger.info('Read config')
+
 class CubeX(ConfigAware):
 
     def __init__(self, cubeId):
@@ -50,10 +61,6 @@ class CubeX(ConfigAware):
 
     def create_Task(self, group_name, task_name, username):
         self.sql_connection.create_task(username, self.cubeId, task_name, group_name)
-        pass
-
-    def deleteTask(self, group_name, task_name, username):
-        self.sql_connection.delete_task(username, group_name, task_name)
         pass
 
     def loadState(self):
