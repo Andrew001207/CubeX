@@ -16,7 +16,7 @@ class CubeX(ConfigAware):
 
     def __init__(self, cubeId):
         self.cubeId = cubeId
-        self.sqlconnection = self.conf_db
+        self.sql_connection = self.conf_db
         self.clientId = 'Manager_' + str(cubeId)
         self.connection = AwsConnecter(
             conf['host'],
