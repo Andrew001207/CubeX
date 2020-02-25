@@ -190,16 +190,15 @@ class SqlConn(ConfigAware):
                             .format(task_id, side_id, cube_id))
 
 
-    def delete_task(self,username, group_name, task_name):
+    def delete_task(self,username, task_id):
         """
 
         :param cube_id: integer
-        :param group_name: string
-        :param task_name: string
+        :param task_id: int
         :return: nothing
         """
         self.execute_command(
-            "delete from task where(username = {} and group = '{}' and task = '{}');".format(username, group_name, task_name))
+            "delete from task where(username = {} and task_id = {});".format(username, task_id))
 
     def check_cube(self,cube_id):
         """"
