@@ -90,11 +90,13 @@ def _init_states():
     def select_task(answer, arg_dict):
         """this is a method which handles the answer and changes the state"""
         #Replace true with DB method task exists
-        if True and "result_function" in arg_dict:
-            arg_dict["answers"].append(answer)
-            return _return_dict("select_group", **arg_dict) 
-        elif False and "result_function" in arg_dict:
-            return _return_dict("select_task", f"Task {answer} does not exist, please try again")
+        if "result_function" in arg_dict:
+            valid_answer = False if not answer.isdigit() else int(answer) in get_all_tasks(user) #TODO only cmp with ids
+            if valid_answer:
+                arg_dict["answers"].append(int(answer))
+                return _return_dict("select_side", **arg_dict) 
+            else:
+                return _return_dict("select_task", f"Task {answer} does not exist, please try again")
         else:
             return _return_dict("error", f"How the hell did you do this???")
     state_list.append(State(f"Please enter the ID of the task you want to select out of the following:\n(ID, Name, Group), {get_all_tasks(user)}", select_task))
@@ -121,14 +123,18 @@ def _init_states():
 
     def select_side(answer, arg_dict):
         #Replace true with DB method group exists
-        if True and "result_function" in arg_dict:
-            try:
+        if "result_function" in arg_dict:
+            valid_answer = False if not answer.isdigit() else int(answer) in range(1, 7)
+            if valid_answer:
                 arg_dict["answers"].append(answer)
-                build_result = arg_dict["result_function"](*arg_dict["answers"])
-                if not build_result:
-                    _return_dict("error", "Something went wrong")
-            except Exception:
-                _return_dict("error", traceback.format_exc())
+                try:
+                    build_result = arg_dict["result_function"](*arg_dict["answers"])
+                    if not build_result:
+                        logger.warning(f"Function {arg_dict['result_function'].__name__} called from function select_side did not work")
+                        _return_dict("error", "Something went wrong")
+                except Exception:
+                    logger.warning(f"Failed to execute funtion {arg_dict['result_function'].__name__} from function select_side with error\n{traceback.format_exc()}")
+                    return _return_dict("error", "Something went wrong")
             return _return_dict("start") #Any answer from builder instead of None
         elif False and "result_function" in arg_dict:
             return _return_dict("select_side", f"Side {answer} does not exist, please try again")
