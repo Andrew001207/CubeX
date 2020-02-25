@@ -29,13 +29,13 @@ class Conv_automat:
 
     def handle_answer(self, update, context):
         """this is the method which handles the state changes"""
-
+        #TODO handel error
         answer = update.message.text
 
         state_method = self.states[self.curr_state][1]
 
         # call method of current state, return name of next state and optional instant reply
-        return_dict = state_method(answer)
+        return_dict = state_method(self, answer)
         logger.debug(f'called method "{state_method.__name__}"')
 
         if 'next_state' not in return_dict:
@@ -44,18 +44,19 @@ class Conv_automat:
         if 'reply' in return_dict and return_dict['reply']:
             update.message.reply_text(return_dict['reply'])
 
-        next_state_name = return_dict['next_state']
+        self.next_state = return_dict['next_state']
 
-        if next_state_name not in self.states:
+        if self.next_state not in self.states:
             raise Exception('Could not handle state, state does not exist')
 
-        next_pre_enter = self.states[next_state_name][0]
-
-        self.next_state = self.states[next_state_name]
+        next_pre_enter = self.states[self.next_state][0]
 
         pre_state_reply = None
         if isinstance(next_pre_enter, str):
             pre_state_reply = next_pre_enter
+        elif callable(next_pre_enter):
+            pre_state_reply = next_pre_enter(self)
+            logger.debug(f'called method "{next_pre_enter.__name__}"')
         elif next_pre_enter is None:
             #Trigger automatic jump to next state
             self.curr_state = self.next_state
@@ -63,7 +64,6 @@ class Conv_automat:
             jump = update
             jump.message.text = ''
             self.handle_answer(jump, context) # recursiv call
-            context.dispatcher.process_update(jump) #necessary???
             return
         else:
             raise Exception('Not handeled return value')
@@ -126,12 +126,13 @@ class Conv_automat:
             if valid_answer:
                 self.cubeX = CubeX(int(answer))
                 if self.result_function:
+                    self.result_function = self.cubeX.setTask
                     return _return_dict("select_task")
                 else:
                     return _return_dict("start", f"Selcted cube {answer}")
             else:
                 return _return_dict("select_cube", f"Cube {answer} does not exist, please try again")
-        states["select_cube"] = (f"Please enter the ID of the cube you want to select from "\
+        states["select_cube"] = (lambda self: f"Please enter the ID of the cube you want to select from "\
                                 f"the following:\n{self.userX.list_cubes()}", select_cube)
 
         def _select_task(self, answer):
@@ -142,7 +143,7 @@ class Conv_automat:
                 return _return_dict("select_side")
             else:
                 return _return_dict("select_task", f"Task {answer} does not exist, please try again")
-        states["select_task"] = (f"Please enter the ID of the task you want to select out of the following:"\
+        states["select_task"] = (lambda self: f"Please enter the ID of the task you want to select out of the following:"\
                                  f"\n(ID, Name, Group), {self.userX.list_tasks(self.cubeX.get_cube_id())}", _select_task)
 
         def _select_group(self, answer):
@@ -155,7 +156,7 @@ class Conv_automat:
                     return _return_dict("optional_add_cube")
                 else:
                     return _return_dict("select_group", f"Group {answer} does not exist, please try again")
-        states["select_group"] = (f"Please enter the name of the group you want to select from the following or enter "\
+        states["select_group"] = (lambda self: f"Please enter the name of the group you want to select from the following or enter "\
                                   f"create_group to create a new one\n{self.userX.list_groups()}", _select_group)
 
         def _select_side(self, answer):
@@ -174,6 +175,7 @@ class Conv_automat:
                 self.result_function = self.cubeX.set_task
                 return _return_dict("select_task")
             else:
+                self.result_function = 'TODO be set'
                 return _return_dict("select_cube")
         states["map_task"] = (None, map_task)
 
@@ -196,6 +198,6 @@ class Conv_automat:
         self.answers = dict()
 
     def _execute_function(self):
-        #TODO Error handling
+        #TODO Error handling and add username
         self.result_function(**self.answers)
         self._reset()
