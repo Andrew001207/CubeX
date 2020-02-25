@@ -9,8 +9,8 @@ from sqlite3 import OperationalError
 
 import json
 import logging
-import hashlib, binascii, os
 import traceback
+from django.contrib.auth.hashers import PBKDF2PasswordHasher,PBKDF2SHA1PasswordHasher,Argon2PasswordHasher,BCryptSHA256PasswordHasher
 
 import psycopg2
 
@@ -24,6 +24,13 @@ streamHandler.setFormatter(formatter)
 logger.addHandler(streamHandler)
 
 class SqlConn(ConfigAware):
+    '''
+    Connection to database
+    Methods for interacting with the database
+
+    :param configdict: database connection information
+    '''
+
     def make_conn(self):
         conn = None
         params = self.conf_aws
@@ -34,7 +41,7 @@ class SqlConn(ConfigAware):
         return conn
 
 
-    def fetch_data(self,cmd):
+    def fetch_data(self, cmd):
         """
         fetches data from the aws server
 
@@ -52,6 +59,7 @@ class SqlConn(ConfigAware):
         cursor = conn.cursor()
         cursor.execute(cmd)
         raw = cursor.fetchall()
+        #TODO Schleife notwendig?
         for line in raw:
             result.append(line)
         cursor.close()
@@ -59,7 +67,7 @@ class SqlConn(ConfigAware):
         return result
 
 
-    def execute_command(self,cmd):
+    def execute_command(self, cmd):
         """
         executes sql cmd on the aws server
 
@@ -75,7 +83,7 @@ class SqlConn(ConfigAware):
         conn.close()
 
 
-    def _execute_Scripts_From_File(self,filename):
+    def _execute_Scripts_From_File(self, filename):
         """
         executes sql scrips from file
 
@@ -142,7 +150,7 @@ class SqlConn(ConfigAware):
             except:
                 print(traceback.format_exc())
                 logger.warning("task schon vorhanden")
-        else: 
+        else:
             try:
                 self.execute_command("insert into task values (default,'{}','{}', {}, '{}');".format(task_name, group_name, cube_id, username))
             except:
@@ -253,11 +261,16 @@ class SqlConn(ConfigAware):
         liste = list()
         for part in data:
             liste.append(part[0])
-
         return liste
 
-    def get_all_tasks(self,username):
-        return self.fetch_to_list(self.fetch_data("select task_name from task where username = '{}';".format(username)))
+    def fetch_multiple_to_list(self,data):
+        liste = list()
+        for part in data:
+            liste.append(part)
+        return liste
+
+    def get_all_tasks(self,username,cubeid):
+        return self.fetch_multiple_to_list(self.fetch_data("select task_id,task_name,group_name from task where username = '{}' and (cube_id = {} or cube_id = null);".format(username,cubeid)))
 
     def get_all_group_name(self,username):
         return self.fetch_to_list(self.fetch_data("select distinct Group_name from Task where username = '{}';".format(username)))
@@ -272,7 +285,7 @@ class SqlConn(ConfigAware):
     # Group_ID wird ignoriert
         username = self.fetch_data("select username from cube where Cube_ID = {};".format(cube_id))[0][0]
         task_id = self.fetch_data("select Task_Id from task where username = '{}' and Task_Name = '{}';".format(username,task_name))[0][0]
-        
+
         self.execute_command("update event set end_time = clock_timestamp() where start_time = (select max(start_time) from event);")
         self.execute_command("insert into event values (default, {}, clock_timestamp(), null );".format(task_id))
 
