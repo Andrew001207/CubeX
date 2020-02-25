@@ -9,8 +9,8 @@ from sqlite3 import OperationalError
 
 import json
 import logging
-import hashlib, binascii, os
 import traceback
+from django.contrib.auth.hashers import PBKDF2PasswordHasher,PBKDF2SHA1PasswordHasher,Argon2PasswordHasher,BCryptSHA256PasswordHasher
 
 import psycopg2
 
@@ -282,6 +282,14 @@ def get_all_cube_id(username):
 
 def set_telegram_user(username,telegram_username):
     execute_command("update auth_user set telegram_id = {} where username = {}".format(telegram_username,username))
+
+def is_username(telegram_id):
+    list = fetch_to_list(fetch_data("select username from auth_user where telegram_id = {}".format(telegram_id)))
+    if len(list) == 0:
+        return False
+    else:
+        return True
+
 #toDo boolean for if telegram user exists
 #toDo create user
 #toDo hashpassword of django
