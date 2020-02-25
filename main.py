@@ -72,7 +72,6 @@ def _init_states():
         return _return_dict("start", f"Following task was created: {arg_dict['answers']}")
     state_list.append(State("Should the task be bound to selected cube? [y/n]", optional_add_cube))
 
-
     def select_cube(answer, arg_dict):
         #Replace true with DB method cube exists
         valid_answer = False if not answer.isdigit() else int(answer) in get_all_cube_id(user)
