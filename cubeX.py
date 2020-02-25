@@ -8,13 +8,13 @@ Created on Fri Feb 17 11:34:30 2020
 """
 from sql.aws_Connector import AwsConnecter
 from configparser import ConfigParser
-from sql.sql_Connector import set_task, delete_task, write_cube_state_json, create_task, create_cube, check_cube, update_event
 import time
-
+import sql.sql_Connector
 class CubeX:
 
-    def __init__(self, cubeId):
+    def __init__(self, cubeId,connection):
         self.cubeId = cubeId
+        self.connection = connection
         self.clientId = 'Manager_' + str(cubeId)
         conf = self.loadAWSConfig()
         self.connection = AwsConnecter(
@@ -47,19 +47,19 @@ class CubeX:
     # TODO Implement following methods
 
     def setTask(self, group, name, side):
-        set_task(self.cubeId, side, name, group)
+        self.connection.set_task(self.cubeId, side, name, group)
         pass
 
     def create_Task(self, group, name):
-        create_task(self.cubeId, group, name)
+        self.connection.create_task(self.cubeId, group, name)
         pass
 
     def deleteTask(self, group, name):
-        delete_task(self.cubeId, group, name)
+        self.connection.delete_task(self.cubeId, group, name)
         pass
 
     def loadState(self):
-        json = write_cube_state_json(self.cubeId)
+        json = self.connection.write_cube_state_json(self.cubeId)
         self.connection.send('/CubeX/{}/tasks'.format(self.cubeId), json)
         pass
 
@@ -70,13 +70,19 @@ class CubeX:
         a = a.strip("{}")
         a = a.split(":")
         a = a[1].strip('"')
-        update_event(a,self.cubeId)
+        self.connection.update_event(a,self.cubeId)
         #update_event(a,self.cubeId)
         pass
 
     def start(self):
-        if check_cube(a.cubeId) == True:
+        if self.connection.check_cube(a.cubeId) == True:
             a.loadState()
         a.connection.subscribe('/CubeX/{}/status'.format(a.cubeId), a.taskMessageAction)
         while True:
             time.sleep(1)
+
+if  __name__ == "__main__":
+    print("Test run")
+    b = sql.sql_Connector.SqlConn()
+    a = CubeX(1,b )
+    a.start()
