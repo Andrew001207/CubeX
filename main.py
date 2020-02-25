@@ -48,7 +48,6 @@ def _init_states():
     state_list.append(State(None, error))
 
     def create_task(answer, arg_dict):
-        #TODO call db method
         return _return_dict("select_group", answers=["answer"], result_function=arg_dict["cubeX"].create_Task)
     state_list.append(State("Please enter the name for the new task", create_task))
 
@@ -70,6 +69,7 @@ def _init_states():
                 arg_dict["answers"].append(int(answer))
             else:
                 return _return_dict("optional_add_cube", "Invalid answer, please try again.")
+        ############ EXECUTE DB FUNCTION ################
         arg_dict["result_function"](*arg_dict["answers"])
         return _return_dict("start", f"Following task was created: {arg_dict['answers']}")
     state_list.append(State("Select a cube the task should be bound to or enter 'skip'", optional_add_cube))
@@ -127,6 +127,7 @@ def _init_states():
             valid_answer = False if not answer.isdigit() else int(answer) in range(1, 7)
             if valid_answer:
                 arg_dict["answers"].append(answer)
+                ########## EXECUTE DB FUNCTION #####################
                 try:
                     build_result = arg_dict["result_function"](*arg_dict["answers"])
                     if not build_result:
