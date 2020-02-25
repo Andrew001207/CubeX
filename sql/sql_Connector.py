@@ -171,7 +171,7 @@ class SqlConn:
         self.execute_command("insert into cube values ({},'{}');".format(cube_id,username))
 
 
-    def set_task(self,cube_id, side_id, task_name, group_name,username= "Paula"):
+    def set_task(self,cube_id, side_id, task_id, username= "Paula"):
         """
         :param cube_id: integer
         :param side_id: integer
@@ -182,11 +182,8 @@ class SqlConn:
         #creates and sets tasks if wanted
         #create_task(cube_id ,task_name, group_name)
 
-        id = self.fetch_data("select Task_Id from task where Task_Name = '{}' and Group_name = '{}' and username = '{}' ".format(task_name, group_name, username))
-        task_id = id[0][0]
-
         try:
-            print(cube_id,side_id,task_name,group_name)
+            print(cube_id,side_id,task_id)
             self.execute_command("insert into side values ({},{},{});".format(side_id, cube_id, task_id))
         except:
             print("sides vorhanden update side")
