@@ -273,6 +273,9 @@ def get_all_group_name(username):
 def get_all_cube_id(username):
     return fetch_data("select cube_ID from cube where username = {}".format(username))
 
+def set_telegram_user(username,telegram_username):
+    execute_command("update auth_user set telegram_id = {} where username = {}".format(telegram_username,username))
+
 
 
 def update_event(task_name, cube_id):
