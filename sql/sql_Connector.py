@@ -9,8 +9,8 @@ from sqlite3 import OperationalError
 
 import json
 import logging
-import hashlib, binascii, os
 import traceback
+from django.contrib.auth.hashers import PBKDF2PasswordHasher,PBKDF2SHA1PasswordHasher,Argon2PasswordHasher,BCryptSHA256PasswordHasher
 
 import psycopg2
 
