@@ -1,7 +1,9 @@
 import logging, configparser, traceback
 
 from telegram.ext import Updater, MessageHandler, Filters
-from bot import State, Conv_automat, Builder
+from bot import State, Conv_automat
+from sql.sql_Connector import get_all_cube_id, get_all_group_name
+from cubeX import CubeX
 #from cubeX import CubeX
 # Read configfile
 config = configparser.ConfigParser()
@@ -19,7 +21,9 @@ logger = logging.getLogger(__name__)
 
 logger.info('Read config')
 
-def init_states():
+user = "Paula"
+
+def _init_states():
 
     state_list = []
 
@@ -51,23 +55,39 @@ def init_states():
     def create_group(answer, arg_dict):
         #TODO call db method
         if arg_dict["result_function"].__name__ == "create_Task":
-            arg_dict["result_function"](answer, arg_dict["answers"][0])
-            return _return_dict("start", f"Following group was created: {answer}")
+            arg_dict["answers"].append(answer)
+            return _return_dict("optional_add_cube", f"Following group was created: {answer}")
         else:
             return _return_dict("error", "How the hell did you do this???")
     state_list.append(State("Please enter the name for the new group", create_group))
 
+    def optional_add_cube(answer, arg_dict):
+        if answer == "y":
+            arg_dict["answers"].append(arg_dict["CubeX"].get_cube_id())
+        elif answer == "n":
+            arg_dict["answers"].append(None)
+        else:
+            return _return_dict("optional_add_cube", "Invalid answer, please try again.")
+        arg_dict["result_function"](*arg_dict["answers"])
+        return _return_dict("start", f"Following task was created: {arg_dict['answers']}")
+    state_list.append(State("Should the task be bound to selected cube? [y/n]", optional_add_cube))
+
+
     def select_cube(answer, arg_dict):
         #Replace true with DB method cube exists
-        if True and "result_function" in arg_dict:
+        valid_answer = False if not answer.isdigit() else int(answer) in get_all_cube_id(user)
+        if valid_answer:
             cubeX = CubeX(int(answer))
-            return _return_dict("select_task", result_function=cubeX.setTask, cubeX=cubeX, answers=[], **arg_dict)
-        elif True and not "result_function" in arg_dict:
-            cubeX = CubeX(int(answer))
-            return _return_dict("start", f"Selcted cube {answer}", cubeX=cubeX)
+            if "result_function" in arg_dict:
+                if arg_dict["result_function"].__name__ == "setTask":
+                    return _return_dict("select_task", result_function=cubeX.setTask, cubeX=cubeX, answers=[], **arg_dict)
+                else:
+                    return _return_dict("error", f"How the hell did you do this???")
+            else:
+                return _return_dict("start", f"Selcted cube {answer}", cubeX=cubeX)
         else:
             return _return_dict("select_cube", f"Cube {answer} does not exist, please try again")
-    state_list.append(State("Please enter the ID of the cube you want to select", select_cube))
+    state_list.append(State(f"Please enter the ID of the cube you want to select from the following:\n{get_all_cube_id(user)}", select_cube))
 
     def select_task(answer, arg_dict):
         """this is a method which handles the answer and changes the state"""
@@ -86,13 +106,19 @@ def init_states():
         #Replace true with DB method group exists
         if(answer == "create_group"):
             return _return_dict("create_group", **arg_dict)
-        elif True and "result_function" in arg_dict:
-            arg_dict["answers"].append(answer)
-            return _return_dict("select_side", **arg_dict)
-        elif False and "result_function" in arg_dict:
-            return _return_dict("select_group", f"Group {answer} does not exist, please try again")
         else:
-            return _return_dict("error", f"How the hell did you do this???")
+            if "result_function" in arg_dict:
+                valid_answer = False if not get_all_group_name(user) else answer in get_all_group_name(user)
+                if valid_answer:
+                    if arg_dict["result_function"].__name__ == "create_Task":
+                        arg_dict["answers"].append(answer)
+                        return _return_dict("optional_add_cube", **arg_dict)
+                    else:
+                        return _return_dict("error", f"How the hell did you do this???")
+                else:
+                    return _return_dict("select_group", f"Group {answer} does not exist, please try again")
+            else:
+                return _return_dict("error", f"How the hell did you do this???")
     state_list.append(State("Please enter the name of the group you want to select or enter create_group to create a new one", select_group))
 
     def select_side(answer, arg_dict):
@@ -145,7 +171,7 @@ def main(bot_token):
     dp = updater.dispatcher
 
     # create a instanc of the conversation automat:
-    ca = Conv_automat(init_states(), bot_token)
+    ca = Conv_automat(_init_states(), bot_token)
 
     dp.add_handler(MessageHandler(Filters.regex('^[a-zA-Z0-9]'), ca.handle_answer))
 
