@@ -1,8 +1,9 @@
 import logging, traceback
 
+from telegram.ext import Updater, MessageHandler, Filters
+
 from config_aware import ConfigAware
 
-from telegram.ext import Updater, MessageHandler, Filters
 from bot import State, Conv_automat
 from userX import UserX
 from cubeX import CubeX
@@ -23,82 +24,78 @@ def _init_states():
 
     state_list = []
 
-    def start(answer, arg_dict):
+    def _start(self, answer):
         """this is a method which handles the answer and changes the state"""
         #TODO: implement me!
         return _return_dict(answer)
     state_list.append(State('Please select a command, for avaiable commands enter "help"', start))
 
-    def help(answer, arg_dict):
+    def _help(self, answer):
         return _return_dict("start", 'help text')
     state_list.append(State(None, help))
 
-    def cancel(answer, arg_dict):
+    def _cancel(self, answer):
         #TODO Clear builder
         return _return_dict("start", "Command cancelled")
     state_list.append(State(None, cancel))
 
-    def error(update, answer, arg_dict):
+    def _error(self, update, answer):
         """Log Errors caused by Updates."""
         return _return_dict("start", "Error occurred, trying to start over...")
     state_list.append(State(None, error))
 
-    def create_task(answer, arg_dict):
+    def _create_task(self, answer):
         return _return_dict("select_group", answers=["answer"], result_function=arg_dict["cubeX"].create_Task)
     state_list.append(State("Please enter the name for the new task", create_task))
 
-    def create_group(answer, arg_dict):
+    def _create_group(self, answer):
         #TODO call db method
         if arg_dict["result_function"].__name__ == "create_Task":
             arg_dict["answers"].append(answer)
             return _return_dict("optional_add_cube", f"Following group was created: {answer}")
-        else:
-            return _return_dict("error", "How the hell did you do this???")
+
+        return _return_dict("error", "How the hell did you do this???")
+
     state_list.append(State("Please enter the name for the new group", create_group))
 
-    def optional_add_cube(answer, arg_dict):
+    def _optional_add_cube(self, answer):
         if answer == "skip":
             arg_dict["answers"].append(None)
         else:
             valid_answer = False if not answer.isdigit() else int(answer) in UserX(user).list_cubes()
             if valid_answer:
                 arg_dict["answers"].append(int(answer))
-            else:
-                return _return_dict("optional_add_cube", "Invalid answer, please try again.")
+            return _return_dict("optional_add_cube", "Invalid answer, please try again.")
         ############ EXECUTE DB FUNCTION ################
         arg_dict["result_function"](*arg_dict["answers"])
         return _return_dict("start", f"Following task was created: {arg_dict['answers']}")
     state_list.append(State("Select a cube the task should be bound to or enter 'skip'", optional_add_cube))
 
-    def select_cube(answer, arg_dict):
+    def _select_cube(self, answer):
         #Replace true with DB method cube exists
         valid_answer = False if not answer.isdigit() else int(answer) in UserX(user).list_cubes()
         if valid_answer:
             cubeX = CubeX(int(answer))
             if "result_function" in arg_dict:
                 return _return_dict("select_task", result_function=cubeX.setTask, cubeX=cubeX, answers=[], **arg_dict)
-            else:
-                return _return_dict("start", f"Selcted cube {answer}", cubeX=cubeX)
-        else:
-            return _return_dict("select_cube", f"Cube {answer} does not exist, please try again")
+            return _return_dict("start", f"Selcted cube {answer}", cubeX=cubeX)
+        return _return_dict("select_cube", f"Cube {answer} does not exist, please try again")
     state_list.append(State(f"Please enter the ID of the cube you want to select from the following:\n{UserX(user).list_cubes()}", select_cube))
 
-    def select_task(answer, arg_dict):
+    def _select_task(self, answer):
         """this is a method which handles the answer and changes the state"""
         #Replace true with DB method task exists
         if "result_function" in arg_dict:
             valid_answer = False if not answer.isdigit() else int(answer) in UserX(user).list_tasks(arg_dict["cubeX"].get_cube_id()) #TODO only cmp with ids
             if valid_answer:
                 arg_dict["answers"].append(int(answer))
-                return _return_dict("select_side", **arg_dict) 
-            else:
-                return _return_dict("select_task", f"Task {answer} does not exist, please try again")
-        else:
-            return _return_dict("error", f"How the hell did you do this???")
+                return _return_dict("select_side", **arg_dict)
+            return _return_dict("select_task", f"Task {answer} does not exist, please try again")
+        return _return_dict("error", f"How the hell did you do this???")
 
     state_list.append(State(lambda arg_dict: f"Please enter the ID of the task you want to select out of the following:\n(ID, Name, Group), {UserX(user).list_tasks(arg_dict['cubeX'].get_cube_id())}", select_task))
 
-    def select_group(answer, arg_dict):
+    def _select_group(self, answer):
         """this is a method which handles the answer and changes the state"""
         #Replace true with DB method group exists
         if(answer == "create_group"):
@@ -110,15 +107,12 @@ def _init_states():
                     if arg_dict["result_function"].__name__ == "create_Task":
                         arg_dict["answers"].append(answer)
                         return _return_dict("optional_add_cube", **arg_dict)
-                    else:
-                        return _return_dict("error", f"How the hell did you do this???")
-                else:
-                    return _return_dict("select_group", f"Group {answer} does not exist, please try again")
-            else:
-                return _return_dict("error", f"How the hell did you do this???")
+                    return _return_dict("error", f"How the hell did you do this???")
+                return _return_dict("select_group", f"Group {answer} does not exist, please try again")
+            return _return_dict("error", f"How the hell did you do this???")
     state_list.append(State("Please enter the name of the group you want to select or enter create_group to create a new one", select_group))
 
-    def select_side(answer, arg_dict):
+    def _select_side(self, answer):
         #Replace true with DB method group exists
         if "result_function" in arg_dict:
             valid_answer = False if not answer.isdigit() else int(answer) in range(1, 7)
@@ -136,16 +130,14 @@ def _init_states():
             return _return_dict("start") #Any answer from builder instead of None
         elif False and "result_function" in arg_dict:
             return _return_dict("select_side", f"Side {answer} does not exist, please try again")
-        else:
-            return _return_dict("error", f"How the hell did you do this???")
+        return _return_dict("error", f"How the hell did you do this???")
     state_list.append(State("Please enter the number of the side you want to select", select_side))
 
-    def map_task(answer, arg_dict):
+    def _map_task(self, answer):
         #TODO DB function map_task instead of none
         if "cubeX" in arg_dict:
             return _return_dict("select_task", result_function=arg_dict["cubeX"].setTask, answers=[], **arg_dict)
-        else:
-            return _return_dict("select_cube", "No cube selected yet", result_function="TODO To be set", **arg_dict)
+        return _return_dict("select_cube", "No cube selected yet", result_function="TODO To be set", **arg_dict)
     state_list.append(State(None, map_task))
 
     return state_list
