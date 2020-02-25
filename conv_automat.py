@@ -126,7 +126,7 @@ class Conv_automat:
             if valid_answer:
                 self.cubeX = CubeX(int(answer))
                 if self.result_function:
-                    self.result_function = self.cubeX.setTask
+                    self.result_function = self.cubeX.set_task
                     return _return_dict("select_task")
                 else:
                     return _return_dict("start", f"Selcted cube {answer}")
