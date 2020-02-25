@@ -27,7 +27,7 @@ class CubeX:
         try:
             self.connection.connect()
             print(self.clientId + ' Successfully connected')
-        except Exception as e:
+        except Exception:
             print("Fehler")
 
         # TODO Connect database instance
@@ -81,8 +81,27 @@ class CubeX:
         while True:
             time.sleep(1)
 
+
+
+def config(filename='config.ini', section='postgresql'):
+    # create a parser
+    parser = ConfigParser()
+    # read config file
+    parser.read(filename)
+
+    # get section, default to postgresql
+    db = {}
+    if parser.has_section(section):
+        params = parser.items(section)
+        for param in params:
+            db[param[0]] = param[1]
+    else:
+        raise Exception('Section {0} not found in the {1} file'.format(section, filename))
+
+    return db
+
 if  __name__ == "__main__":
     print("Test run")
-    b = sql.sql_Connector.SqlConn()
+    b = sql.sql_Connector.SqlConn(config())
     a = CubeX(1,b )
     a.start()

@@ -204,6 +204,7 @@ class SqlConn:
         checks if cube is aready existent
 
         """
+        print("sfsa")
         check = False
         data = self.fetch_data("select * from cube where cube_id = {}".format(cube_id))
         for cube in data:
