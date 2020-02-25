@@ -256,12 +256,17 @@ class SqlConn:
         liste = list()
         for part in data:
             liste.append(part[0])
-
         return liste
-
-    def get_all_tasks(self,username):
-        return self.fetch_to_list(self.fetch_data("select task_name from task where username = '{}';".format(username)))
-
+    
+    def fetch_multiple_to_list(self,data):
+        liste = list()
+        for part in data:
+            liste.append(part)
+        return liste
+    
+    def get_all_tasks(self,username,cubeid):
+        return self.fetch_multiple_to_list(self.fetch_data("select task_id,task_name,group_name from task where username = '{}' and (cube_id = {} or cube_id = null);".format(username,cubeid)))
+    
     def get_all_group_name(self,username):
         return self.fetch_to_list(self.fetch_data("select distinct Group_name from Task where username = '{}';".format(username)))
 

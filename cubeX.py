@@ -46,16 +46,16 @@ class CubeX:
 
     # TODO Implement following methods
 
-    def setTask(self, group, name, side):
-        self.sqlconnection.set_task(self.cubeId, side, name, group)
+    def setTask(self, group_name, task_name, side_id, username):
+        self.sqlconnection.set_task(self.cubeId, side_id, task_name, group_name,username= "Paula")
         pass
 
-    def create_Task(self, group, name):
-        self.sqlconnection.create_task(self.cubeId, group, name)
+    def create_Task(self, group_name, task_name, username):
+        self.sqlconnection.create_task(username,self.cubeId, task_name,group_name)
         pass
 
-    def deleteTask(self, group, name):
-        self.sqlconnection.delete_task(self.cubeId, group, name)
+    def deleteTask(self, group_name, task_name, username):
+        self.sqlconnection.delete_task(username, group_name, task_name)
         pass
 
     def loadState(self):
@@ -105,3 +105,5 @@ if  __name__ == "__main__":
     b = sql.sql_Connector.SqlConn(config())
     a = CubeX(1,b )
     a.start()
+
+    print(b.get_all_tasks("Paula",1))
