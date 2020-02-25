@@ -6,20 +6,18 @@ Created on Fri Feb 17 11:34:30 2020
 @author: Andrew001207
 # Write edits here:
 """
-from sql.aws_Connector import AwsConnecter
+import logging, traceback, time
 from configparser import ConfigParser
-import time
-from sql.sql_Connector import SqlConn
 
+from sql.aws_Connector import AwsConnecter
+from sql.sql_Connector import SqlConn
 from config_aware import ConfigAware
 
-import logging, traceback
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
 
 logger = logging.getLogger(__name__)
-
 
 logger.info('Read config')
 
