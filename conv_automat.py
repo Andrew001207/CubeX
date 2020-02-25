@@ -14,7 +14,6 @@ logger = logging.getLogger(__name__)
 class Conv_automat:
 
     def __init__(self):
-        self.states = self._init_states()
 
         self.cubeX = None
         self.userX = UserX("Paula")
@@ -26,6 +25,7 @@ class Conv_automat:
         #TODO: catch index error:
         self.curr_state = "start"
         self.next_state = None # will be set by the current methode
+        self.states = self._init_states()
 
     def handle_answer(self, update, context):
         """this is the method which handles the state changes"""
