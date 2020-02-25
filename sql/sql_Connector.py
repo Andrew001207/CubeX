@@ -274,6 +274,9 @@ def get_all_cube_id(username):
 
 def set_telegram_user(username,telegram_username):
     execute_command("update auth_user set telegram_id = {} where username = {}".format(telegram_username,username))
+#toDo boolean for if telegram user exists
+#toDo create user
+#toDo hashpassword of django
 
 
 
