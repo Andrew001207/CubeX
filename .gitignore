@@ -145,7 +145,6 @@ bots/.bot.conf
 
 #cubexproject
 .cert/
-bot/
 
 #AWS Certificates
 cert/

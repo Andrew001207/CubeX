@@ -52,10 +52,6 @@ class CubeX(ConfigAware):
         self.sql_connection.create_task(username, self.cubeId, task_name, group_name)
         pass
 
-    def deleteTask(self, group_name, task_name, username):
-        self.sql_connection.delete_task(username, group_name, task_name)
-        pass
-
     def loadState(self):
         json = self.sql_connection.write_cube_state_json(self.cubeId)
         self.connection.send('/CubeX/{}/tasks'.format(self.cubeId), json)
