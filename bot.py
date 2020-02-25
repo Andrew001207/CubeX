@@ -47,7 +47,7 @@ class Conv_automat():
             raise Exception('can not handle answer: no next state defined')
         if 'reply' in return_dict and return_dict['reply']:
             update.message.reply_text(return_dict['reply'])
-            
+
 
         state_name = return_dict['next_state']
 
@@ -64,7 +64,7 @@ class Conv_automat():
         elif callable(before):
             reply = before({'return_again':self.again_return})
             logger.debug(f'called method "{before.__name__}"')
-        elif before == None:
+        elif before is None:
             self.last_state = self.curr_state
             self.curr_state = self.next_state
             self.next_state = None
@@ -74,7 +74,7 @@ class Conv_automat():
             context.dispatcher.process_update(jump)
             if reply:
                 update.message.reply_text(reply)
-            return 
+            return
         # the state object will have to set this, based of the users answer or her desision:
         else:
             raise Exception('Not handelt return value')

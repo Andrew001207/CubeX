@@ -3,6 +3,11 @@ import logging, configparser, traceback
 from telegram.ext import Updater, MessageHandler, Filters
 from bot import State, Conv_automat, Builder
 #from cubeX import CubeX
+# Read configfile
+config = configparser.ConfigParser()
+
+config_filename = ".bot.conf"
+config.read(config_filename)
 
 
 # Enable logging
@@ -25,22 +30,22 @@ def init_states():
     state_list.append(State('Please select a command, for avaiable commands enter "help"', start))
 
     def help(answer, arg_dict):
-        return _return_dict("start")
-    state_list.append(State('help text', help))
+        return _return_dict("start", 'help text')
+    state_list.append(State(None, help))
 
     def cancel(answer, arg_dict):
         #TODO Clear builder
-        return _return_dict("start")
-    state_list.append(State("Command cancelled", cancel))
+        return _return_dict("start", "Command cancelled")
+    state_list.append(State(None, cancel))
 
     def error(update, answer, arg_dict):
         """Log Errors caused by Updates."""
-        return _return_dict("start", "Trying to start over...")
-    state_list.append(State("Something went wrong", error))
+        return _return_dict("start", "Error occurred, trying to start over...")
+    state_list.append(State(None, error))
 
     def create_task(answer, arg_dict):
         #TODO call db method
-        return _return_dict("start", f"Following task was created: {answer}")
+        return _return_dict("select_group", answers=["answer"], result_function=arg_dict["cubeX"].create_Task)
     state_list.append(State("Please enter the name for the new task", create_task))
 
     def create_group(answer, arg_dict):
@@ -65,7 +70,7 @@ def init_states():
         #Replace true with DB method task exists
         if True and "result_function" in arg_dict:
             arg_dict["answers"].append(answer)
-            return _return_dict("select_group",**arg_dict) 
+            return _return_dict("select_group", **arg_dict) 
         elif False and "result_function" in arg_dict:
             return _return_dict("select_task", f"Task {answer} does not exist, please try again")
         else:
@@ -82,7 +87,7 @@ def init_states():
             return _return_dict("select_group", f"Group {answer} does not exist, please try again")
         else:
             return _return_dict("error", f"How the hell did you do this???")
-    state_list.append(State("Please enter the name of the group you want to select", select_group))
+    state_list.append(State("Please enter the name of the group you want to select or enter create_group to create a new one", select_group))
 
     def select_side(answer, arg_dict):
         #Replace true with DB method group exists
