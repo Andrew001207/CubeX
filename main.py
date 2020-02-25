@@ -2,7 +2,7 @@ import logging, configparser, traceback
 
 from telegram.ext import Updater, MessageHandler, Filters
 from bot import State, Conv_automat
-from sql.sql_Connector import get_all_cube_id, get_all_group_name
+from sql.sql_Connector import get_all_cube_id, get_all_group_name, get_all_tasks
 from cubeX import CubeX
 #from cubeX import CubeX
 # Read configfile
@@ -62,15 +62,17 @@ def _init_states():
     state_list.append(State("Please enter the name for the new group", create_group))
 
     def optional_add_cube(answer, arg_dict):
-        if answer == "y":
-            arg_dict["answers"].append(arg_dict["CubeX"].get_cube_id())
-        elif answer == "n":
+        if answer == "skip":
             arg_dict["answers"].append(None)
         else:
-            return _return_dict("optional_add_cube", "Invalid answer, please try again.")
+            valid_answer = False if not answer.isdigit() else int(answer) in get_all_cube_id(user)
+            if valid_answer:
+                arg_dict["answers"].append(int(answer))
+            else:
+                return _return_dict("optional_add_cube", "Invalid answer, please try again.")
         arg_dict["result_function"](*arg_dict["answers"])
         return _return_dict("start", f"Following task was created: {arg_dict['answers']}")
-    state_list.append(State("Should the task be bound to selected cube? [y/n]", optional_add_cube))
+    state_list.append(State("Select a cube the task should be bound to or enter 'skip'", optional_add_cube))
 
     def select_cube(answer, arg_dict):
         #Replace true with DB method cube exists
@@ -78,10 +80,7 @@ def _init_states():
         if valid_answer:
             cubeX = CubeX(int(answer))
             if "result_function" in arg_dict:
-                if arg_dict["result_function"].__name__ == "setTask":
-                    return _return_dict("select_task", result_function=cubeX.setTask, cubeX=cubeX, answers=[], **arg_dict)
-                else:
-                    return _return_dict("error", f"How the hell did you do this???")
+                return _return_dict("select_task", result_function=cubeX.setTask, cubeX=cubeX, answers=[], **arg_dict)
             else:
                 return _return_dict("start", f"Selcted cube {answer}", cubeX=cubeX)
         else:
@@ -98,7 +97,7 @@ def _init_states():
             return _return_dict("select_task", f"Task {answer} does not exist, please try again")
         else:
             return _return_dict("error", f"How the hell did you do this???")
-    state_list.append(State("Please enter the name of the task you want to select", select_task))
+    state_list.append(State(f"Please enter the ID of the task you want to select out of the following:\n(ID, Name, Group), {get_all_tasks(user)}", select_task))
 
     def select_group(answer, arg_dict):
         """this is a method which handles the answer and changes the state"""
