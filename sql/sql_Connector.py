@@ -32,13 +32,11 @@ class SqlConn(ConfigAware):
     '''
 
     def make_conn(self):
-        conn = None
-        params = self.conf_aws
+        params = self.conf_db
         try:
-            conn = psycopg2.connect(**params)
+            return psycopg2.connect(**params)
         except:
-            logger.info("I am unable to connect to the database")
-        return conn
+            raise Exception('connection could not be established. Maybe because of bad credentials.')
 
 
     def fetch_data(self, cmd):

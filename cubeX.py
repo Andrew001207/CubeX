@@ -9,29 +9,28 @@ Created on Fri Feb 17 11:34:30 2020
 from sql.aws_Connector import AwsConnecter
 from configparser import ConfigParser
 import time
-import sql.sql_Connector
+from sql.sql_Connector import SqlConn
 
 from config_aware import ConfigAware
 class CubeX(ConfigAware):
 
     def __init__(self, cubeId):
+        super().__init__()
         self.cubeId = cubeId
-        self.sql_connection = self.conf_db
+        self.sql_connection = SqlConn()
         self.clientId = 'Manager_' + str(cubeId)
         self.connection = AwsConnecter(
-            conf['host'],
-            conf['rootcapath'],
-            conf['certificatepath'],
-            conf['privatekeypath'],
-            int(conf['port']),
+            self.conf_aws['host'],
+            self.conf_aws['rootcapath'],
+            self.conf_aws['certificatepath'],
+            self.conf_aws['privatekeypath'],
+            int(self.conf_aws['port']),
             self.clientId)
         try:
             self.connection.connect()
-            print(self.clientId + ' Successfully connected')
+            logger.info(self.clientId + ' Successfully connected')
         except Exception:
-            print("Fehler")
-
-        # TODO Connect database instance
+            raise Exception('Could not establish a connection to Amazon cloud Services')
 
     def loadAWSConfig(self, path='cert/config.ini', section='AwsConnector'):
         # create a parser
@@ -44,8 +43,6 @@ class CubeX(ConfigAware):
         else:
             raise Exception('Section {0} not found in the {1} file'.format(section, path))
         return conf
-
-    # TODO Implement following methods
 
     def setTask(self, task_id, side_id, username):
         self.sql_connection.set_task(self.cubeId, side_id, task_id, username= "Paula")
