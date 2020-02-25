@@ -32,7 +32,7 @@ class SqlConn(ConfigAware):
     '''
 
     def make_conn(self):
-        params = self.conf_aws
+        params = self.conf_db
         try:
             return psycopg2.connect(**params)
         except:
