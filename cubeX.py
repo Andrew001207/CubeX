@@ -47,8 +47,8 @@ class CubeX(ConfigAware):
 
     # TODO Implement following methods
 
-    def setTask(self, group_name, task_name, side_id, username):
-        self.sql_connection.set_task(self.cubeId, side_id, task_name, group_name, username= "Paula")
+    def setTask(self, task_id, side_id, username):
+        self.sql_connection.set_task(self.cubeId, side_id, task_id, username= "Paula")
         pass
 
     def create_Task(self, group_name, task_name, username):
@@ -81,3 +81,6 @@ class CubeX(ConfigAware):
         self.connection.subscribe('/CubeX/{}/status'.format(self.cubeId), self.taskMessageAction)
         while True:
             time.sleep(1)
+
+    def get_cube_id(self):
+        return self.cubeId

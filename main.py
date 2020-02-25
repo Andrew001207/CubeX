@@ -4,7 +4,7 @@ from config_aware import ConfigAware
 
 from telegram.ext import Updater, MessageHandler, Filters
 from bot import State, Conv_automat
-from sql.sql_Connector import get_all_cube_id, get_all_group_name, get_all_tasks
+from userX import UserX
 from cubeX import CubeX
 #from cubeX import CubeX
 
@@ -60,7 +60,7 @@ def _init_states():
         if answer == "skip":
             arg_dict["answers"].append(None)
         else:
-            valid_answer = False if not answer.isdigit() else int(answer) in get_all_cube_id(user)
+            valid_answer = False if not answer.isdigit() else int(answer) in UserX(user).list_cubes()
             if valid_answer:
                 arg_dict["answers"].append(int(answer))
             else:
@@ -72,7 +72,7 @@ def _init_states():
 
     def select_cube(answer, arg_dict):
         #Replace true with DB method cube exists
-        valid_answer = False if not answer.isdigit() else int(answer) in get_all_cube_id(user)
+        valid_answer = False if not answer.isdigit() else int(answer) in UserX(user).list_cubes()
         if valid_answer:
             cubeX = CubeX(int(answer))
             if "result_function" in arg_dict:
@@ -81,13 +81,13 @@ def _init_states():
                 return _return_dict("start", f"Selcted cube {answer}", cubeX=cubeX)
         else:
             return _return_dict("select_cube", f"Cube {answer} does not exist, please try again")
-    state_list.append(State(f"Please enter the ID of the cube you want to select from the following:\n{get_all_cube_id(user)}", select_cube))
+    state_list.append(State(f"Please enter the ID of the cube you want to select from the following:\n{UserX(user).list_cubes()}", select_cube))
 
     def select_task(answer, arg_dict):
         """this is a method which handles the answer and changes the state"""
         #Replace true with DB method task exists
         if "result_function" in arg_dict:
-            valid_answer = False if not answer.isdigit() else int(answer) in get_all_tasks(user) #TODO only cmp with ids
+            valid_answer = False if not answer.isdigit() else int(answer) in UserX(user).list_tasks(arg_dict["cubeX"].get_cube_id()) #TODO only cmp with ids
             if valid_answer:
                 arg_dict["answers"].append(int(answer))
                 return _return_dict("select_side", **arg_dict) 
@@ -95,7 +95,8 @@ def _init_states():
                 return _return_dict("select_task", f"Task {answer} does not exist, please try again")
         else:
             return _return_dict("error", f"How the hell did you do this???")
-    state_list.append(State(f"Please enter the ID of the task you want to select out of the following:\n(ID, Name, Group), {get_all_tasks(user)}", select_task))
+
+    state_list.append(State(lambda arg_dict: f"Please enter the ID of the task you want to select out of the following:\n(ID, Name, Group), {UserX(user).list_tasks(arg_dict['cubeX'].get_cube_id())}", select_task))
 
     def select_group(answer, arg_dict):
         """this is a method which handles the answer and changes the state"""
@@ -104,7 +105,7 @@ def _init_states():
             return _return_dict("create_group", **arg_dict)
         else:
             if "result_function" in arg_dict:
-                valid_answer = False if not get_all_group_name(user) else answer in get_all_group_name(user)
+                valid_answer = False if not UserX(user).list_groups() else answer in UserX(user).list_groups()
                 if valid_answer:
                     if arg_dict["result_function"].__name__ == "create_Task":
                         arg_dict["answers"].append(answer)

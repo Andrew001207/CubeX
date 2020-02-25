@@ -231,10 +231,6 @@ class SqlConn(ConfigAware):
             data['events'].append([event[1], event[2], event[4], event[5]])
         return data
 
-
-
-
-
     def write_cube_state_json(self,cube_id):
         sides = self.fetch_data("select * from side where Cube_ID = {}".format(cube_id))
         data = {}
