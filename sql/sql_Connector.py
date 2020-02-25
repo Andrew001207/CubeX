@@ -11,7 +11,8 @@ import json
 import logging
 import traceback
 from django.contrib.auth.hashers import PBKDF2PasswordHasher,PBKDF2SHA1PasswordHasher,Argon2PasswordHasher,BCryptSHA256PasswordHasher
-
+from django.contrib.auth.hashers import make_password
+from django.contrib.auth.hashers import check_password
 import psycopg2
 
 logger = logging.getLogger("sqlconnecter")
@@ -270,6 +271,23 @@ class SqlConn:
 
     def set_telegram_user(self,username,telegram_username):
         self.execute_command("update auth_user set telegram_id = {} where username = {}".format(telegram_username,username))
+
+    def is_telegram_id_user(self, telegram_id):
+        list = self.fetch_to_list(self.fetch_data("select username from auth_user where telegram_id = {}".format(telegram_id)))
+        if len(list) == 0:
+            return False
+        else:
+            return True
+
+    def signup_user(self, password, username, telegram_id = None):
+        password_hash = make_password(password)
+        self.execute_command(
+            f"insert into auth_user(username, password, telegram_id) VALUES ({username},{password_hash},{telegram_id})")
+
+    def check_password(self, password, username):
+        hash_password = self.fetch_to_list(self.fetch_data("from auth_user get password where username = {}".format(username)))
+        is_same = check_password(password, hash_password[0])
+        return is_same
 
     def update_event(self,task_name, cube_id):
     # Group_ID wird ignoriert
