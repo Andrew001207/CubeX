@@ -8,13 +8,13 @@ Created on Fri Feb 17 11:34:30 2020
 """
 from sql.aws_Connector import AwsConnecter
 from configparser import ConfigParser
-from sql.sql_Connector import set_task, delete_task, write_cube_state_json, create_task, create_cube, check_cube, update_event
 import time
-
+import sql.sql_Connector
 class CubeX:
 
-    def __init__(self, cubeId):
+    def __init__(self, cubeId, sql_connection):
         self.cubeId = cubeId
+        self.sql_connection = sql_connection
         self.clientId = 'Manager_' + str(cubeId)
         conf = self.loadAWSConfig()
         self.connection = AwsConnecter(
@@ -27,7 +27,7 @@ class CubeX:
         try:
             self.connection.connect()
             print(self.clientId + ' Successfully connected')
-        except Exception as e:
+        except Exception:
             print("Fehler")
 
         # TODO Connect database instance
@@ -46,37 +46,40 @@ class CubeX:
 
     # TODO Implement following methods
 
-    def setTask(self, group, name, side):
-        set_task(self.cubeId, side, name, group)
+    def setTask(self, group_name, task_name, side_id, username):
+        self.sql_connection.set_task(self.cubeId, side_id, task_name, group_name, username= "Paula")
         pass
 
-    def create_Task(self, group, name):
-        create_task(self.cubeId, group, name)
+    def create_Task(self, group_name, task_name, username):
+        self.sql_connection.create_task(username, self.cubeId, task_name, group_name)
         pass
 
-    def deleteTask(self, group, name):
-        delete_task(self.cubeId, group, name)
+    def deleteTask(self, group_name, task_name, username):
+        self.sql_connection.delete_task(username, group_name, task_name)
         pass
 
     def loadState(self):
-        json = write_cube_state_json(self.cubeId)
+        json = self.sql_connection.write_cube_state_json(self.cubeId)
         self.connection.send('/CubeX/{}/tasks'.format(self.cubeId), json)
         pass
 
     def taskMessageAction(self, client, userdata, message):
-        a = str(message.payload)
-        a = a.strip("b")
-        a = a.strip("'")
-        a = a.strip("{}")
-        a = a.split(":")
-        a = a[1].strip('"')
-        update_event(a,self.cubeId)
-        #update_event(a,self.cubeId)
+        cube_response = str(message.payload)
+        cube_response = cube_response.strip("b")
+        cube_response = cube_response.strip("'")
+        cube_response = cube_response.strip("{}")
+        cube_response = cube_response.split(":")
+        cube_response = cube_response[1].strip('"')
+        self.sql_connection.update_event(cube_response, self.cubeId)
+        #update_event(a, self.cubeId)
         pass
 
     def start(self):
-        if check_cube(a.cubeId) == True:
-            a.loadState()
-        a.connection.subscribe('/CubeX/{}/status'.format(a.cubeId), a.taskMessageAction)
+        if self.sql_connection.check_cube(self.cubeId) == True:
+            self.loadState()
+        self.connection.subscribe('/CubeX/{}/status'.format(self.cubeId), self.taskMessageAction)
         while True:
             time.sleep(1)
+
+
+
