@@ -99,9 +99,3 @@ def config(filename='config.ini', section='postgresql'):
         raise Exception('Section {0} not found in the {1} file'.format(section, filename))
 
     return db
-
-if  __name__ == "__main__":
-    print("Test run")
-    b = sql.sql_Connector.SqlConn(config())
-    a = CubeX(1,b )
-    a.start()

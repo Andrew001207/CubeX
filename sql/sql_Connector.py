@@ -4,6 +4,7 @@ Created on Thu Feb 13 12:50:37 2020
 
 @author: matthiasmoser
 """
+import base64
 from configparser import ConfigParser
 from sqlite3 import OperationalError
 
@@ -14,6 +15,7 @@ from django.contrib.auth.hashers import PBKDF2PasswordHasher,PBKDF2SHA1PasswordH
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.hashers import check_password
 import psycopg2
+import hashlib
 
 logger = logging.getLogger("sqlconnecter")
 logger.setLevel(logging.WARNING)
@@ -279,21 +281,53 @@ class SqlConn:
         else:
             return True
 
-    def signup_user(self, password, username, telegram_id = None):
-        password_hash = make_password(password)
+    def signup_user(self, username, password, telegram_id = None, first_name = "",last_name = "",email = "", is_staff = False, is_active = True):
+        password_hash = self.create_pw_hash(password)
         self.execute_command(
-            f"insert into auth_user(username, password, telegram_id) VALUES ({username},{password_hash},{telegram_id})")
+            f"insert into auth_user(username, password, telegram_id, is_superuser, first_name, last_name, email, is_staff, is_active, date_joined) VALUES ('{username}','{password_hash}','{telegram_id}', FALSE,'{first_name}','{last_name}','{email}','{is_staff}','{is_active}', clock_timestamp() )")
 
-    def check_password(self, password, username):
-        hash_password = self.fetch_to_list(self.fetch_data("from auth_user get password where username = {}".format(username)))
-        is_same = check_password(password, hash_password[0])
-        return is_same
+    def pbkdf2(self, password, salt, iterations, dklen=0, digest=None):
+        """Return the hash of password using pbkdf2."""
+        if digest is None:
+            digest = hashlib.sha256
+        dklen = dklen or None
+        password = password.encode()
+        salt = salt.encode()
+        return hashlib.pbkdf2_hmac(digest().name, password, salt, iterations, dklen)
 
-    def update_event(self,task_name, cube_id):
-    # Group_ID wird ignoriert
-        username = self.fetch_data("select username from cube where Cube_ID = {};".format(cube_id))[0][0]
-        task_id = self.fetch_data("select Task_Id from task where username = '{}' and Task_Name = '{}';".format(username,task_name))[0][0]
-        
-        self.execute_command("update event set end_time = clock_timestamp() where start_time = (select max(start_time) from event);")
-        self.execute_command("insert into event values (default, {}, clock_timestamp(), null );".format(task_id))
+    def compare_pw(self, pw, username):
+        hashed_pw = self.fetch_to_list(self.fetch_data("select password from auth_user where username = '{}'".format(username)))
+        hash_string = hashed_pw[0]
+        args = hash_string.split('$')
+        compare_hash = self.hash_pw(args, pw)
+        compare_hash = base64.b64encode(compare_hash).decode('ascii').strip()
+        if compare_hash == args[3]:
+            return True
+        else:
+            return False
+
+    def encode(self, password, salt, algorithm, iterations=None):
+        assert password is not None
+        assert salt and '$' not in salt
+        iterations = iterations or iterations
+        hash = self.pbkdf2(password, salt, iterations)
+        hash = base64.b64encode(hash).decode('ascii').strip()
+        return "%s$%d$%s$%s" % (algorithm, iterations, salt, hash)
+
+    def salt(self):
+        import random
+        alphabet = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        chars = []
+        for i in range(16):
+            chars.append(random.choice(alphabet))
+        salt = "".join(chars)
+        return salt
+
+    def hash_pw(self, args, pw):
+        hashed_pw = hashlib.pbkdf2_hmac('sha256', pw.encode(), args[2].encode(), int(args[1]))
+        return hashed_pw
+
+    def create_pw_hash(self, pw):
+        return self.encode(pw, self.salt(), 'pbkdf2_sha256', 150000)
+
 
