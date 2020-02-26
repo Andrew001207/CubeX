@@ -131,6 +131,7 @@ class SqlConn(ConfigAware):
             data = json.load(json_file)
             for group in data['groups']:
                 for task in data[group]['tasks']:
+                    #TODO update parameters to latest set_task function or create second set_task with fitting params
                     self.set_task(cube_id, data[group][task]['side'], task, group)
 
     def create_task(self,username,cube_id, task_name, group_name):
