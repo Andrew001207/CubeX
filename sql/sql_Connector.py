@@ -134,7 +134,7 @@ class SqlConn(ConfigAware):
                     #TODO update parameters to latest set_task function or create second set_task with fitting params
                     self.set_task(cube_id, data[group][task]['side'], task, group)
 
-    def create_task(self,username,cube_id, task_name, group_name):
+    def create_task(self, username, task_name, group_name, cube_id=None,):
         """
         creates task on the aws database
 
