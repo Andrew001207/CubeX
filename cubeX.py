@@ -36,10 +36,10 @@ class CubeX(ConfigAware):
         except Exception:
             raise Exception('Could not establish a connection to Amazon cloud Services')
 
-    def set_task(self, task_id, side_id, username):
+    def set_task(self, task_id, side_id):
         '''maps a task on a cube side'''
 
-        self.sql_connection.set_task(self.cube_id, side_id, task_id, username="Paula")
+        self.sql_connection.set_task(self.cube_id, side_id, task_id)
 
     def load_state(self):
         '''sends the tasks to aws'''

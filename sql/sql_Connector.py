@@ -168,7 +168,7 @@ class SqlConn(ConfigAware):
         self.execute_command("insert into cube values ({},'{}');".format(cube_id,username))
 
 
-    def set_task(self,cube_id, side_id, task_id, username= "Paula"):
+    def set_task(self, cube_id, side_id, task_id):
         """
         :param cube_id: integer
         :param side_id: integer
@@ -180,7 +180,7 @@ class SqlConn(ConfigAware):
         #create_task(cube_id ,task_name, group_name)
 
         try:
-            print(cube_id,side_id,task_id)
+            print(cube_id, side_id, task_id)
             self.execute_command("insert into side values ({},{},{});".format(side_id, cube_id, task_id))
         except:
             print("sides vorhanden update side")
@@ -188,7 +188,7 @@ class SqlConn(ConfigAware):
                             .format(task_id, side_id, cube_id))
 
 
-    def delete_task(self,username, task_id):
+    def delete_task(self, task_id):
         """
 
         :param cube_id: integer
@@ -196,9 +196,9 @@ class SqlConn(ConfigAware):
         :return: nothing
         """
         self.execute_command(
-            "delete from task where(username = {} and task_id = {});".format(username, task_id))
+            "delete from task where task_id = {};".format(task_id))
 
-    def check_cube(self,cube_id):
+    def check_cube(self, cube_id):
         """"
         checks if cube is aready existent
 
@@ -211,7 +211,7 @@ class SqlConn(ConfigAware):
                 check = True
         return check
 
-    def write_cube_information_json(self,cube_id):
+    def write_cube_information_json(self, cube_id):
         #all the tasks,
         groups = self.fetch_data("select distinct group_name from task where cube_id = {};".format(cube_id))
         tasks = self.fetch_data("select * from task where cube_id = {};".format(cube_id))
@@ -228,7 +228,7 @@ class SqlConn(ConfigAware):
             data['events'].append([event[1], event[2], event[4], event[5]])
         return data
 
-    def write_cube_state_json(self,cube_id):
+    def write_cube_state_json(self, cube_id):
         sides = self.fetch_data("select * from side where Cube_ID = {}".format(cube_id))
         data = {}
         data['side'] = []
@@ -247,31 +247,31 @@ class SqlConn(ConfigAware):
         return data
 
 
-    def fetch_to_list(self,data):
+    def fetch_to_list(self, data):
         liste = list()
         for part in data:
             liste.append(part[0])
         return liste
 
-    def fetch_multiple_to_list(self,data):
+    def fetch_multiple_to_list(self,vdata):
         liste = list()
         for part in data:
             liste.append(part)
         return liste
 
-    def get_all_tasks(self,username,cubeid):
+    def get_all_tasks(self, username, cubeid):
         return self.fetch_multiple_to_list(self.fetch_data("select task_id,task_name,group_name from task where username = '{}' and (cube_id = {} or cube_id = null);".format(username,cubeid)))
 
-    def get_all_group_name(self,username):
+    def get_all_group_name(self, username):
         return self.fetch_to_list(self.fetch_data("select distinct Group_name from Task where username = '{}';".format(username)))
 
-    def get_all_cube_id(self,username):
+    def get_all_cube_id(self, username):
         return self.fetch_to_list(self.fetch_data("select cube_ID from cube where username = '{}'".format(username)))
 
-    def set_telegram_user(self,username,telegram_username):
+    def set_telegram_user(self, username, telegram_username):
         self.execute_command("update auth_user set telegram_id = {} where username = {}".format(telegram_username,username))
 
-    def update_event(self,task_name, cube_id):
+    def update_event(self, task_name, cube_id):
     # Group_ID wird ignoriert
         username = self.fetch_data("select username from cube where Cube_ID = {};".format(cube_id))[0][0]
         task_id = self.fetch_data("select Task_Id from task where username = '{}' and Task_Name = '{}';".format(username,task_name))[0][0]
