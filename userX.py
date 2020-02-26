@@ -10,7 +10,7 @@ class UserX:
         self.sql_conn.create_task(self.user_name, cube_id, task_name, group_name)
 
     def delete_task(self, task_id):
-        self.sql_conn.delete_task(self.user_name, task_id)
+        self.sql_conn.delete_task(task_id)
 
     def list_cubes(self):
         return self.sql_conn.get_all_cube_id(self.user_name)
