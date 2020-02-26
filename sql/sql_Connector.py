@@ -253,7 +253,7 @@ class SqlConn(ConfigAware):
             liste.append(part[0])
         return liste
 
-    def fetch_multiple_to_list(self,vdata):
+    def fetch_multiple_to_list(self, data):
         liste = list()
         for part in data:
             liste.append(part)
