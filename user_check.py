@@ -34,7 +34,8 @@ class UserCheck(PreCheckoutQueryHandler):
 
         tel_id = update.message.from_user.id
         # TODO: other name? :
-        user_first_name = update.message.from_user.first_name
+        # NOTE: added lower because the database is not consisent with the case:
+        user_first_name = update.message.from_user.first_name.lower()
 
         if tel_id in self.user_conv_handlers:
             # NOTE: PAIN!
@@ -48,5 +49,13 @@ class UserCheck(PreCheckoutQueryHandler):
             self.callback = self.user_conv_handlers[tel_id].handle_answer
             return True
 
-        raise Exception()
-        return False
+        try:
+            # TODO: catch duplicated name in db
+            # TODO: implement password conv_handler
+            conn.signup_user(user_first_name, '', telegram_id=tel_id)
+        except Exception:
+            conn.set_telegram_user(user_first_name, tel_id)
+        self.user_conv_handlers[tel_id] = Conv_automat(user_first_name)
+        # NOTE: PAIN!
+        self.callback = self.user_conv_handlers[tel_id].handle_answer
+        return True

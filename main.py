@@ -26,7 +26,7 @@ def main(bot_token):
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
 
-    # NOTE: UserCheck is abused as a proxy to the handlers so USerCheck will set the callback dynamicly:
+    # NOTE: UserCheck is abused as a proxy to the handlers so UserCheck will set the callback dynamicly:
     dp.add_handler(UserCheck(None)) 
 
     # log all errors
