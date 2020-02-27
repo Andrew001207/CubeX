@@ -99,9 +99,11 @@ class SqlConn(ConfigAware):
         for command in sqlCommands:
             try:
                 print(command)
+# TODO why is here a print?
                 self.execute_command(command)
             except OperationalError as msg:
                 print("Command skipped: ", msg)
+# TODO why is here a print?
 
 
     def create_task_from_json(self,cube_id, file_path):
@@ -147,12 +149,14 @@ class SqlConn(ConfigAware):
                 self.execute_command("insert into task values (default,'{}','{}', null, '{}');".format(task_name, group_name,username))
             except:
                 print(traceback.format_exc())
+# TODO why is here a print?
                 logger.warning("task schon vorhanden")
         else:
             try:
                 self.execute_command("insert into task values (default,'{}','{}', {}, '{}');".format(task_name, group_name, cube_id, username))
             except:
                 print("1",traceback.format_exc())
+# TODO why is here a print?
                 logger.warning("task schon vorhanden")
 
 
@@ -181,9 +185,11 @@ class SqlConn(ConfigAware):
 
         try:
             print(cube_id, side_id, task_id)
+# TODO why is here a print?
             self.execute_command("insert into side values ({},{},{});".format(side_id, cube_id, task_id))
         except:
             print("sides vorhanden update side")
+# TODO why is here a print?
             self.execute_command("update side set Task_Id = {} where side_id = {} and cube_id = {};" \
                             .format(task_id, side_id, cube_id))
 
@@ -204,6 +210,7 @@ class SqlConn(ConfigAware):
 
         """
         print("sfsa")
+# TODO why is here a print?
         check = False
         data = self.fetch_data("select * from cube where cube_id = {}".format(cube_id))
         for cube in data:

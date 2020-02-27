@@ -16,7 +16,7 @@ CREATE TABLE Task(
 	UNIQUE (Task_Name, Group_Name, username),
 	Foreign Key(Cube_Id) REFERENCES Cube(Cube_ID),
 	Foreign Key(username) REFERENCES auth_user(username)
-	
+
 );
 
 CREATE TABLE event(

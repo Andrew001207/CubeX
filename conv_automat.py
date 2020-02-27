@@ -91,7 +91,6 @@ class Conv_automat:
         self._update_states()
 
     def _update_states(self):
-        print("New state: ", self.next_state)
         self.curr_state = self.next_state
         self.next_state = None
 
