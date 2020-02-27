@@ -2,7 +2,7 @@
 
 import logging
 
-from telegram.ext.precheckoutqueryhandler import PreCheckoutQueryHandler
+from telegram.ext.handler import Handler
 from sql.sql_Connector import SqlConn
 from conv_automat import Conv_automat
 
@@ -12,11 +12,13 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 logger = logging.getLogger(__name__)
 
-class UserCheck(PreCheckoutQueryHandler):
+class UserCheck(Handler):
 
 
     def __init__(self, callback):
         self.user_conv_handlers = {}
+        # TODO: set self.callback allways to None?
+        self.callback = callback
 
     def check_update(self, update):
         """Determines whether an update should be passed to this handlers :attr:`callback`.
