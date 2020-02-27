@@ -17,7 +17,9 @@ table, th, td {
         {% for s in allTasks %}<tr>
     <td>{{ s.task_name }}</td>
     <td>{{ s.group_name }}</td>
-    <td>{{ s.cube_id }}</td>    </tr>
+    <td>{{ s.cube_id }}</td>
+        <td>{{ s.username}}</td>
+        </tr>
         {% endfor %}
     </ul>
 </table>
@@ -27,10 +29,9 @@ table, th, td {
     <ul>
         {% for event in allEvents %}
         <tr>
-            <td>{{ event.task_name }}</td>
+            <td>{{ event.task_id}}</td>
             <td>{{ event.start_time }}</td>
             <td>{{ event.end_time }}</td>
-            <td>{{ event.group_name }}</td>
             <td>{{ event.event_id}}</td>
         </tr>
         {% endfor %}

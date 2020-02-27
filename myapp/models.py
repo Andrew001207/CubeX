@@ -77,7 +77,7 @@ class AuthUserUserPermissions(models.Model):
 
 class Cube(models.Model):
     cube_id = models.AutoField(primary_key=True)
-    username = models.ForeignKey(AuthUser, models.DO_NOTHING, db_column='username')
+    username = models.CharField(max_length = 150)
 
     class Meta:
         managed = False
@@ -150,11 +150,13 @@ class MyappTask(models.Model):
 
 class Side(models.Model):
     side_id = models.IntegerField(primary_key=True)
+    cube = models.ForeignKey(Cube, models.DO_NOTHING)
     task = models.ForeignKey('Task', models.DO_NOTHING)
 
     class Meta:
         managed = False
         db_table = 'side'
+        unique_together = (('side_id', 'cube'),)
 
 
 class Task(models.Model):
@@ -162,9 +164,10 @@ class Task(models.Model):
     task_name = models.CharField(max_length=255)
     group_name = models.CharField(max_length=255)
     cube = models.ForeignKey(Cube, models.DO_NOTHING, blank=True, null=True)
-    username = models.ForeignKey(AuthUser, models.DO_NOTHING, db_column='username')
+    username = models.CharField(max_length=150)
 
     class Meta:
         managed = False
         db_table = 'task'
         unique_together = (('task_name', 'group_name', 'username'),)
+

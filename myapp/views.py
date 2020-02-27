@@ -1,19 +1,11 @@
 import datetime
-from typing import List, Any
-
-from django.contrib.auth.models import User
 from django.http import JsonResponse
-from django.shortcuts import render
 from django.views.generic import View
-from rest_framework import authentication, permissions
-from rest_framework.response import Response
-from rest_framework.views import APIView
-from .models import Event
-from .models import Task
+from .models import Event, Task, Cube
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import render, redirect
-
+from .forms import CubeIdForm
 
 def home(request, *args, **kwargs):
     today = datetime.datetime.now().date()
@@ -33,30 +25,52 @@ def get_data(request, *args, **kwargs):
 
 
 class Pie_View (View):
-    def get(self, request, *args, **kwargs):
-        allTasks = Task.objects.all()
-        allEvents = Event.objects.all()
+    def get(self, request, cube_id = 1):
+        dict = self.create_dict(cube_id, request)
+        return render(request, 'piechart.html', dict)
+
+    def create_dict(self, cube_id, request):
+        if request.user.is_authenticated == True:
+            username = request.user.username
+        allTasks = Task.objects.filter(cube_id=cube_id)
+
         task_list = []
         time_list = []
         taskid_map = {}
         i = 0
+        taskidlist = []
         for task in allTasks:
             task_list.append(task.task_name)
             taskid_map[task.task_id] = i
+            taskidlist.append(task.task_id)
             i = i + 1
+
+        allEvents = Event.objects.filter(task_id__in = taskidlist)
         for i in task_list:
             time_list.append(datetime.timedelta())
         for event in allEvents:
-            index = taskid_map[event.task_id]
             if event.end_time is not None:
+                index = taskid_map[event.task_id]
                 time_list[index] += event.end_time - event.start_time
+
         i = 0
         for time in time_list:
             time_list[i] = time.seconds
             i = i + 1
+        user_cubes = Cube.objects.filter(username=username)
+        cubes = []
+        for cube in user_cubes:
+             cubes.append(cube.cube_id)
+        dict = {'task_list': task_list, 'time_list': time_list, 'user_cubes': cubes}
+        return dict
 
-        dict = {'task_list': task_list, 'time_list': time_list}
-        return render(request, 'piechart.html', dict)
+    def post(self, request):
+        form = CubeIdForm(request.POST)
+        if form.is_valid():
+            cube_id = form.cleaned_data['cube_id']
+            dict = self.create_dict(cube_id,request)
+            return render(request, 'piechart.html', dict)
+
 
 def login_view(request, *args, **kwargs):
     username = request.POST['username']

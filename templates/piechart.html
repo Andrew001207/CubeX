@@ -27,5 +27,14 @@ piechart
     options: {}
 });
     </script>
+    <p>other cubes {{ user_cubes }}</p>
+
+    <form method="POST">
+    {% csrf_token %}
+        <label for="cube_id">Cube_ID:</label>
+        <input type="number" id="cube_id" name="cube_id"><br><br>
+    {{ form.as_p }}
+    <button type="submit", value="cube_id">submit</button>
+    </form>
 {% endblock %}
 </html>

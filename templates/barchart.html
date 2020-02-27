@@ -6,23 +6,32 @@ barchart
 {% block content %}
     <body>
     <h1 style="text-align: center">Time spend on Group</h1>
+    {{ group_list }} {{ time_spent }}
     <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
     <canvas id="barChart" style="background-color: white"></canvas>
     <script>
-    var ctx = document.getElementById('barChart').getContext('2d');
+    var ctx = document.getElementById('barChart');
         var myBarChart = new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: {{ group_list | safe}},
+            labels: {{ group_list|safe}},
             dataset: [{
-                labels: 'data',
-                backgroudColor : ['rgb(22, 255, 255)', 'rgb(255,2,55)'],
-                boderColor : ['rgb(25, 99, 132)'],
-                data : {{ time_spent }},
-
+                label: "bar",
+                backgroundColor: ["#3e95cd", "#8e5ea2","#3cba9f"],
+                barPercentage: 0.5,
+                barThickness: 6,
+                maxBarThickness: 8,
+                minBarLength: 2,
+                data : {{ time_spent }}
             }]
         },
-        options: {}
+        options: {
+      legend: { display: false },
+      title: {
+        display: true,
+        text: 'Time Spent On Groups'
+      }
+    }
 });
     </script>
 
