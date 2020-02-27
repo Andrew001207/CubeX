@@ -5,15 +5,11 @@ Created on Thu Feb 13 12:50:37 2020
 @author: matthiasmoser
 """
 import base64
-from configparser import ConfigParser
 from sqlite3 import OperationalError
 
 import json
 import logging
 import traceback
-from django.contrib.auth.hashers import PBKDF2PasswordHasher,PBKDF2SHA1PasswordHasher,Argon2PasswordHasher,BCryptSHA256PasswordHasher
-from django.contrib.auth.hashers import make_password
-from django.contrib.auth.hashers import check_password
 import psycopg2
 import hashlib
 
@@ -275,7 +271,6 @@ class SqlConn(ConfigAware):
     def set_telegram_user(self, username, telegram_username):
         self.execute_command("update auth_user set telegram_id = {} where username = {}".format(telegram_username,username))
 
-<<<<<<< HEAD
     def update_event(self, task_name, cube_id):
     # Group_ID wird ignoriert
         username = self.fetch_data("select username from cube where Cube_ID = {};".format(cube_id))[0][0]
@@ -283,7 +278,7 @@ class SqlConn(ConfigAware):
 
         self.execute_command("update event set end_time = clock_timestamp() where start_time = (select max(start_time) from event);")
         self.execute_command("insert into event values (default, {}, clock_timestamp(), null );".format(task_id))
-=======
+
     def is_telegram_id_user(self, telegram_id):
         list = self.fetch_to_list(self.fetch_data("select username from auth_user where telegram_id = {}".format(telegram_id)))
         if len(list) == 0:
@@ -340,5 +335,4 @@ class SqlConn(ConfigAware):
     def create_pw_hash(self, pw):
         return self.encode(pw, self.salt(), 'pbkdf2_sha256', 150000)
 
->>>>>>> momo
 
