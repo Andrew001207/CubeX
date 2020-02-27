@@ -27,6 +27,7 @@ class Conv_automat:
 
         #TODO: catch index error:
         self.curr_state = "start"
+
         self.next_state = None # will be set by the current methode
 
         self._init_states()
@@ -36,6 +37,15 @@ class Conv_automat:
         #TODO handel error
         answer = update.message.text
 
+        if answer == "cancel":
+            self.curr_state = "cancel"
+
+        self._execute_curr_state(answer, update.message.reply_text)
+        self._prepare_next_state(update, context)
+
+    def _execute_curr_state(self, answer, reply_funct):
+
+        # get state payload
         state_method = self.states[self.curr_state][1]
 
         # call method of current state, return name of next state and optional instant reply
@@ -46,41 +56,51 @@ class Conv_automat:
             # TODO: handel errors better
             raise Exception('can not handle answer: no next state defined')
         if 'reply' in return_dict and return_dict['reply']:
-            update.message.reply_text(return_dict['reply'])
+            reply_funct(return_dict['reply'])
 
-        self.next_state = return_dict['next_state']
+        self._set_next_state(return_dict['next_state'])
 
-        if self.next_state not in self.states:
+    def _set_next_state(self, next_state):
+        if next_state in self.states:
+            self.next_state = next_state
+        else:
             raise Exception('Could not handle state, state does not exist')
 
-        next_pre_enter = self.states[self.next_state][0]
+    def _prepare_next_state(self, update, context):
 
-        pre_state_reply = None
+        next_pre_enter = self.states[self.next_state][0]
+        next_pre_enter_reply = None
+
+        # get the pre_enter string of next state
         if isinstance(next_pre_enter, str):
-            pre_state_reply = next_pre_enter
+            next_pre_enter_reply = next_pre_enter
         elif callable(next_pre_enter):
-            pre_state_reply = next_pre_enter(self)
+            next_pre_enter_reply = next_pre_enter(self)
             logger.debug(f'called method "{next_pre_enter.__name__}"')
         elif next_pre_enter is None:
-            #Trigger automatic jump to next state
-            self.curr_state = self.next_state
-            self.next_state = None
-            jump = update
-            jump.message.text = ''
-            self.handle_answer(jump, context) # recursiv call
+            self._instant_next_state(update, context)
             return
         else:
             raise Exception('Not handeled return value')
 
-        if pre_state_reply:
-            update.message.reply_text(pre_state_reply)
+        if next_pre_enter_reply:
+            update.message.reply_text(next_pre_enter_reply)
 
-        logger.debug(f'reply massage for user: {pre_state_reply}')
+        logger.debug(f'reply massage for user: {next_pre_enter_reply}')
 
+        self._update_states()
+
+    def _update_states(self):
         self.curr_state = self.next_state
         self.next_state = None
 
         logger.debug(f'changed state to {self.states[self.curr_state][1].__name__}')
+
+    def _instant_next_state(self, update, context):
+        self._update_states()
+        jump = update
+        jump.message.text = ''
+        self.handle_answer(jump, context)
 
     def _init_states(self):
 
