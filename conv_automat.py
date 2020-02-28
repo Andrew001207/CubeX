@@ -30,6 +30,8 @@ class Conv_automat:
 
         self.next_state = None # will be set by the current methode
 
+        self.return_state = None
+
         self._init_states()
 
     def handle_answer(self, update, context):
@@ -71,15 +73,25 @@ class Conv_automat:
         next_pre_enter = self.states[self.next_state][0]
         next_pre_enter_reply = None
 
+        instant_next = False
+
         # get the pre_enter string of next state
         if isinstance(next_pre_enter, str):
             next_pre_enter_reply = next_pre_enter
         elif callable(next_pre_enter):
-            next_pre_enter_reply = next_pre_enter(self)
+            next_pre_enter_args = next_pre_enter(self)
             logger.debug(f'called method "{next_pre_enter.__name__}"')
+
+            format_args = next_pre_enter_args[1:]
+            next_state_split = list(filter(None, self.next_state.split('_')))
+            if [] in format_args and not next_state_split[0] == "optional":
+                next_pre_enter_reply = f"No {next_state_split[-1]} to select from, please create one first"
+                self.next_state = "cancel"
+                instant_next = True
+            else:
+                next_pre_enter_reply = next_pre_enter_args[0].format(*format_args)
         elif next_pre_enter is None:
-            self._instant_next_state(update, context)
-            return
+            instant_next = True
         else:
             raise Exception('Not handeled return value')
 
@@ -87,6 +99,10 @@ class Conv_automat:
             update.message.reply_text(next_pre_enter_reply)
 
         logger.debug(f'reply massage for user: {next_pre_enter_reply}')
+
+        if instant_next:
+            self._instant_next_state(update, context)
+            return
 
         self._update_states()
 
@@ -138,6 +154,16 @@ class Conv_automat:
             return _add_answer_and_continue(self, answer, "task_name", "_select_group")
         _add_to_states(self, create_task, "Please enter the name for the new task", "Create a new task for your cubes")
 
+        def delete_task(self, answer):
+            valid_answer = _validate_answer(answer, [task[0] for task in self.userX.list_tasks(self.cubeX.get_cube_id())], int)
+            if valid_answer:
+                self.userX.delete_task(valid_answer)
+                return _reset_and_start(self, f"Deleted task {answer}")
+            else:
+                return _return_dict("delete_task", "Entered task does not exist, please try again.")
+        _add_to_states(self, delete_task, lambda self: ["Please enter the ID of the task you want to delete from the following:"\
+                                                        "\n{}", self.userX.list_tasks()], "Delete a task")
+
         def _create_group(self, answer):
             #Group name conventions?
             return _add_answer_and_continue(self, answer, "group_name", "_optional_add_cube")
@@ -153,22 +179,22 @@ class Conv_automat:
                     return _add_answer_and_continue(self, answer, "cube_id")
                 else:
                     return _return_dict("_optional_add_cube", "Invalid answer, please try again.")
-        _add_to_states(self, _optional_add_cube, lambda self: f"Select a cube the task should be bound from the following "\
-                                                              f"to or enter 'skip'\n{self.userX.list_cubes()}")
+        _add_to_states(self, _optional_add_cube, lambda self: ["Select a cube the task should be bound from the following "\
+                                                              "to or enter 'skip'\n{}", self.userX.list_cubes()])
 
         def select_cube(self, answer):
             valid_answer = _validate_answer(answer, self.userX.list_cubes(), int)
             if valid_answer:
                 self.cubeX = CubeX(valid_answer)
-                if self.result_function:
+                if self.return_state:
                     self.result_function = self.cubeX.set_task
-                    return _return_dict("_select_task")
+                    return _return_to_return_state()
                 else:
                     return _return_dict("start", f"Selcted cube {answer}")
             else:
                 return _return_dict("select_cube", f"Cube '{answer}' does not exist, please try again")
-        _add_to_states(self, select_cube, lambda self: f"Please enter the ID of the cube you want to select from "\
-                       f"the following:\n{self.userX.list_cubes()}", "Select the cube you want to perform commands on")
+        _add_to_states(self, select_cube, lambda self: ["Please enter the ID of the cube you want to select from "\
+                       "the following:\n{}", self.userX.list_cubes()], "Select the cube you want to perform commands on")
 
         def _select_task(self, answer):
             #Check if answer is an existing task_id
@@ -177,8 +203,8 @@ class Conv_automat:
                 return _add_answer_and_continue(self, answer, "task_id", "_select_side")
             else:
                 return _return_dict("_select_task", f"Task '{answer}' does not exist, please try again")
-        _add_to_states(self, _select_task, lambda self: f"Please enter the ID of the task you want to select out of the following:"\
-                                                        f"\n(ID, Name, Group), {self.userX.list_tasks(self.cubeX.get_cube_id())}")
+        _add_to_states(self, _select_task, lambda self: ["Please enter the ID of the task you want to select out of the following:"\
+                                                         "\n(ID, Name, Group), {}", self.userX.list_tasks(self.cubeX.get_cube_id())])
 
         def _select_group(self, answer):
             if(answer == "create_group"):
@@ -189,8 +215,8 @@ class Conv_automat:
                     return _add_answer_and_continue(self, answer, "group_name", "_optional_add_cube")
                 else:
                     return _return_dict("_select_group", f"Group '{answer}' does not exist, please try again")
-        _add_to_states(self, _select_group, lambda self: f"Please enter the name of the group you want to select from the following "\
-                                                         f"or enter create_group to create a new one\n{self.userX.list_groups()}")
+        _add_to_states(self, _select_group, lambda self: ["Please enter the name of the group you want to select from the following "\
+                                                          "or enter create_group to create a new one\n{}", self.userX.list_groups()])
 
         def _select_side(self, answer):
             valid_answer = _validate_answer(answer, range(1, 7), int)
@@ -206,10 +232,26 @@ class Conv_automat:
                 self.result_function = self.cubeX.set_task
                 return _return_dict("_select_task")
             else:
-                self.result_function = 'TODO be set'
-                return _return_dict("select_cube")
+                self.return_state = map_task.__name__
+                return _return_dict("select_cube", "No cube selected yet...")
         _add_to_states(self, map_task, description="Map a task to a side of the currently selected cube, "\
                                                    "if no cube is selected yet, you will be asked to do so")
+
+        def show_cubes(self, answer):
+            return _reset_and_start(self, f"You have these cubes:\n{self.userX.list_cubes()}")
+        _add_to_states(self, show_cubes, description="List all of your cubes")
+
+        def show_tasks(self, answer):
+            return _reset_and_start(self, f"You have these tasks:\n{self.userX.list_tasks()}")
+        _add_to_states(self, show_tasks, description="List all of your tasks")
+        
+        def show_sides(self, answer):
+            if self.cubeX:
+                return _reset_and_start(self, f"The sides of the current cube are mapped like this:\n{self.cubeX.get_side_tasks()}")
+            else:
+                self.return_state = show_sides.__name__
+                return _return_dict("select_cube", "No cube selected yet...")
+        _add_to_states(self, show_sides, description="List all sides and mapped tasks of the currently selected cube")
 
         def _validate_answer(answer, list_of_valids, cast_funct=None):
             final_answer = answer
@@ -239,6 +281,11 @@ class Conv_automat:
                 "next_state": next_state,
                 "reply": reply
             }
+
+        def _return_to_return_state():
+            tmp = self.return_state
+            self.return_state = None
+            return _return_dict(tmp)
 
     def _reset(self):
         self.result_function = None

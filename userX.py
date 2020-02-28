@@ -15,7 +15,7 @@ class UserX:
     def list_cubes(self):
         return self.sql_conn.get_all_cube_id(self.user_name)
 
-    def list_tasks(self, cube_id):
+    def list_tasks(self, cube_id=None):
         return self.sql_conn.get_all_tasks(self.user_name, cube_id)
 
     def list_groups(self):

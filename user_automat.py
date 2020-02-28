@@ -2,6 +2,7 @@
 
 import logging
 
+from telegram import Update
 from telegram.ext.precheckoutqueryhandler import PreCheckoutQueryHandler
 from cubeX import CubeX
 from userX import UserX

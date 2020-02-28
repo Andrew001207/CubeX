@@ -68,3 +68,7 @@ class CubeX(ConfigAware):
     def get_cube_id(self):
         "getting the cube id"
         return self.cube_id
+
+    def get_side_tasks(self):
+        #TODO return list with side_id, task_name, task_group for every cube side
+        pass

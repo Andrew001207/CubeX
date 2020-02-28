@@ -267,7 +267,10 @@ class SqlConn(ConfigAware):
         return liste
 
     def get_all_tasks(self, username, cubeid):
-        return self.fetch_multiple_to_list(self.fetch_data("select task_id,task_name,group_name from task where username = '{}' and (cube_id = {} or cube_id = null);".format(username,cubeid)))
+        if cubeid:
+            return self.fetch_multiple_to_list(self.fetch_data("select task_id,task_name,group_name from task where username = '{}' and (cube_id = {} or cube_id = null);".format(username,cubeid)))
+        else:
+            return self.fetch_multiple_to_list(self.fetch_data("select task_id,task_name,group_name from task where username = '{}';".format(username)))
 
     def get_all_group_name(self, username):
         return self.fetch_to_list(self.fetch_data("select distinct Group_name from Task where username = '{}';".format(username)))
@@ -332,7 +335,7 @@ class SqlConn(ConfigAware):
         import random
         alphabet = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
         chars = []
-        for i in range(16):
+        for _ in range(16):
             chars.append(random.choice(alphabet))
         salt = "".join(chars)
         return salt
