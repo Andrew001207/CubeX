@@ -1,0 +1,7 @@
+{% extends "main_template.html" %}
+{% block title %}CubeX{% endblock %}
+{% block content %}
+     {% if user.is_authenticated %}
+    Hi {{ user.username }}!
+    {% endif %}
+{% endblock %}
