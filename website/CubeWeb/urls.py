@@ -16,7 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.conf.urls import url
 from django.urls import include, path
-from myapp.views import home, task_view, Pie_View, BarView, login_view, signup
+from myapp.views import home, task_view, Pie_View, BarView, signup, CreateTask
 
 
 
@@ -28,4 +28,5 @@ urlpatterns = [
     url(r'^bar/$', BarView.as_view(), name= 'barchart'),
     path('accounts/', include('django.contrib.auth.urls')),
     url(r'^signup/$', signup, name = 'signup'),
+    url(r'^createTask/$', CreateTask.as_view(), name='create View')
 ]

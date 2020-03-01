@@ -155,4 +155,4 @@ database.ini
 
 #settings
 CubeWeb/settings.py
-idea/
+.idea/

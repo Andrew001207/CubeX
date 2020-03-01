@@ -4,39 +4,22 @@
 {% endblock %}
 
 {% block content %}
-<style>
-table, th, td {
-  border: 1px solid white;
-  border-collapse: collapse;
-
-}
-</style>
-<div>
+<div style="overflow-x:auto;">
+      {% load staticfiles %}
+<link rel='stylesheet' type="text/css" href="{% static 'table.css' %}">
 <table>
+<th>Task Name</th>
+<th>Group Name</th>
+<th>Cube ID</th>
     <ul>
         {% for s in allTasks %}<tr>
     <td>{{ s.task_name }}</td>
     <td>{{ s.group_name }}</td>
     <td>{{ s.cube_id }}</td>
-        <td>{{ s.username}}</td>
         </tr>
         {% endfor %}
     </ul>
 </table>
-</div>
-<div>
-    <table>
-    <ul>
-        {% for event in allEvents %}
-        <tr>
-            <td>{{ event.task_id}}</td>
-            <td>{{ event.start_time }}</td>
-            <td>{{ event.end_time }}</td>
-            <td>{{ event.event_id}}</td>
-        </tr>
-        {% endfor %}
-    </ul>
-    </table>
 </div>
 {% endblock %}
 

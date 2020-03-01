@@ -5,7 +5,7 @@ from .models import Event, Task, Cube
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import render, redirect
-from .forms import CubeIdForm
+from .forms import CubeIdForm, TaskForm
 
 def home(request, *args, **kwargs):
     today = datetime.datetime.now().date()
@@ -13,9 +13,9 @@ def home(request, *args, **kwargs):
 
 
 def task_view(request, *args, **kwargs):
-    allTasks = Task.objects.all()
-    allEvents = Event.objects.all()
-    dict = {'allTasks': allTasks, 'allEvents': allEvents}
+    username = request.user.username
+    allTasks = Task.objects.filter(username=username).order_by('cube_id')
+    dict = {'allTasks': allTasks}
     return render(request, 'task.html', dict)
 
 
@@ -89,8 +89,9 @@ def nav_bar(request):
 
 class BarView(View):
     def get(self, request, *args, **kwargs):
+        username = request.user.username
         allEvents = Event.objects.all()
-        allTasks = Task.objects.all()
+        allTasks = Task.objects.filter(username=username)
         taskid_map = {}
         group_list = []
         time_spent = []
@@ -120,3 +121,19 @@ def signup(request):
         form = UserCreationForm()
     return render(request, 'signup.html', {'form': form})
 
+class CreateTask(View):
+    def get(self, request):
+        form = TaskForm(request.POST)
+        return render(request, 'createTask.html', {'form':form})
+
+    def post(self, request):
+        form = TaskForm(request.POST)
+        if form.is_valid():
+            new_Task = Task()
+            new_Task.cube_id = form.cleaned_data['cube_id']
+            new_Task.task_name = form.cleaned_data['task_name']
+            new_Task.group_name = form.cleaned_data['task_group']
+            new_Task.username = request.user.username
+            new_Task.save()
+            form.clean()
+        return render(request, 'createTask.html', {'form': form})
