@@ -12,8 +12,10 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 logger = logging.getLogger(__name__)
 
-class UserCheck(Handler):
-
+class UserProxy(Handler):
+    '''A handler missused as a proxy,
+    to send the updates to the conversation automat of the user
+    depending on the user id'''
 
     def __init__(self, callback):
         self.user_conv_handlers = {}
@@ -21,7 +23,7 @@ class UserCheck(Handler):
         self.callback = callback
 
     def check_update(self, update):
-        """Determines whether an update should be passed to this handlers :attr:`callback`.
+        """determents to which user the update should be send
 
         Args:
             update (:class:`telegram.Update`): Incoming telegram update.
@@ -35,29 +37,23 @@ class UserCheck(Handler):
             raise Exception('no message to be processed')
 
         tel_id = update.message.from_user.id
-        # TODO: other name? :
         # NOTE: added lower because the database is not consisent with the case:
         user_first_name = update.message.from_user.first_name.lower()
 
         if tel_id in self.user_conv_handlers:
-            # NOTE: PAIN!
             self.callback = self.user_conv_handlers[tel_id].handle_answer
             return True
 
         conn = SqlConn()
         if conn.is_telegram_id_user(tel_id):
             self.user_conv_handlers[tel_id] = Conv_automat(user_first_name)
-            # NOTE: PAIN!
             self.callback = self.user_conv_handlers[tel_id].handle_answer
             return True
-
-        try:
-            # TODO: catch duplicated name in db
-            # TODO: implement password conv_handler
-            conn.signup_user(user_first_name, '', telegram_id=tel_id)
-        except Exception:
-            conn.set_telegram_user(user_first_name, tel_id)
-        self.user_conv_handlers[tel_id] = Conv_automat(user_first_name)
-        # NOTE: PAIN!
-        self.callback = self.user_conv_handlers[tel_id].handle_answer
+        # TODO: redirect user to signup on website
+        self.callback = self._unknown_user
         return True
+
+    def _unknown_user(self, update, context):
+        'callback function if the users telegram id is not known to the database'
+        update.message.reply_text('It seems like an error occured or your telegram id is not known to us.')
+

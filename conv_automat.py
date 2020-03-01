@@ -232,7 +232,7 @@ class Conv_automat:
 
         def _select_group(self, answer):
             """Internal state function to select a group or initiate creating a new group for another command"""
-            if(answer == "create_group"):
+            if answer == "create_group" :
                 return _return_dict("_create_group")
             else:
                 valid_answer = _validate_answer(answer, self.userX.list_groups())

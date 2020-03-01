@@ -3,7 +3,7 @@ import traceback
 
 from telegram.ext import Updater
 from config_aware import ConfigAware
-from user_check import UserCheck
+from user_proxy import UserProxy
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -27,7 +27,7 @@ def main(bot_token):
     dp = updater.dispatcher
 
     # NOTE: UserCheck is abused as a proxy to the handlers so UserCheck will set the callback dynamicly:
-    dp.add_handler(UserCheck(None))
+    dp.add_handler(UserProxy(None))
 
     # log all errors
     dp.add_error_handler(error)
