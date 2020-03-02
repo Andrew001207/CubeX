@@ -88,9 +88,9 @@ class Conv_automat:
 
             format_args = next_pre_enter_args[1:]
             next_state_split = list(filter(None, self.next_state.split('_')))
-            if [] in format_args and not next_state_split[0] == "optional": #if user should select element from empty list
+            if [] in format_args and not "or" in next_pre_enter_args[0].split(): #if user should select element from empty list
                 logger.debug('Could not enter state "%s" because cannot select from empty list', self.next_state)
-                next_pre_enter_reply = f"No {next_state_split[-1]} to select from, please create one first"
+                next_pre_enter_reply = f"No {next_state_split[-1]} to select from, please add one first"
                 self.next_state = "cancel"
                 instant_next = True
             else:
