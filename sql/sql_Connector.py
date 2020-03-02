@@ -170,12 +170,8 @@ class SqlConn(ConfigAware):
         #create_task(cube_id ,task_name, group_name)
 
         try:
-            print(cube_id, side_id, task_id)
-# TODO why is here a print?
             self.execute_command("insert into side values ({},{},{});".format(side_id, cube_id, task_id))
         except:
-            print("sides vorhanden update side")
-# TODO why is here a print?
             self.execute_command("update side set Task_Id = {} where side_id = {} and cube_id = {};" \
                             .format(task_id, side_id, cube_id))
 
@@ -195,8 +191,6 @@ class SqlConn(ConfigAware):
         checks if cube is aready existent
 
         """
-        print("sfsa")
-# TODO why is here a print?
         check = False
         data = self.fetch_data("select * from cube where cube_id = {}".format(cube_id))
         for cube in data:
