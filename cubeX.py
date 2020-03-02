@@ -71,5 +71,5 @@ class CubeX(ConfigAware):
         return self.cube_id
 
     def get_side_tasks(self):
-        self.sql_connection.get_side_info(self.cube_id)
+        return self.sql_connection.get_side_info(self.cube_id)
         
