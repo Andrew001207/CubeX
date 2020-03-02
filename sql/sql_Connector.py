@@ -277,7 +277,7 @@ class SqlConn(ConfigAware):
         :param cubeid: integer
         :return: list
         """
-        sides = self.fetch_data("select s.side_id, t.task_name, t.task_group from side s INNER JOIN task t ON s.task_id = t.task_id where s.Cube_ID = {};".format(cubeid))
+        sides = self.fetch_data("select s.side_id, t.task_name, t.group_name from side s INNER JOIN task t ON s.task_id = t.task_id where s.Cube_ID = {};".format(cubeid))
         return self.fetch_multiple_to_list(sides)     
 
     def get_all_tasks(self, username, cubeid):
