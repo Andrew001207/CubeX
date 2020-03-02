@@ -3,7 +3,7 @@ import traceback
 
 from telegram.ext import Updater
 from config_aware import ConfigAware
-from user_proxy import UserProxy
+from telegram_bot.user_proxy import UserProxy
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
