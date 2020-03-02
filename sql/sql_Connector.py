@@ -276,6 +276,16 @@ class SqlConn(ConfigAware):
             liste.append(part)
         return liste
 
+    def get_side_info(self,cubeid):
+        """
+        Returns sideid, task_name and group_name for every side
+
+        :param cubeid: integer
+        :return: list
+        """
+        sides = self.fetch_data("select s.side_id, t.task_name, t.task_group from side s INNER JOIN task t ON s.task_id = t.task_id where s.Cube_ID = {};".format(cubeid))
+        return self.fetch_multiple_to_list(sides)     
+
     def get_all_tasks(self, username, cubeid):
         """
         Returns all tasks for a specific user and cube
