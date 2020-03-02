@@ -289,7 +289,7 @@ class SqlConn(ConfigAware):
         :return: liste
         """
         if cubeid:
-            return self.fetch_multiple_to_list(self.fetch_data("select task_id,task_name,group_name from task where username = '{}' and (cube_id = {} or cube_id = null);".format(username,cubeid)))
+            return self.fetch_multiple_to_list(self.fetch_data("select task_id,task_name,group_name from task where username = '{}' and (cube_id = {} or cube_id is null);".format(username,cubeid)))
         else:
             return self.fetch_multiple_to_list(self.fetch_data("select task_id,task_name,group_name from task where username = '{}';".format(username)))
 
