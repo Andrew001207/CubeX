@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-import logging, traceback
+import logging
+import traceback
 
 from cubeX import CubeX
 from userX import UserX
@@ -53,7 +54,7 @@ class Conv_automat:
 
         # call method of current state, return name of next state and optional instant reply
         return_dict = state_method(self, answer)
-        logger.debug(f'called method "{state_method.__name__}"')
+        logger.debug('called method "%s"', state_method.__name__)
 
         if 'next_state' not in return_dict:
             # TODO: handel errors better
@@ -83,12 +84,12 @@ class Conv_automat:
             next_pre_enter_reply = next_pre_enter
         elif callable(next_pre_enter):
             next_pre_enter_args = next_pre_enter(self) #List of formattable string as first element followed by format arguments
-            logger.debug(f'called method "{next_pre_enter.__name__}"')
+            logger.debug('called method "%s"', next_pre_enter.__name__)
 
             format_args = next_pre_enter_args[1:]
             next_state_split = list(filter(None, self.next_state.split('_')))
             if [] in format_args and not next_state_split[0] == "optional": #if user should select element from empty list
-                logger.debug(f'Could not enter state "{self.next_state}" because cannot select from empty list')
+                logger.debug('Could not enter state "%s" because cannot select from empty list', self.next_state)
                 next_pre_enter_reply = f"No {next_state_split[-1]} to select from, please create one first"
                 self.next_state = "cancel"
                 instant_next = True
@@ -102,7 +103,7 @@ class Conv_automat:
         if next_pre_enter_reply:
             update.message.reply_text(next_pre_enter_reply)
 
-        logger.debug(f'reply massage for user: {next_pre_enter_reply}')
+        logger.debug('reply massage for user: %s', next_pre_enter_reply)
 
         if instant_next:
             self._instant_next_state(update, context)
@@ -115,7 +116,7 @@ class Conv_automat:
         self.curr_state = self.next_state
         self.next_state = None
 
-        logger.debug(f'changed state to {self.states[self.curr_state][1].__name__}')
+        logger.debug('changed state to %s', self.states[self.curr_state][1].__name__)
 
     def _instant_next_state(self, update, context):
         """Called when the next state should be entered without user input"""
@@ -143,8 +144,7 @@ class Conv_automat:
             valid_answer = _validate_answer(answer, [key for key in self.states.keys() if not key.startswith("_")])
             if valid_answer:
                 return _return_dict(answer)
-            else:
-                return _return_dict("start", f"Command '{answer}' does not exist, please try again.")
+            return _return_dict("start", f"Command '{answer}' does not exist, please try again.")
         _add_to_states(self, start, 'Please select a command, for avaiable commands enter "help"', "Start interaction with the bot")
 
         def help(self, answer):
@@ -179,8 +179,8 @@ class Conv_automat:
             if valid_answer:
                 self.userX.delete_task(valid_answer)
                 return _reset_and_start(self, f"Deleted task {answer}")
-            else:
-                return _return_dict("delete_task", "Entered task does not exist, please try again.")
+
+            return _return_dict("delete_task", "Entered task does not exist, please try again.")
         _add_to_states(self, delete_task, lambda self: ["Please enter the ID of the task you want to delete from the following:"\
                                                         "\n{}", self.userX.list_tasks()], "Delete a task")
 
@@ -195,12 +195,12 @@ class Conv_automat:
             if answer == "skip":
                 ############ EXECUTE DB FUNCTION ################
                 return self._execute_function()
-            else:
-                valid_answer = _validate_answer(answer, self.userX.list_cubes(), int)
-                if valid_answer:
-                    return _add_answer_and_continue(self, answer, "cube_id")
-                else:
-                    return _return_dict("_optional_add_cube", "Invalid answer, please try again.")
+
+            valid_answer = _validate_answer(answer, self.userX.list_cubes(), int)
+            if valid_answer:
+                return _add_answer_and_continue(self, answer, "cube_id")
+
+            return _return_dict("_optional_add_cube", "Invalid answer, please try again.")
         _add_to_states(self, _optional_add_cube, lambda self: ["Select a cube the task should be bound from the following "\
                                                               "to or enter 'skip'\n{}", self.userX.list_cubes()])
 
@@ -212,10 +212,10 @@ class Conv_automat:
                 if self.return_state:
                     self.result_function = self.cubeX.set_task
                     return _return_to_return_state()
-                else:
-                    return _return_dict("start", f"Selcted cube {answer}")
-            else:
-                return _return_dict("select_cube", f"Cube '{answer}' does not exist, please try again")
+
+                return _return_dict("start", f"Selcted cube {answer}")
+
+            return _return_dict("select_cube", f"Cube '{answer}' does not exist, please try again")
         _add_to_states(self, select_cube, lambda self: ["Please enter the ID of the cube you want to select from "\
                        "the following:\n{}", self.userX.list_cubes()], "Select the cube you want to perform commands on")
 
@@ -225,21 +225,21 @@ class Conv_automat:
             valid_answer = _validate_answer(answer, [task[0] for task in self.userX.list_tasks(self.cubeX.get_cube_id())], int)
             if valid_answer:
                 return _add_answer_and_continue(self, answer, "task_id", "_select_side")
-            else:
-                return _return_dict("_select_task", f"Task '{answer}' does not exist, please try again")
+
+            return _return_dict("_select_task", f"Task '{answer}' does not exist, please try again")
         _add_to_states(self, _select_task, lambda self: ["Please enter the ID of the task you want to select out of the following:"\
                                                          "\n(ID, Name, Group), {}", self.userX.list_tasks(self.cubeX.get_cube_id())])
 
         def _select_group(self, answer):
             """Internal state function to select a group or initiate creating a new group for another command"""
-            if answer == "create_group" :
+            if answer == "create_group":
                 return _return_dict("_create_group")
-            else:
-                valid_answer = _validate_answer(answer, self.userX.list_groups())
-                if valid_answer:
-                    return _add_answer_and_continue(self, answer, "group_name", "_optional_add_cube")
-                else:
-                    return _return_dict("_select_group", f"Group '{answer}' does not exist, please try again")
+
+            valid_answer = _validate_answer(answer, self.userX.list_groups())
+            if valid_answer:
+                return _add_answer_and_continue(self, answer, "group_name", "_optional_add_cube")
+
+            return _return_dict("_select_group", f"Group '{answer}' does not exist, please try again")
         _add_to_states(self, _select_group, lambda self: ["Please enter the name of the group you want to select from the following "\
                                                           "or enter create_group to create a new one\n{}", self.userX.list_groups()])
 
@@ -248,8 +248,8 @@ class Conv_automat:
             valid_answer = _validate_answer(answer, range(1, 7), int)
             if valid_answer:
                 return _add_answer_and_continue(self, answer, "side_id")
-            else:
-                return _return_dict("_select_side", f"Side '{answer}' does not exist, please try again")
+
+            return _return_dict("_select_side", f"Side '{answer}' does not exist, please try again")
         _add_to_states(self, _select_side, "Please enter the number of the side you want to select")
 
         def map_task(self, answer):
@@ -257,9 +257,9 @@ class Conv_automat:
             if self.cubeX:
                 self.result_function = self.cubeX.set_task
                 return _return_dict("_select_task")
-            else:
-                self.return_state = map_task.__name__
-                return _return_dict("select_cube", "No cube selected yet...")
+
+            self.return_state = map_task.__name__
+            return _return_dict("select_cube", "No cube selected yet...")
         _add_to_states(self, map_task, description="Map a task to a side of the currently selected cube, "\
                                                    "if no cube is selected yet, you will be asked to do so")
 
@@ -272,14 +272,13 @@ class Conv_automat:
             """State function to list all tasks created by the user"""
             return _reset_and_start(self, f"You have these tasks:\n{self.userX.list_tasks()}")
         _add_to_states(self, show_tasks, description="List all of your tasks")
-        
+
         def show_sides(self, answer):
             """State function to list side-task mapping of selected cube"""
             if self.cubeX:
                 return _reset_and_start(self, f"The sides of the current cube are mapped like this:\n{self.cubeX.get_side_tasks()}")
-            else:
-                self.return_state = show_sides.__name__
-                return _return_dict("select_cube", "No cube selected yet...")
+            self.return_state = show_sides.__name__
+            return _return_dict("select_cube", "No cube selected yet...")
         _add_to_states(self, show_sides, description="List all sides and mapped tasks of the currently selected cube")
 
         def _validate_answer(answer, list_of_valids, cast_funct=None):
@@ -294,15 +293,15 @@ class Conv_automat:
                 answer in correct type if in list_of_valids, otherwise None
             """
             final_answer = answer
-            if(cast_funct):
+            if cast_funct:
                 try:
                     final_answer = cast_funct(answer)
                 except:
                     return None
-            if(final_answer in list_of_valids):
+            if final_answer in list_of_valids:
                 return final_answer
-            else:
-                return None
+
+            return None
 
         def _add_answer_and_continue(self, answer, answer_key, next_state=None):
             """
@@ -310,15 +309,15 @@ class Conv_automat:
                 answer: user's answer in the needed data type
                 answer_key: dictionary position of the answer
                 next_state: next state for the automat or None if there is no more user input needed for the command
-                
+
             Returns:
                 dictionary with the next state for the automat or the result of the commands internal function
             """
             self.answers[answer_key] = answer
-            if(next_state):
+            if next_state:
                 return _return_dict(next_state)
-            else:
-                return self._execute_function()
+
+            return self._execute_function()
 
         def _reset_and_start(self, reply):
             """Starts the automat over when returned"""
@@ -336,7 +335,7 @@ class Conv_automat:
         def _return_to_return_state():
             """
             Return to and reset return_state
-            
+
             Returns:
                 dictionary with next state
             """
@@ -355,6 +354,6 @@ class Conv_automat:
             self.result_function(**self.answers)
             return dict(next_state="start", reply=f"Sucessfully executed {self.result_function.__name__} with arguments {self.answers}")
         except Exception:
-            logger.warning(f"Error in _execute_function while trying to call {self.result_function.__name__}:\n{traceback.format_exc()}")
+            logger.warning("Error in _execute_function while trying to call %s:\n%s", self.result_function.__name__, traceback.format_exc())
             return dict(next_state="_error", reply="Something went wrong")
         self._reset()

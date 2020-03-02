@@ -37,8 +37,8 @@ class UserProxy(Handler):
             raise Exception('no message to be processed')
 
         tel_id = update.message.from_user.id
-        # NOTE: added lower because the database is not consisent with the case:
-        user_first_name = update.message.from_user.first_name.lower()
+
+        user_first_name = update.message.from_user.first_name
 
         if tel_id in self.user_conv_handlers:
             self.callback = self.user_conv_handlers[tel_id].handle_answer
@@ -49,6 +49,7 @@ class UserProxy(Handler):
             self.user_conv_handlers[tel_id] = Conv_automat(user_first_name)
             self.callback = self.user_conv_handlers[tel_id].handle_answer
             return True
+
         # TODO: redirect user to signup on website
         self.callback = self._unknown_user
         return True
@@ -56,4 +57,3 @@ class UserProxy(Handler):
     def _unknown_user(self, update, context):
         'callback function if the users telegram id is not known to the database'
         update.message.reply_text('It seems like an error occured or your telegram id is not known to us.')
-

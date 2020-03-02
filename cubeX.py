@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import logging, traceback, time
-from configparser import ConfigParser
+import logging
+import traceback
+import time
 
 from sql.aws_Connector import AwsConnecter
 from sql.sql_Connector import SqlConn
@@ -32,7 +33,7 @@ class CubeX(ConfigAware):
             self.client_id)
         try:
             self.connection.connect()
-            LOGGER.info(self.client_id + ' Successfully connected')
+            LOGGER.info('%s Successfully connected', self.client_id)
         except Exception:
             raise Exception('Could not establish a connection to Amazon cloud Services')
 
@@ -59,7 +60,7 @@ class CubeX(ConfigAware):
 
     def start(self):
         "starts the connection"
-        if self.sql_connection.check_cube(self.cube_id) == True:
+        if self.sql_connection.check_cube(self.cube_id):
             self.load_state()
         self.connection.subscribe('/CubeX/{}/status'.format(self.cube_id), self.task_message_action)
         while True:
