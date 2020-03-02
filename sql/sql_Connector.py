@@ -120,20 +120,6 @@ class SqlConn(ConfigAware):
                 for task in data[group]['tasks']:
                     self.create_task(username,cube_id, task, group)
 
-    def set_task_on_side(self,cube_id, filepath):
-        """
-        takes the json file to write tasks into database
-
-        :param cube_id: integer
-        :param filepath: json_file
-        :return:
-        """
-        with open(filepath) as json_file:
-            data = json.load(json_file)
-            for group in data['groups']:
-                for task in data[group]['tasks']:
-                    #TODO update parameters to latest set_task function or create second set_task with fitting params
-                    self.set_task(cube_id, data[group][task]['side'], task, group)
 
     def create_task(self, username, task_name, group_name, cube_id=None,):
         """
@@ -219,6 +205,12 @@ class SqlConn(ConfigAware):
         return check
 
     def write_cube_information_json(self, cube_id):
+        """
+        writes all information about the cubes tasks and events
+
+        :param cube_id: integer
+        :return: data
+        """
         #all the tasks,
         groups = self.fetch_data("select distinct group_name from task where cube_id = {};".format(cube_id))
         tasks = self.fetch_data("select * from task where cube_id = {};".format(cube_id))
@@ -236,6 +228,12 @@ class SqlConn(ConfigAware):
         return data
 
     def write_cube_state_json(self, cube_id):
+        """
+        writes the information about the cube state 
+
+        :param cube_id: integer
+        :return: data
+        """
         sides = self.fetch_data("select * from side where Cube_ID = {}".format(cube_id))
         data = {}
         data['side'] = []
@@ -255,35 +253,89 @@ class SqlConn(ConfigAware):
 
 
     def fetch_to_list(self, data):
+        """
+        convertes the fetch_data result into a list (1 column)
+
+        :param data: Bytes
+        :return: liste
+        """
         liste = list()
         for part in data:
             liste.append(part[0])
         return liste
 
     def fetch_multiple_to_list(self, data):
+        """
+        convertes the fetch_data result into a list (multiple columns)
+
+        :param data: Bytes
+        :return: liste
+        """
         liste = list()
         for part in data:
             liste.append(part)
         return liste
 
+    def get_side_info(self,cubeid):
+        """
+        Returns sideid, task_name and group_name for every side
+
+        :param cubeid: integer
+        :return: list
+        """
+        sides = self.fetch_data("select s.side_id, t.task_name, t.task_group from side s INNER JOIN task t ON s.task_id = t.task_id where s.Cube_ID = {};".format(cubeid))
+        return self.fetch_multiple_to_list(sides)     
+
     def get_all_tasks(self, username, cubeid):
+        """
+        Returns all tasks for a specific user and cube
+
+        :param username: String
+        :param cubeid: Integer
+        :return: liste
+        """
         if cubeid:
             return self.fetch_multiple_to_list(self.fetch_data("select task_id,task_name,group_name from task where username = '{}' and (cube_id = {} or cube_id = null);".format(username,cubeid)))
         else:
             return self.fetch_multiple_to_list(self.fetch_data("select task_id,task_name,group_name from task where username = '{}';".format(username)))
 
     def get_all_group_name(self, username):
+        """
+        Returns all groups for a specific user
+
+        :param username: String
+        :return: liste
+        """
         return self.fetch_to_list(self.fetch_data("select distinct Group_name from Task where username = '{}';".format(username)))
 
     def get_all_cube_id(self, username):
+        """
+        Returns all cubes for a specific user
+
+        :param username: String
+        :return: liste
+        """
         return self.fetch_to_list(self.fetch_data("select cube_ID from cube where username = '{}'".format(username)))
 
-    def set_telegram_user(self, username, telegram_username):
-        # TODO: rename telegram_username
-        # TODO: can you remove username and just check the telegram_id?
-        self.execute_command("update auth_user set telegram_id = {} where username = {}".format(telegram_username,username))
+    def set_telegram_user(self, username, telegram_id):
+        """
+        creates a user for a telegram_user 
+
+        :param username: String
+        :param telegram_username: String
+        :return: none
+        """
+        self.execute_command("update auth_user set telegram_id = {} where username = {}".format(telegram_id,username))
 
     def update_event(self, task_name, cube_id):
+        """
+        gets called when the cube changes its state. Setting the end time of the old event, creating a new event
+        with a start time
+
+        :param task_name: String
+        :param cubeid: Integer
+        :return: none
+        """
     # Group_ID wird ignoriert
         username = self.fetch_data("select username from cube where Cube_ID = {};".format(cube_id))[0][0]
         task_id = self.fetch_data("select Task_Id from task where username = '{}' and Task_Name = '{}';".format(username,task_name))[0][0]
@@ -292,6 +344,12 @@ class SqlConn(ConfigAware):
         self.execute_command("insert into event values (default, {}, clock_timestamp(), null );".format(task_id))
 
     def is_telegram_id_user(self, telegram_id):
+        """
+        checkes if the telegram_id is connected to a user
+
+        :param telegram_id: String
+        :return: boolean
+        """
         list = self.fetch_to_list(self.fetch_data("select username from auth_user where telegram_id = {}".format(telegram_id)))
         if len(list) == 0:
             return False
@@ -299,6 +357,11 @@ class SqlConn(ConfigAware):
             return True
 
     def signup_user(self, username, password, telegram_id = None, first_name = "",last_name = "",email = "", is_staff = False, is_active = True):
+        """
+        sets a user in auth_user
+
+        :return: none
+        """
         password_hash = self.create_pw_hash(password)
         self.execute_command(
             f"insert into auth_user(username, password, telegram_id, is_superuser, first_name, last_name, email, is_staff, is_active, date_joined) VALUES ('{username}','{password_hash}','{telegram_id}', FALSE,'{first_name}','{last_name}','{email}','{is_staff}','{is_active}', clock_timestamp() )")
@@ -313,6 +376,7 @@ class SqlConn(ConfigAware):
         return hashlib.pbkdf2_hmac(digest().name, password, salt, iterations, dklen)
 
     def compare_pw(self, pw, username):
+        """compares the given password with the user."""
         hashed_pw = self.fetch_to_list(self.fetch_data("select password from auth_user where username = '{}'".format(username)))
         hash_string = hashed_pw[0]
         args = hash_string.split('$')
@@ -324,6 +388,7 @@ class SqlConn(ConfigAware):
             return False
 
     def encode(self, password, salt, algorithm, iterations=None):
+        """encodes the password"""
         assert password is not None
         assert salt and '$' not in salt
         iterations = iterations or iterations
@@ -332,6 +397,7 @@ class SqlConn(ConfigAware):
         return "%s$%d$%s$%s" % (algorithm, iterations, salt, hash)
 
     def salt(self):
+        """creates a random salt"""
         import random
         alphabet = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
         chars = []
@@ -341,9 +407,11 @@ class SqlConn(ConfigAware):
         return salt
 
     def hash_pw(self, args, pw):
+        """hashes the password"""
         hashed_pw = hashlib.pbkdf2_hmac('sha256', pw.encode(), args[2].encode(), int(args[1]))
         return hashed_pw
 
     def create_pw_hash(self, pw):
+        """creates a password hash"""
         return self.encode(pw, self.salt(), 'pbkdf2_sha256', 150000)
 
