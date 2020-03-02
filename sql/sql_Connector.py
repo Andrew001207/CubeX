@@ -99,9 +99,11 @@ class SqlConn(ConfigAware):
         for command in sqlCommands:
             try:
                 print(command)
+# TODO why is here a print?
                 self.execute_command(command)
             except OperationalError as msg:
                 print("Command skipped: ", msg)
+# TODO why is here a print?
 
 
     def create_task_from_json(self,cube_id, file_path):
@@ -147,12 +149,14 @@ class SqlConn(ConfigAware):
                 self.execute_command("insert into task values (default,'{}','{}', null, '{}');".format(task_name, group_name,username))
             except:
                 print(traceback.format_exc())
+# TODO why is here a print?
                 logger.warning("task schon vorhanden")
         else:
             try:
                 self.execute_command("insert into task values (default,'{}','{}', {}, '{}');".format(task_name, group_name, cube_id, username))
             except:
                 print("1",traceback.format_exc())
+# TODO why is here a print?
                 logger.warning("task schon vorhanden")
 
 
@@ -181,9 +185,11 @@ class SqlConn(ConfigAware):
 
         try:
             print(cube_id, side_id, task_id)
+# TODO why is here a print?
             self.execute_command("insert into side values ({},{},{});".format(side_id, cube_id, task_id))
         except:
             print("sides vorhanden update side")
+# TODO why is here a print?
             self.execute_command("update side set Task_Id = {} where side_id = {} and cube_id = {};" \
                             .format(task_id, side_id, cube_id))
 
@@ -204,6 +210,7 @@ class SqlConn(ConfigAware):
 
         """
         print("sfsa")
+# TODO why is here a print?
         check = False
         data = self.fetch_data("select * from cube where cube_id = {}".format(cube_id))
         for cube in data:
@@ -260,7 +267,10 @@ class SqlConn(ConfigAware):
         return liste
 
     def get_all_tasks(self, username, cubeid):
-        return self.fetch_multiple_to_list(self.fetch_data("select task_id,task_name,group_name from task where username = '{}' and (cube_id = {} or cube_id = null);".format(username,cubeid)))
+        if cubeid:
+            return self.fetch_multiple_to_list(self.fetch_data("select task_id,task_name,group_name from task where username = '{}' and (cube_id = {} or cube_id = null);".format(username,cubeid)))
+        else:
+            return self.fetch_multiple_to_list(self.fetch_data("select task_id,task_name,group_name from task where username = '{}';".format(username)))
 
     def get_all_group_name(self, username):
         return self.fetch_to_list(self.fetch_data("select distinct Group_name from Task where username = '{}';".format(username)))
@@ -269,6 +279,8 @@ class SqlConn(ConfigAware):
         return self.fetch_to_list(self.fetch_data("select cube_ID from cube where username = '{}'".format(username)))
 
     def set_telegram_user(self, username, telegram_username):
+        # TODO: rename telegram_username
+        # TODO: can you remove username and just check the telegram_id?
         self.execute_command("update auth_user set telegram_id = {} where username = {}".format(telegram_username,username))
 
     def update_event(self, task_name, cube_id):
@@ -323,7 +335,7 @@ class SqlConn(ConfigAware):
         import random
         alphabet = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
         chars = []
-        for i in range(16):
+        for _ in range(16):
             chars.append(random.choice(alphabet))
         salt = "".join(chars)
         return salt
@@ -334,5 +346,4 @@ class SqlConn(ConfigAware):
 
     def create_pw_hash(self, pw):
         return self.encode(pw, self.salt(), 'pbkdf2_sha256', 150000)
-
 

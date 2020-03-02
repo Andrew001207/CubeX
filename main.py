@@ -1,21 +1,14 @@
-import logging, traceback
+import logging
+import traceback
 
-from telegram.ext import Updater, MessageHandler, Filters
-
+from telegram.ext import Updater
 from config_aware import ConfigAware
-
-from conv_automat import Conv_automat
-from userX import UserX
-from cubeX import CubeX
-#from cubeX import CubeX
+from user_proxy import UserProxy
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
-
 logger = logging.getLogger(__name__)
-
-
 logger.info('Read config')
 
 def error(update, context):
@@ -33,10 +26,8 @@ def main(bot_token):
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
 
-    # create a instanc of the conversation automat:
-    ca = Conv_automat()
-
-    dp.add_handler(MessageHandler(Filters.regex('^[a-zA-Z0-9]'), ca.handle_answer))
+    # NOTE: UserCheck is abused as a proxy to the handlers so UserCheck will set the callback dynamicly:
+    dp.add_handler(UserProxy(None))
 
     # log all errors
     dp.add_error_handler(error)

@@ -17,7 +17,7 @@ class AwsConnecter:
     '''
         Class which uses the myAWSIoTMQQTTClient to connect with AWS
         this class is specified for the pupurse of the Cube
-        
+
     '''
     def __init__(self, host, rootCAPath, certificatePath, privateKeyPath,\
                  port, clientId):
@@ -27,7 +27,7 @@ class AwsConnecter:
         self.privateKeyPath = privateKeyPath
         self.port = port
         self.clientId = clientId
-        
+
     def connect(self):
         # Init AWSIoTMQTTClient
         self.myAWSIoTMQTTClient = None
@@ -45,11 +45,11 @@ class AwsConnecter:
 
         # Connect and subscribe to AWS IoT
         self.myAWSIoTMQTTClient.connect()
-        
+
     def send(self, topic, message):
         messageJson = json.dumps(message)
         self.myAWSIoTMQTTClient.publish(topic, messageJson, 1)
-        
+
     def subscribe(self, topic, callback):
         self.myAWSIoTMQTTClient.subscribe(topic, 1, callback)
 
@@ -61,9 +61,11 @@ if __name__ == "__main__":
 
     def exampleCallback(client, userdata, message):
         print("A message was received")
+# TODO why is here a print?
         message = message.payload
         message = str(message)
         print (message)
+# TODO why is here a print?
 
     aws_connector = AwsConnecter('a19iauu3f7q9ce-ats.iot.us-west-2.amazonaws.com',\
                                  'cert/AmazonRootCA1.pem','cert/5582d73565-certificate.pem.crt',\
@@ -73,6 +75,7 @@ if __name__ == "__main__":
     while True:
         aws_connector.send('/CubeX_main', 'Test_message')
         print('Msg published')
+# TODO why is here a print?
         time.sleep(1)
 
-    
+

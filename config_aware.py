@@ -6,10 +6,10 @@ class ConfigAware():
         # Read configfile
         config = configparser.ConfigParser()
 
-        filename = 'cert/config.ini'
+        config_path = 'cert/config.ini'
 
         # create a parser
-        config.read(filename)
+        config.read(config_path)
 
         # read config file
         try:

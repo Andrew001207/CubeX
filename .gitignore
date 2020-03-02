@@ -153,3 +153,6 @@ database.ini
 #VS Code
 .vscode/
 
+#settings
+CubeWeb/settings.py
+.idea/
