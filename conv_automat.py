@@ -98,7 +98,6 @@ class Conv_automat:
 
             #if user should select element from empty list
             if [] in format_args and not "or" in next_pre_enter_args[0].split():
-                print(format_args)
                 logger.debug('Could not enter state "%s" because cannot select from empty list', self.next_state)
                 next_pre_enter_reply = f"No {next_state_split[-1]} to select from, please add one first"
                 self.next_state = "cancel"
@@ -249,7 +248,6 @@ class Conv_automat:
             valid_answer = _validate_answer(answer, self.userX.list_cubes(), int)
             if valid_answer:
                 self.cubeX = CubeX(valid_answer)
-                print(self.cubeX.get_cube_id())
                 if self.return_state:
                     self.result_function = self.cubeX.set_task
                     return _return_to_return_state()
@@ -387,6 +385,7 @@ class Conv_automat:
                 or the result of the commands internal function
             """
             self.answers[answer_key] = answer
+            print("Current answers: ", self.answers)
             if next_state:
                 return _return_dict(next_state)
 
