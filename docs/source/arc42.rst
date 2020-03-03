@@ -35,19 +35,17 @@ the telegram bot where you have to enter "start" to start interacting with the c
 
 Requirements Overview
 ---------------------
-mqtt
-python, os independent, prototype
-cloud based
+As the cube should be a modern and flexible IoT device, the communication will be cloud based, in this case using AWS. For lightweight and 
+fast interaction with the cube, the protocol MQTT is used. Considering the expected flexibility and the prototyp state of the project, the 
+software components may be implemented in python.
 
 .. __quality_goals:
 
 Quality Goals
 -------------
-easy to add functions
-os independent
-flexible
-other guis
-
+At the time of this project, the whole Smart Cube project is still quite at the beginning. That is why the main quality goal of this project 
+is flexibility for future ideas and changes in the whole project. Apart from that the main goal is to create a simple, easily expandable and 
+correctly working software package for interaction with cube and database.
 
 .. __stakeholders:
 
@@ -64,7 +62,7 @@ other guis
 
 .. _section-architecture-constraints:
 
-Architecture Constraints
+(Architecture Constraints)
 ========================
 ???
 
@@ -72,166 +70,40 @@ Architecture Constraints
 
 System Scope and Context
 ========================
-
-.. __business_context:
-
-(Business Context)
-----------------
-
-**<Diagram or Table>**
-
-**<optionally: Explanation of external domain interfaces>**
-
-.. __technical_context:
-
-Technical Context
------------------
-AWS, telegram API, sql
-
-**<Diagram or Table>**
-
-**<optionally: Explanation of technical interfaces>**
-
-**<Mapping Input/Output to Channels>**
+AWS: To connect to the AWS servers with python, the module AWSIoTPythonSDK will be used
+Database: As the database will also run on AWS, the there available postgresql will be used
+Telegram: For the bot to interact with telegram, the module python-telegram-bot will be used
+Web-GUI: The small web-GUI will also be implemented in python with the help of the django framework
 
 .. _section-solution-strategy:
 
 Solution Strategy
 =================
 API:
-sql_connector
-cubeX
-userX
+The API to interact with the cube for now consists of four basic classes. There is one to interact directly with the database and one 
+to handle the connection to the AWS. Built on those two classes there is one class which represents the cube and handles operations 
+connected directly to the cube like mapping a task onto a side of the cube. The other class represents the user and deals with requests 
+only connected to the user like creating tasks. These two classes are the interface to be used for any GUI, Application, etc. to interact 
+with the cube and the database.
 DB:
-user, cube, task, side, event
+The database currently consists of five tables. One to hold the users, one for the cubes, one for the tasks, one for the cube side mappings 
+and one to store the activities measured by the cube.
 Bot:
-user-management
-state machine
+At first, the idea was to create the bot based on the class ConvHandler of the used telegram API. But as this in the end was to restrictive, 
+the bot is now made up of two classes. The first one is a custom handler for telegram updates to deal with multiple users and the actual 
+conversation is handeled by a own state machine.
 Web_GUI:
-django, ...
+django, ...???
 
 .. _section-building-block-view:
 
 Building Block View
 ===================
-DB diagramm
+DB diagramm:
+group with task
+optional cube_id in task
 Class diagramm
 state machine
-
-.. __whitebox_overall_system:
-
-(Whitebox Overall System)
------------------------
-
-**<Overview Diagram>**
-
-Motivation
-   *<text explanation>*
-
-Contained Building Blocks
-   *<Description of contained building block (black boxes)>*
-
-Important Interfaces
-   *<Description of important interfaces>*
-
-.. ___name_black_box_1:
-
-<Name black box 1>
-~~~~~~~~~~~~~~~~~~
-
-*<Purpose/Responsibility>*
-
-*<Interface(s)>*
-
-*<(Optional) Quality/Performance Characteristics>*
-
-*<(Optional) Directory/File Location>*
-
-*<(Optional) Fulfilled Requirements>*
-
-*<(optional) Open Issues/Problems/Risks>*
-
-.. ___name_black_box_2:
-
-<Name black box 2>
-~~~~~~~~~~~~~~~~~~
-
-*<black box template>*
-
-.. ___name_black_box_n:
-
-<Name black box n>
-~~~~~~~~~~~~~~~~~~
-
-*<black box template>*
-
-.. ___name_interface_1:
-
-<Name interface 1>
-~~~~~~~~~~~~~~~~~~
-
-…
-
-.. ___name_interface_m:
-
-<Name interface m>
-~~~~~~~~~~~~~~~~~~
-
-.. __level_2:
-
-Level 2
--------
-
-.. __white_box_emphasis_building_block_1_emphasis:
-
-White Box *<building block 1>*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-*<white box template>*
-
-.. __white_box_emphasis_building_block_2_emphasis:
-
-White Box *<building block 2>*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-*<white box template>*
-
-…
-
-.. __white_box_emphasis_building_block_m_emphasis:
-
-White Box *<building block m>*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-*<white box template>*
-
-.. __level_3:
-
-Level 3
--------
-
-.. __white_box_building_block_x_1:
-
-White Box <_building block x.1_>
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-*<white box template>*
-
-.. __white_box_building_block_x_2:
-
-White Box <_building block x.2_>
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-*<white box template>*
-
-.. __white_box_building_block_y_1:
-
-White Box <_building block y.1_>
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-*<white box template>*
-
-.. _section-runtime-view:
 
 Runtime View
 ============
@@ -247,75 +119,16 @@ Only one scenario
 -  *<insert description of the notable aspects of the interactions
    between the building block instances depicted in this diagram.>*
 
-.. ___runtime_scenario_2:
-
-<Runtime Scenario 2>
---------------------
-
-.. __:
-
-…
--
-
-.. ___runtime_scenario_n:
-
-<Runtime Scenario n>
---------------------
-
 .. _section-deployment-view:
 
 Deployment View
 ===============
-no levels
+diagram
 db on aws, bot maybe aws, mqtt broker aws
-
-.. __infrastructure_level_1:
-
-Infrastructure Level 1
-----------------------
-
-**<Overview Diagram>**
-
-Motivation
-   *<explanation in text form>*
-
-Quality and/or Performance Features
-   *<explanation in text form>*
-
-Mapping of Building Blocks to Infrastructure
-   *<description of the mapping>*
-
-.. __infrastructure_level_2:
-
-Infrastructure Level 2
-----------------------
-
-.. ___emphasis_infrastructure_element_1_emphasis:
-
-*<Infrastructure Element 1>*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-*<diagram + explanation>*
-
-.. ___emphasis_infrastructure_element_2_emphasis:
-
-*<Infrastructure Element 2>*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-*<diagram + explanation>*
-
-…
-
-.. ___emphasis_infrastructure_element_n_emphasis:
-
-*<Infrastructure Element n>*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-*<diagram + explanation>*
 
 .. _section-concepts:
 
-Cross-cutting Concepts
+(Cross-cutting Concepts)
 ======================
 ???
 
@@ -325,15 +138,6 @@ Cross-cutting Concepts
 -------------
 
 *<explanation>*
-
-.. ___emphasis_concept_2_emphasis:
-
-*<Concept 2>*
--------------
-
-*<explanation>*
-
-…
 
 .. ___emphasis_concept_n_emphasis:
 
@@ -346,11 +150,13 @@ Cross-cutting Concepts
 
 Design Decisions
 ================
-json???
+As this project is only a small part of the whole Smart Cube project, there were no decicions with too much impact made. The only slightly 
+important decicions concern the structure of the database and the format of the to the cube transmitted json file, because there are 
+already many parts in the software that depend on these structures, so changes there could make some bigger modifications necessary.
 
 .. _section-quality-scenarios:
 
-Quality Requirements
+(Quality Requirements)
 ====================
 ???
 
@@ -361,18 +167,17 @@ Quality Tree
 
 .. __quality_scenarios:
 
-Quality Scenarios
+(Quality Scenarios)
 -----------------
 
 .. _section-technical-risks:
 
-Risks and Technical Debts
+(Risks and Technical Debts)
 =========================
-weglassen???
 
 .. _section-glossary:
 
-Glossary
+(Glossary)
 ========
 
 +-----------------------------------+-----------------------------------+
@@ -382,5 +187,3 @@ Glossary
 +-----------------------------------+-----------------------------------+
 | <Term-2>                          | <definition-2>                    |
 +-----------------------------------+-----------------------------------+
-
-.. |arc42| image:: images/arc42-logo.png
