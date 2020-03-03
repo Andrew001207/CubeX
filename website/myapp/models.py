@@ -156,7 +156,7 @@ class Side(models.Model):
     class Meta:
         managed = False
         db_table = 'side'
-        unique_together = ('side_id', 'cube')
+        unique_together = (('side_id', 'cube'),)
 
 
 class Task(models.Model):
