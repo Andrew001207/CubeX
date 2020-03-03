@@ -3,8 +3,8 @@
 import logging
 
 from telegram.ext.handler import Handler
-from sql.sql_Connector import SqlConn
-from conv_automat import Conv_automat
+from cube_api.ext_conn.sql_Connector import SqlConn
+from .conv_automat import Conv_automat
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',

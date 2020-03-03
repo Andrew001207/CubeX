@@ -5,9 +5,9 @@ import logging
 import traceback
 import time
 
-from ext_conn.aws_Connector import AwsConnecter
-from ext_conn.sql_Connector import SqlConn
-from ..config_aware import ConfigAware
+from .ext_conn.aws_Connector import AwsConnecter
+from .ext_conn.sql_Connector import SqlConn
+from config_aware import ConfigAware
 
 
 LOGGER = logging.getLogger("sqlconnecter")

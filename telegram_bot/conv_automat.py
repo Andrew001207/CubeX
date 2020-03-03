@@ -3,8 +3,8 @@
 import logging
 import traceback
 
-from cubeX import CubeX
-from userX import UserX
+from cube_api.cubeX import CubeX
+from cube_api.userX import UserX
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
