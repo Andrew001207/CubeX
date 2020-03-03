@@ -154,5 +154,5 @@ database.ini
 .vscode/
 
 #settings
-CubeWeb/settings.py
+website/CubeWeb/settings.py
 .idea/
