@@ -12,7 +12,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 logger = logging.getLogger(__name__)
 
-class Conv_automat:
+class ConvMachine:
 
 
     def __init__(self, username):
@@ -385,7 +385,6 @@ class Conv_automat:
                 or the result of the commands internal function
             """
             self.answers[answer_key] = answer
-            print("Current answers: ", self.answers)
             if next_state:
                 return _return_dict(next_state)
 

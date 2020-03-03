@@ -1,10 +1,10 @@
-from sql.sql_Connector import SqlConn
+from sql.sql_connector import SqlConnector
 
 class UserX:
 
     def __init__(self, user_name):
         self.user_name = user_name
-        self.sql_conn = SqlConn()
+        self.sql_conn = SqlConnector()
 
     def create_task(self, task_name, group_name, cube_id=None):
         self.sql_conn.create_task(self.user_name, task_name, group_name, cube_id)

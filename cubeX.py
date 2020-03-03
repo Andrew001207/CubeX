@@ -5,12 +5,12 @@ import logging
 import traceback
 import time
 
-from sql.aws_Connector import AwsConnecter
-from sql.sql_Connector import SqlConn
+from sql.aws_connector import AwsConnector
+from sql.sql_connector import SqlConnector
 from config_aware import ConfigAware
 
 
-LOGGER = logging.getLogger("sqlconnecter")
+LOGGER = logging.getLogger("sqlconnector")
 LOGGER.setLevel(logging.WARNING)
 STREAM_HANDLER = logging.StreamHandler()
 FORMATTER = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -22,9 +22,9 @@ class CubeX(ConfigAware):
     def __init__(self, cube_id):
         super().__init__()
         self.cube_id = cube_id
-        self.sql_connection = SqlConn()
+        self.sql_connection = SqlConnector()
         self.client_id = 'Manager_' + str(cube_id)
-        self.connection = AwsConnecter(
+        self.connection = AwsConnector(
             self.conf_aws['host'],
             self.conf_aws['rootcapath'],
             self.conf_aws['certificatepath'],

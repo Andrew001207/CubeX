@@ -15,14 +15,14 @@ import hashlib
 
 from config_aware import ConfigAware
 
-logger = logging.getLogger("sqlconnecter")
+logger = logging.getLogger("sqlconnector")
 logger.setLevel(logging.WARNING)
 streamHandler = logging.StreamHandler()
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 streamHandler.setFormatter(formatter)
 logger.addHandler(streamHandler)
 
-class SqlConn(ConfigAware):
+class SqlConnector(ConfigAware):
     '''
     Connection to database
     Methods for interacting with the database

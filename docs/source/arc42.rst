@@ -37,34 +37,15 @@ Requirements Overview
 ---------------------
 As the cube should be a modern and flexible IoT device, the communication will be cloud based, in this case using AWS. For lightweight and 
 fast interaction with the cube, the protocol MQTT is used. Considering the expected flexibility and the prototyp state of the project, the 
-software components may be implemented in python.
+software components will be implemented in python.
 
 .. __quality_goals:
 
 Quality Goals
 -------------
 At the time of this project, the whole Smart Cube project is still quite at the beginning. That is why the main quality goal of this project 
-is flexibility for future ideas and changes in the whole project. Apart from that the main goal is to create a simple, easily expandable and 
-correctly working software package for interaction with cube and database.
-
-.. __stakeholders:
-
-(Stakeholders)
-------------
-
-+-------------+---------------------------+---------------------------+
-| Role/Name   | Contact                   | Expectations              |
-+=============+===========================+===========================+
-| *<Role-1>*  | *<Contact-1>*             | *<Expectation-1>*         |
-+-------------+---------------------------+---------------------------+
-| *<Role-2>*  | *<Contact-2>*             | *<Expectation-2>*         |
-+-------------+---------------------------+---------------------------+
-
-.. _section-architecture-constraints:
-
-(Architecture Constraints)
-========================
-???
+is flexibility for future ideas and changes in the whole project. Apart from that another goal is to create a simple, easily expandable and 
+correctly working software package for interaction with cube and database, including the telegram bot.
 
 .. _section-system-scope-and-context:
 
@@ -87,11 +68,13 @@ only connected to the user like creating tasks. These two classes are the interf
 with the cube and the database.
 DB:
 The database currently consists of five tables. One to hold the users, one for the cubes, one for the tasks, one for the cube side mappings 
-and one to store the activities measured by the cube.
+and one to store the activities measured by the cube. To create a quiet structured way for the user to manage his tasks, the decicions were 
+made that on the one hand a group has to contain at least one task, so the user can group his tasks by group and on the other hand a task 
+can contain an optional cube_id so the user can also group his tasks by cube.
 Bot:
-At first, the idea was to create the bot based on the class ConvHandler of the used telegram API. But as this in the end was to restrictive, 
-the bot is now made up of two classes. The first one is a custom handler for telegram updates to deal with multiple users and the actual 
-conversation is handeled by a own state machine.
+At first, the idea was to create the bot based on the class ConvHandler of the used telegram API. But as this class in the end was to 
+restrictive, the bot is now made up of two classes. The first one is a custom handler for telegram updates to deal with multiple users and 
+the actual conversation is handeled by a own state machine.
 Web_GUI:
 django, ...???
 
@@ -99,81 +82,32 @@ django, ...???
 
 Building Block View
 ===================
-DB diagramm:
-group with task
-optional cube_id in task
+[DIAGRAMS]
+DB diagramm
 Class diagramm
 state machine
 
 Runtime View
 ============
 
-.. ___runtime_scenario_1:
+.. ___bot_conversation:
 
-<Runtime Scenario 1>
+Bot Conversation
 --------------------
-Only one scenario
-
--  *<insert runtime diagram or textual description of the scenario>*
-
--  *<insert description of the notable aspects of the interactions
-   between the building block instances depicted in this diagram.>*
-
-.. _section-deployment-view:
+[DIAGRAM]
 
 Deployment View
 ===============
-diagram
-db on aws, bot maybe aws, mqtt broker aws
-
-.. _section-concepts:
-
-(Cross-cutting Concepts)
-======================
-???
-
-.. ___emphasis_concept_1_emphasis:
-
-*<Concept 1>*
--------------
-
-*<explanation>*
-
-.. ___emphasis_concept_n_emphasis:
-
-*<Concept n>*
--------------
-
-*<explanation>*
+[DIAGRAM]
 
 .. _section-design-decisions:
 
 Design Decisions
 ================
-As this project is only a small part of the whole Smart Cube project, there were no decicions with too much impact made. The only slightly 
-important decicions concern the structure of the database and the format of the to the cube transmitted json file, because there are 
-already many parts in the software that depend on these structures, so changes there could make some bigger modifications necessary.
-
-.. _section-quality-scenarios:
-
-(Quality Requirements)
-====================
-???
-
-.. __quality_tree:
-
-Quality Tree
-------------
-
-.. __quality_scenarios:
-
-(Quality Scenarios)
------------------
-
-.. _section-technical-risks:
-
-(Risks and Technical Debts)
-=========================
+As this project is only a small part of the whole Smart Cube project and one of the goals was to create a very flexible software system, 
+there were no decicions with too much impact made. The only rather enduring decicions made concern the structure of the database and the 
+format of the to the cube transmitted json file itself, because there are already many parts in the software that depend on these structures, so 
+changes there could cause a rising number of modifications to be necessary.
 
 .. _section-glossary:
 
