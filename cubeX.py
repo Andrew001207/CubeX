@@ -41,6 +41,7 @@ class CubeX(ConfigAware):
         '''maps a task on a cube side'''
 
         self.sql_connection.set_task(self.cube_id, side_id, task_id)
+        self.load_state()
 
     def load_state(self):
         '''sends the tasks to aws'''
