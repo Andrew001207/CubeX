@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+{% extends "main_template.html" %}
+{% block title %}CubeX{% endblock %}
+{% block content %}
+    {% load staticfiles %}
+<link rel='stylesheet' type="text/css" href="{% static 'TaskCreate.css' %}">
+<div style="float: left; padding-top: 16px; padding-right: 16px">
+<table>
+    <form method="POST">
+        <th>Task  Name</th>
+        <th>Task Group</th>
+        <th>Side</th>
+        {% csrf_token %}
+        {% for form in forms %}
+        <tr>
+            <td>{{ form.task_name }}</td>
+            <td>{{ form.task_group }}</td>
+            <td>{{ form.side}}</td>
+        </tr>
+        {% endfor %}
+</table>
+<p align="left">
+<button type="submit">submit</button>
+</p>
+    </form>
+</div>
+<div style="float: left">
+<div style="overflow-x:auto;">
+      {% load staticfiles %}
+<table>
+<th>Task Name</th>
+<th>Group Name</th>
+<th>Cube ID</th>
+    <ul>
+        {% for s in all_Tasks %}<tr>
+    <td>{{ s.task_name }}</td>
+    <td>{{ s.group_name }}</td>
+    <td>{{ s.cube_id }}</td>
+        </tr>
+        {% endfor %}
+    </ul>
+</table>
+</div>
+</div>
+     <div style="float:left; padding-top: 18px; padding-left: 20px">
+    <form method="POST">
+    {% csrf_token %}
+        <label for="cube_id">Cube_ID:</label>
+        <input type="number" id="cube_id" name="cube_id"><br><br>
+    {{ form.as_p }}
+    <button type="submit", value="cube_id">submit</button>
+    </form>
+    </div>
+
+
+{% endblock %}
