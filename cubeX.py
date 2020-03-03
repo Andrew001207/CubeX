@@ -46,7 +46,8 @@ class CubeX(ConfigAware):
     def load_state(self):
         '''sends the tasks to aws'''
         json = self.sql_connection.write_cube_state_json(self.cube_id)
-        self.connection.send('/CubeX/{}/tasks'.format(self.cube_id), json)
+        #TODO cubeid=1 for tests with display
+        self.connection.send('/CubeX/{}/tasks'.format(1), json)
 
     def task_message_action(self, client, userdata, message):
         "Callback function after a side change of the cube"
@@ -63,7 +64,8 @@ class CubeX(ConfigAware):
         "starts the connection"
         if self.sql_connection.check_cube(self.cube_id):
             self.load_state()
-        self.connection.subscribe('/CubeX/{}/status'.format(self.cube_id), self.task_message_action)
+        #TODO cubeid=1 for tests with the display
+        self.connection.subscribe('/CubeX/{}/status'.format(1), self.task_message_action)
 
     def get_cube_id(self):
         "getting the cube id"
