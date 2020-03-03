@@ -108,16 +108,3 @@ As this project is only a small part of the whole Smart Cube project and one of 
 there were no decicions with too much impact made. The only rather enduring decicions made concern the structure of the database and the 
 format of the to the cube transmitted json file itself, because there are already many parts in the software that depend on these structures, so 
 changes there could cause a rising number of modifications to be necessary.
-
-.. _section-glossary:
-
-(Glossary)
-========
-
-+-----------------------------------+-----------------------------------+
-| Term                              | Definition                        |
-+===================================+===================================+
-| <Term-1>                          | <definition-1>                    |
-+-----------------------------------+-----------------------------------+
-| <Term-2>                          | <definition-2>                    |
-+-----------------------------------+-----------------------------------+
