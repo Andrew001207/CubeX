@@ -9,7 +9,6 @@ from telegram_bot.user_proxy import UserProxy
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
 logger = logging.getLogger(__name__)
-logger.info('Read config')
 
 def error(update, context):
     """Log Errors caused by Updates."""
