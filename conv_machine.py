@@ -12,8 +12,30 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 logger = logging.getLogger(__name__)
 
-class Conv_automat:
+class ConvMachine:
+    """This object handles the conversation with the user within telegram
 
+    Note: 
+        naming conventions for the states:
+            -state name starts with _ if the state cannot be accessed directly by the user (= is no command)
+            -if possible state ends with the by its function affected object (e.g. select_cube, create_task, select_group)
+            -if a state is there to set an optional value, it starts with optional or _optional (e.g. _optional_add_cube)
+            -if pre-enter shows the user a list to select from and an empty list is allowed, the pre-enter must contain 
+             the word "or" (e.g. see _optional_add_cube, _select_group)
+    
+    Attributes:
+        states (dict): The states of the state machine with name as key and tuple of the state' s function, its pre_enter 
+                       message and a description of the state
+        cubeX (CubeX): Representation of the currently used Smart Cube
+        userX (userX): Representation of the database user account
+        username (str): Database username
+        result_function (function): Function from cube_api which should process the current commands user input
+        answers (dict): Stores all the user's answers for the current command
+        curr_state (str): The current state of the state machine
+        next_state (str): The next state of the state machine
+        return_state (str): Used when a necessary precondition to enter a state is not fullfilled. Stores the actual state so that 
+                            the states responsible to fullfill this precondition are executed can finally return to the right state
+    """
 
     def __init__(self, username):
 
@@ -384,7 +406,6 @@ class Conv_automat:
                 or the result of the commands internal function
             """
             self.answers[answer_key] = answer
-            print("Current answers: ", self.answers)
             if next_state:
                 return _return_dict(next_state)
 

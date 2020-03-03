@@ -3,8 +3,8 @@
 import logging
 
 from telegram.ext.handler import Handler
-from sql.sql_Connector import SqlConn
-from conv_automat import Conv_automat
+from sql.sql_connector import SqlConnector
+from conv_machine import ConvMachine
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -44,9 +44,9 @@ class UserProxy(Handler):
             self.callback = self.user_conv_handlers[tel_id].handle_answer
             return True
 
-        conn = SqlConn()
+        conn = SqlConnector()
         if conn.is_telegram_id_user(tel_id):
-            self.user_conv_handlers[tel_id] = Conv_automat(user_first_name)
+            self.user_conv_handlers[tel_id] = ConvMachine(user_first_name)
             self.callback = self.user_conv_handlers[tel_id].handle_answer
             return True
 

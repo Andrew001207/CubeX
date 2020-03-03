@@ -10,10 +10,10 @@ Created on Wed Feb 12 15:57:35 2020
     Topics handled by another class
 """
 from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
-import logging
+import logging, time
 import json
 
-class AwsConnecter:
+class AwsConnector:
     '''
         Class which uses the myAWSIoTMQQTTClient to connect with AWS
         this class is specified for the pupurse of the Cube
@@ -67,7 +67,7 @@ if __name__ == "__main__":
         print (message)
 # TODO why is here a print?
 
-    aws_connector = AwsConnecter('a19iauu3f7q9ce-ats.iot.us-west-2.amazonaws.com',\
+    aws_connector = AwsConnector('a19iauu3f7q9ce-ats.iot.us-west-2.amazonaws.com',\
                                  'cert/AmazonRootCA1.pem','cert/5582d73565-certificate.pem.crt',\
                                      'cert/5582d73565-private.pem.key',8883,'Cube')
     aws_connector.connect()
