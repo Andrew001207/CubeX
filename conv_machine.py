@@ -321,8 +321,8 @@ class ConvMachine:
 
         def _select_side(self, answer):
             """Internal state function to select a side of the selected cube for another command"""
-            valid_answer = _validate_answer(answer, range(0, 6), int)
-            if valid_answer:
+            valid_answer = _validate_answer(answer, list(range(0, 6)), int)
+            if not valid_answer is None:
                 return _add_answer_and_continue(self, answer, "side_id")
 
             return _return_dict("_select_side", f"Side '{answer}' does not exist, please try again")
@@ -390,7 +390,6 @@ class ConvMachine:
                     final_answer = cast_funct(answer)
                 except:
                     return None
-
             if final_answer in list_of_valids:
                 return final_answer
 

@@ -176,6 +176,7 @@ class SqlConnector(ConfigAware):
                             .format(task_id, side_id, cube_id))
 
 
+
     def delete_task(self, task_id):
         """
 
