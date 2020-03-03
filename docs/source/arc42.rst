@@ -29,15 +29,15 @@ How to start
 ------------
 To see and try the results of the project, the database, the GUI and the bot code have to be running and the prototype of the cube should 
 be connected to a network. If all of this is done, you can connect to the GUI, create a account if you have not done so yet and connect to 
-the telegram bot where you have to enter "start" to start interacting with the cube.
+the telegram bot where you have to enter "[/]start" to start interacting with the cube.
 
 .. __requirements_overview:
 
 Requirements Overview
 ---------------------
 As the cube should be a modern and flexible IoT device, the communication will be cloud based, in this case using AWS. For lightweight and 
-fast interaction with the cube, the protocol MQTT is used. Considering the expected flexibility and the prototyp state of the project, the 
-software components will be implemented in python.
+fast interaction with the cube, the protocol MQTT is used. And finally considering the expected flexibility and the prototyp state of the 
+project, the software components will be implemented in python.
 
 .. __quality_goals:
 

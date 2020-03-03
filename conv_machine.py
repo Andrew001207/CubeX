@@ -17,7 +17,7 @@ class ConvMachine:
 
     Note: 
         naming conventions for the states:
-            -state name starts with _ if the state cannot be accessed directly by the user (= is no command)
+            -state name starts with _ if the state cannot be accessed directly by the user (= is not a command)
             -if possible state ends with the by its function affected object (e.g. select_cube, create_task, select_group)
             -if a state is there to set an optional value, it starts with optional or _optional (e.g. _optional_add_cube)
             -if pre-enter shows the user a list to select from and an empty list is allowed, the pre-enter must contain 
@@ -64,6 +64,10 @@ class ConvMachine:
         #TODO handel error
         answer = update.message.text
 
+        #Enable instant start of conversation by telegram bot start
+        if answer == "/start":
+            answer = "start"
+
         if answer == "cancel":
             self.curr_state = "cancel"
 
@@ -77,8 +81,7 @@ class ConvMachine:
         # get state payload
         state_method = self.states[self.curr_state][1]
 
-        # call method of current state, return name of next state and optional instant reply
-
+        # call method of current state, returns name of next state and optional instant reply
         return_dict = state_method(self, answer)
         logger.debug('called method "%s"', state_method.__name__)
 
@@ -111,14 +114,14 @@ class ConvMachine:
         if isinstance(next_pre_enter, str):
             next_pre_enter_reply = next_pre_enter
         elif callable(next_pre_enter):
-            #List of formattable string as first element followed by format arguments
+            # list of formattable string as first element followed by format arguments
             next_pre_enter_args = next_pre_enter(self)
             logger.debug('called method "%s"', next_pre_enter.__name__)
 
             format_args = next_pre_enter_args[1:]
             next_state_split = list(filter(None, self.next_state.split('_')))
 
-            #if user should select element from empty list
+            # if user should select element from empty list
             if [] in format_args and not "or" in next_pre_enter_args[0].split():
                 logger.debug('Could not enter state "%s" because cannot select from empty list', self.next_state)
                 next_pre_enter_reply = f"No {next_state_split[-1]} to select from, please add one first"
@@ -420,7 +423,7 @@ class ConvMachine:
 
 
         def _return_dict(next_state, reply=None):
-            """Returns dictionary with given parameters for handle_answer function"""
+            """Returns a dictionary with given parameters for handle_answer function"""
 
             return {
                 "next_state": next_state,
@@ -448,7 +451,7 @@ class ConvMachine:
 
     def _execute_function(self):
         """Call the selected userX or cubeX function with the user's input
-        to interact with the cube and/or database"""
+           to interact with the cube and/or database"""
         try:
             self.result_function(**self.answers)
             return dict(next_state="start",
