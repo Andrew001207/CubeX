@@ -37,8 +37,10 @@ class UserProxy(Handler):
             raise Exception('no message to be processed')
 
         tel_id = update.message.from_user.id
+        print(tel_id)
 
         user_first_name = update.message.from_user.first_name
+        print(user_first_name)
 
         if tel_id in self.user_conv_handlers:
             self.callback = self.user_conv_handlers[tel_id].handle_answer

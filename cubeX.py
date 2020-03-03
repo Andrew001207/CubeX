@@ -36,7 +36,7 @@ class CubeX(ConfigAware):
             LOGGER.info('%s Successfully connected', self.client_id)
         except Exception:
             raise Exception('Could not establish a connection to Amazon cloud Services')
-
+        self.start()
     def set_task(self, task_id, side_id):
         '''maps a task on a cube side'''
 
@@ -63,8 +63,6 @@ class CubeX(ConfigAware):
         if self.sql_connection.check_cube(self.cube_id):
             self.load_state()
         self.connection.subscribe('/CubeX/{}/status'.format(self.cube_id), self.task_message_action)
-        while True:
-            time.sleep(1)
 
     def get_cube_id(self):
         "getting the cube id"
