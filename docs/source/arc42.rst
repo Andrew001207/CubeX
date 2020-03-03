@@ -66,16 +66,16 @@ to handle the connection to the AWS. Built on those two classes there is one cla
 connected directly to the cube like mapping a task onto a side of the cube. The other class represents the user and deals with requests 
 only connected to the user like creating tasks. These two classes are the interface to be used for any GUI, Application, etc. to interact 
 with the cube and the database.
-DB:
+Database:
 The database currently consists of five tables. One to hold the users, one for the cubes, one for the tasks, one for the cube side mappings 
 and one to store the activities measured by the cube. To create a quiet structured way for the user to manage his tasks, the decicions were 
 made that on the one hand a group has to contain at least one task, so the user can group his tasks by group and on the other hand a task 
 can contain an optional cube_id so the user can also group his tasks by cube.
-Bot:
+Telegram Bot:
 At first, the idea was to create the bot based on the class ConvHandler of the used telegram API. But as this class in the end was to 
 restrictive, the bot is now made up of two classes. The first one is a custom handler for telegram updates to deal with multiple users and 
 the actual conversation is handeled by a own state machine.
-Web_GUI:
+Web-GUI:
 django, ...???
 
 .. _section-building-block-view:
@@ -93,12 +93,16 @@ Runtime View
 .. ___bot_conversation:
 
 Bot Conversation
---------------------
+----------------
 [DIAGRAM]
+To understand the behavior of the bot better, this shows the general procedure of how the user bot interaction works inside this telegram 
+bot.
 
 Deployment View
 ===============
 [DIAGRAM]
+Like mentioned in the requirements section, this system should be mainly cloud based, so in the end, the database, the MQTT broker, the 
+server for the Web-GUI and the bot should all run in the AWS cloud and the cube and the user communicate via the cloud with eachother.
 
 .. _section-design-decisions:
 
@@ -106,5 +110,5 @@ Design Decisions
 ================
 As this project is only a small part of the whole Smart Cube project and one of the goals was to create a very flexible software system, 
 there were no decicions with too much impact made. The only rather enduring decicions made concern the structure of the database and the 
-format of the to the cube transmitted json file itself, because there are already many parts in the software that depend on these structures, so 
-changes there could cause a rising number of modifications to be necessary.
+format of the to the cube transmitted json file itself, because there are already many parts in the software that depend on these 
+structures, so changes there could cause a rising number of modifications to be necessary.
