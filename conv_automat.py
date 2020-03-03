@@ -296,7 +296,7 @@ class Conv_automat:
 
         def _select_side(self, answer):
             """Internal state function to select a side of the selected cube for another command"""
-            valid_answer = _validate_answer(answer, range(1, 7), int)
+            valid_answer = _validate_answer(answer, range(0, 6), int)
             if valid_answer:
                 return _add_answer_and_continue(self, answer, "side_id")
 
