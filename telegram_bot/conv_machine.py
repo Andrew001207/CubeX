@@ -12,7 +12,6 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 logger = logging.getLogger(__name__)
 
-<<<<<<< HEAD
 class ConvMachine:
     """This object handles the conversation with the user within telegram
 
@@ -37,10 +36,6 @@ class ConvMachine:
         return_state (str): Used when a necessary precondition to enter a state is not fullfilled. Stores the actual state so that 
                             the states responsible to fullfill this precondition are executed can finally return to the right state
     """
-=======
-class Conv_automat:
-
->>>>>>> new_structur
 
     def __init__(self, username):
 
@@ -69,13 +64,10 @@ class Conv_automat:
         #TODO handel error
         answer = update.message.text
 
-<<<<<<< HEAD
         #Enable instant start of conversation by telegram bot start
         if answer == "/start":
             answer = "start"
 
-=======
->>>>>>> new_structur
         if answer == "cancel":
             self.curr_state = "cancel"
 
@@ -89,12 +81,7 @@ class Conv_automat:
         # get state payload
         state_method = self.states[self.curr_state][1]
 
-<<<<<<< HEAD
         # call method of current state, returns name of next state and optional instant reply
-=======
-        # call method of current state, return name of next state and optional instant reply
-
->>>>>>> new_structur
         return_dict = state_method(self, answer)
         logger.debug('called method "%s"', state_method.__name__)
 
@@ -127,22 +114,14 @@ class Conv_automat:
         if isinstance(next_pre_enter, str):
             next_pre_enter_reply = next_pre_enter
         elif callable(next_pre_enter):
-<<<<<<< HEAD
             # list of formattable string as first element followed by format arguments
-=======
-            #List of formattable string as first element followed by format arguments
->>>>>>> new_structur
             next_pre_enter_args = next_pre_enter(self)
             logger.debug('called method "%s"', next_pre_enter.__name__)
 
             format_args = next_pre_enter_args[1:]
             next_state_split = list(filter(None, self.next_state.split('_')))
 
-<<<<<<< HEAD
             # if user should select element from empty list
-=======
-            #if user should select element from empty list
->>>>>>> new_structur
             if [] in format_args and not "or" in next_pre_enter_args[0].split():
                 logger.debug('Could not enter state "%s" because cannot select from empty list', self.next_state)
                 next_pre_enter_reply = f"No {next_state_split[-1]} to select from, please add one first"
@@ -342,13 +321,8 @@ class Conv_automat:
 
         def _select_side(self, answer):
             """Internal state function to select a side of the selected cube for another command"""
-<<<<<<< HEAD
             valid_answer = _validate_answer(answer, list(range(0, 6)), int)
             if not valid_answer is None:
-=======
-            valid_answer = _validate_answer(answer, range(1, 7), int)
-            if valid_answer:
->>>>>>> new_structur
                 return _add_answer_and_continue(self, answer, "side_id")
 
             return _return_dict("_select_side", f"Side '{answer}' does not exist, please try again")
@@ -416,10 +390,7 @@ class Conv_automat:
                     final_answer = cast_funct(answer)
                 except:
                     return None
-<<<<<<< HEAD
-=======
 
->>>>>>> new_structur
             if final_answer in list_of_valids:
                 return final_answer
 
@@ -452,11 +423,7 @@ class Conv_automat:
 
 
         def _return_dict(next_state, reply=None):
-<<<<<<< HEAD
             """Returns a dictionary with given parameters for handle_answer function"""
-=======
-            """Returns dictionary with given parameters for handle_answer function"""
->>>>>>> new_structur
 
             return {
                 "next_state": next_state,
@@ -484,11 +451,7 @@ class Conv_automat:
 
     def _execute_function(self):
         """Call the selected userX or cubeX function with the user's input
-<<<<<<< HEAD
            to interact with the cube and/or database"""
-=======
-        to interact with the cube and/or database"""
->>>>>>> new_structur
         try:
             self.result_function(**self.answers)
             return dict(next_state="start",
