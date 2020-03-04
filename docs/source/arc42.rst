@@ -2,7 +2,7 @@
 Project Documentation
 #####################
 
-Documentation on the short-term project at OPNU in Odessa
+Documentation of the short-term project at OPNU in Odessa
 
 Project: Smart Cube
 
@@ -24,7 +24,7 @@ Project Participants:
 
 Introduction and Goals
 ======================
-.. __what-is-the-smart-cube:
+.. __subsection-what-is-the-smart-cube:
 
 What is the Smart Cube?
 -----------------------
@@ -34,7 +34,7 @@ are doing one of these tasks, you simply turn the cube onto the side, you assign
 the cube to another side and the cube measures the time you spent on that task and later creates you statistics about how much time 
 you have spent on which task for example. 
 
-.. __our_task:
+.. __subsection-our_task:
 
 Our Task
 --------
@@ -43,7 +43,7 @@ to be created, the creation of a simple Web-GUI to view some statistics of the c
 configure and work with the cube. For testing we were provided with a microcontroller with two buttons connected to a small display to 
 simulate an actual cube.
 
-.. __how_to_start:
+.. __subsection-how_to_start:
 
 How to start
 ------------
@@ -51,7 +51,7 @@ To see and try the results of the project, the database, the GUI and the bot hav
 should be connected to a network. If all of this is done, you can connect to the GUI, create a account (with your telegram username) if you 
 have not done so yet and connect to the telegram bot where you have to enter "[/]start" to start interacting with the cube.
 
-.. __requirements_overview:
+.. __subsection-requirements_overview:
 
 Requirements Overview
 ---------------------
@@ -59,7 +59,7 @@ As the cube should be a modern and flexible IoT device, the communication will b
 and fast interaction with the cube, the **protocol MQTT** is used. And finally considering the expected flexibility and the prototyp state 
 of the project, the software components will be implemented in **python**.
 
-.. __quality_goals:
+.. __subsection-quality_goals:
 
 Quality Goals
 -------------
@@ -82,7 +82,7 @@ Quality Goals
 
 System Scope and Context
 ========================
-.. __external_interfaces
+.. __subsection-external_interfaces
 
 External Interfaces
 -------------------
@@ -96,7 +96,7 @@ External Interfaces
 |Database                |psycopg2 python package to communicate with the database vial postGreSql|
 +------------------------+------------------------------------------------------------------------+
 
-.. __other_dependencies
+.. __subsection-other_dependencies
 
 Other Dependencies
 ------------------
@@ -110,7 +110,7 @@ Other Dependencies
 
 Solution Strategy
 =================
-.. __api:
+.. __subsection-api:
 
 API
 ---
@@ -120,7 +120,7 @@ class CubeX which represents a cube and handles operations connected directly to
 side of the cube. The other class, called UserX, represents the user and deals with requests only connected to the user like creating tasks. 
 These two classes make up the interface to be used by any GUI, Application, etc. to interact with the cube and the database like our bot.
 
-.. __database:
+.. __subsection-database:
 
 Database
 --------
@@ -130,7 +130,7 @@ additionally contains a group, which toghter with the user and the name of the t
 all groups can be found with the tasks. The table for the cube sides identifys a side via a side number and the cube and holds the task that 
 was mapped onto the side. Finally the measured activities, called events, contain the task and a start and end time.
 
-.. __telegram_bot:
+.. __subsection-telegram_bot:
 
 Telegram Bot
 ------------
@@ -139,7 +139,7 @@ too restrictive for a simple and flexible bot, the bot is now made up of two cla
 to handle multiple users called UserProxy and the actual conversation is handeled by a own state machine implemented in the class 
 ConvMachine.
 
-.. __web_gui:
+.. __subsection-web_gui:
 
 Web-GUI
 -------
@@ -165,7 +165,7 @@ provide all necessary functions for working with the cube and the database for a
 
 Runtime View
 ============
-.. __mqtt_transmission:
+.. __subsection-mqtt_transmission:
 
 MQTT Transmission
 -----------------
@@ -187,13 +187,13 @@ following example structure to the cube:
     {"side": 4, "cube_id": 1, "task": "coding", "group": "work"},  
 
     {"side": 5, "cube_id": 1, "task": "nothing", "group": "home"}]  
-    
+
 }  
 
 On the other side the cube sends a .json file containing the name of the task, which just had been finished if it is turned. This file is
 then processed by the for that written callback function task_message_action.
 
-.. __bot_conversation:
+.. __subsection-bot_conversation:
 
 Bot Conversation
 ----------------
@@ -201,7 +201,7 @@ Bot Conversation
 To understand the behavior of the bot better, this shows the general procedure of how the user bot interaction works inside the telegram 
 bot.
 
-.. __bot_state_machine:
+.. __subsection-bot_state_machine:
 
 Bot State Machine
 -----------------
