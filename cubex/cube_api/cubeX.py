@@ -5,8 +5,8 @@ import logging
 import traceback
 import time
 
-from sql.aws_connector import AwsConnector
-from sql.sql_connector import SqlConnector
+from .ext_conn.aws_connector import AwsConnector
+from .ext_conn.sql_connector import SqlConnector
 from config_aware import ConfigAware
 
 
