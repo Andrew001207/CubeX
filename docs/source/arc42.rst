@@ -60,22 +60,38 @@ Web-GUI: The small web-GUI will also be implemented in python with the help of t
 
 Solution Strategy
 =================
-API:
+
+.. ___api:
+
+API
+----------------
 The API to interact with the cube for now consists of four basic classes. There is one to interact directly with the database and one 
 to handle the connection to the AWS. Built on those two classes there is one class which represents the cube and handles operations 
 connected directly to the cube like mapping a task onto a side of the cube. The other class represents the user and deals with requests 
 only connected to the user like creating tasks. These two classes are the interface to be used for any GUI, Application, etc. to interact 
 with the cube and the database.
-Database:
+
+.. ___database:
+
+Database
+----------------
 The database currently consists of five tables. One to hold the users, one for the cubes, one for the tasks, one for the cube side mappings 
 and one to store the activities measured by the cube. To create a quiet structured way for the user to manage his tasks, the decicions were 
 made that on the one hand a group has to contain at least one task, so the user can group his tasks by group and on the other hand a task 
 can contain an optional cube_id so the user can also group his tasks by cube.
-Telegram Bot:
+
+.. ___telegram_bot:
+
+Telegram Bot
+----------------
 At first, the idea was to create the bot based on the class ConvHandler of the used telegram API. But as this class in the end was to 
 restrictive, the bot is now made up of two classes. The first one is a custom handler for telegram updates to deal with multiple users and 
 the actual conversation is handeled by a own state machine.
-Web-GUI:
+
+.. ___web_gui:
+
+Web-GUI
+----------------
 django, ...???
 
 .. _section-building-block-view:
@@ -95,14 +111,16 @@ Runtime View
 Bot Conversation
 ----------------
 [DIAGRAM]
-To understand the behavior of the bot better, this shows the general procedure of how the user bot interaction works inside this telegram 
+To understand the behavior of the bot better, this shows the general procedure of how the user bot interaction works inside the telegram 
 bot.
 
 Deployment View
 ===============
 [DIAGRAM]
-Like mentioned in the requirements section, this system should be mainly cloud based, so in the end, the database, the MQTT broker, the 
-server for the Web-GUI and the bot should all run in the AWS cloud and the cube and the user communicate via the cloud with eachother.
+Like mentioned in the requirements section, the system should be mainly cloud based, so in the end, the database, the MQTT broker, the 
+server for the Web-GUI and the bot should all run in the AWS cloud and the cube and the user communicate via the cloud with eachother. So 
+the cube should communicate with the MQTT broker via MQTT and the user can use the Web-GUI or the telegram bot to interact with the cube. 
+These two applications then also can communicate via the cube API with the MQTT broker and on this way interact with the cube.
 
 .. _section-design-decisions:
 
