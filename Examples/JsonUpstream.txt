@@ -1,1 +1,8 @@
-{"side": [{"side": 2, "cube_id": 6, "task": "netflix", "group": "home"}, {"side": 3, "cube_id": 6, "task": "sleeping", "group": "home"}, {"side": 5, "cube_id": 6, "task": "essen", "group": "zuhause"}, {"side": 0, "cube_id": 6, "task": "working", "group": "home"}, {"side": 1, "cube_id": 6, "task": "sitting", "group": "home"}, {"side": 4, "cube_id": 6, "task": "nothing", "group": "home"}]}
+{"side": 
+    [{"side": 2, "cube_id": 6, "task": "netflix", "group": "home"}, 
+    {"side": 3, "cube_id": 6, "task": "sleeping", "group": "home"}, 
+    {"side": 5, "cube_id": 6, "task": "essen", "group": "zuhause"}, 
+    {"side": 0, "cube_id": 6, "task": "working", "group": "home"}, 
+    {"side": 1, "cube_id": 6, "task": "sitting", "group": "home"}, 
+    {"side": 4, "cube_id": 6, "task": "nothing", "group": "home"}]
+}
