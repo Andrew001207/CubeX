@@ -18,8 +18,8 @@
 # -- Project information -----------------------------------------------------
 
 project = 'Smart Cube'
-copyright = '2020,  Matthias Moser'
-author = 'Matthias Moser'
+copyright = '2020, Maximilian Diesenbacher, Kilian Drechsler, Matthias Moser, Florian Wöster'
+author = 'Maximilian Diesenbacher, Kilian Drechsler, Matthias Moser, Florian Wöster'
 
 
 # -- General configuration ---------------------------------------------------

@@ -1,5 +1,3 @@
-.. _title-project-documentation:
-
 #####################
 Project Documentation
 #####################
@@ -8,10 +6,8 @@ Documentation on the short-term project at OPNU in Odessa
 
 Project: Smart Cube
 
-.. ___project_participants:
+Project Participants:
 
-Project Participants
---------------------
 +------------------------+--------------+
 |Participant             |Student Number|
 +========================+==============+
@@ -28,7 +24,7 @@ Project Participants
 
 Introduction and Goals
 ======================
-.. ___what_is_the_smart_cube:
+.. __what-is-the-smart-cube:
 
 What is the Smart Cube?
 -----------------------
@@ -38,7 +34,7 @@ are doing one of these tasks, you simply turn the cube onto the side, you assign
 the cube to another side and the cube measures the time you spent on that task and later creates you statistics about how much time 
 you have spent on which task for example. 
 
-.. ___our_task:
+.. __our_task:
 
 Our Task
 --------
@@ -47,7 +43,7 @@ to be created, the creation of a simple Web-GUI to view some statistics of the c
 configure and work with the cube. For testing we were provided with a microcontroller with two buttons connected to a small display to 
 simulate an actual cube.
 
-.. ___how_to_start:
+.. __how_to_start:
 
 How to start
 ------------
@@ -55,7 +51,7 @@ To see and try the results of the project, the database, the GUI and the bot hav
 should be connected to a network. If all of this is done, you can connect to the GUI, create a account (with your telegram username) if you 
 have not done so yet and connect to the telegram bot where you have to enter "[/]start" to start interacting with the cube.
 
-.. ___requirements_overview:
+.. __requirements_overview:
 
 Requirements Overview
 ---------------------
@@ -63,7 +59,7 @@ As the cube should be a modern and flexible IoT device, the communication will b
 and fast interaction with the cube, the **protocol MQTT** is used. And finally considering the expected flexibility and the prototyp state 
 of the project, the software components will be implemented in **python**.
 
-.. ___quality_goals:
+.. __quality_goals:
 
 Quality Goals
 -------------
@@ -82,16 +78,16 @@ Quality Goals
 |                        |interface for the user to work with the cube.                        |
 +------------------------+---------------------------------------------------------------------+
 
-.. __section-system-scope-and-context:
+.. _section-system-scope-and-context:
 
 System Scope and Context
 ========================
-.. ___external_interfaces
+.. __external_interfaces
 
 External Interfaces
 -------------------
 +------------------------+------------------------------------------------------------------------+
-|External system         |Used Interface                                                          |
+|External System         |Used Interface                                                          |
 +========================+========================================================================+
 |AWS                     |AWSIoTPythonSDK python package                                          |
 +------------------------+------------------------------------------------------------------------+
@@ -100,21 +96,21 @@ External Interfaces
 |Database                |psycopg2 python package to communicate with the database vial postGreSql|
 +------------------------+------------------------------------------------------------------------+
 
-.. ___other_dependencies
+.. __other_dependencies
 
 Other Dependencies
 ------------------
 +------------------------+------------------------------------------------------------------------+
 |System                  |Used Component                                                          |
 +========================+========================================================================+
-|Web GUI                 |Django Webframework for python                                          |
+|Web GUI                 |Django webframework for python                                          |
 +------------------------+------------------------------------------------------------------------+
 
-.. __section-solution-strategy:
+.. _section-solution-strategy:
 
 Solution Strategy
 =================
-.. ___api:
+.. __api:
 
 API
 ---
@@ -124,7 +120,7 @@ class CubeX which represents a cube and handles operations connected directly to
 side of the cube. The other class, called UserX, represents the user and deals with requests only connected to the user like creating tasks. 
 These two classes make up the interface to be used by any GUI, Application, etc. to interact with the cube and the database like our bot.
 
-.. ___database:
+.. __database:
 
 Database
 --------
@@ -134,7 +130,7 @@ additionally contains a group, which toghter with the user and the name of the t
 all groups can be found with the tasks. The table for the cube sides identifys a side via a side number and the cube and holds the task that 
 was mapped onto the side. Finally the measured activities, called events, contain the task and a start and end time.
 
-.. ___telegram_bot:
+.. __telegram_bot:
 
 Telegram Bot
 ------------
@@ -143,7 +139,7 @@ too restrictive for a simple and flexible bot, the bot is now made up of two cla
 to handle multiple users called UserProxy and the actual conversation is handeled by a own state machine implemented in the class 
 ConvMachine.
 
-.. ___web_gui:
+.. __web_gui:
 
 Web-GUI
 -------
@@ -154,11 +150,10 @@ The Controller which does almost all the computing work is located in the views.
 The Website itself has some simple functions like logging in, signing up or editing your cubes. Along with these basics functions 
 it shows you a few charts which resembles your time spend on the tasks and groups.
 
-.. __section-building-block-view:
+.. _section-building-block-view:
 
 Building Block View
 ===================
-
 .. image:: images/Database.jpg
 This database then can be accessed with the functions of the class SqlConnector
 
@@ -166,11 +161,11 @@ This database then can be accessed with the functions of the class SqlConnector
 Using the two classes SqlConnector and AwsConnector, which directly interact with the database and AWS, the classes UserX and CubeX 
 provide all necessary functions for working with the cube and the database for any application. 
 
-.. __section-runtime-view:
+.. _section-runtime-view:
 
 Runtime View
 ============
-.. ___mqtt_transmission:
+.. __mqtt_transmission:
 
 MQTT Transmission
 -----------------
@@ -178,19 +173,27 @@ MQTT Transmission
 While the programm is running, the cube and any user interface via CubeX via the AwsConnector exchange data if there was a relevant change 
 done by the user. In our case this is mainly when a task is mapped. Then CubeX initiates the transmission of a .json file with the 
 following example structure to the cube:
-{"side": 
-    [{"side": 0, "cube_id": 1, "task": "netflix", "group": "home"}, 
-    {"side": 1, "cube_id": 1, "task": "sleeping", "group": "home"}, 
-    {"side": 2, "cube_id": 1, "task": "eating", "group": "home"}, 
-    {"side": 3, "cube_id": 1, "task": "debugging", "group": "work"}, 
-    {"side": 4, "cube_id": 1, "task": "coding", "group": "work"}, 
-    {"side": 5, "cube_id": 1, "task": "nothing", "group": "home"}]
-}
+
+{"side":  
+
+    [{"side": 0, "cube_id": 1, "task": "netflix", "group": "home"},   
+
+    {"side": 1, "cube_id": 1, "task": "sleeping", "group": "home"},  
+
+    {"side": 2, "cube_id": 1, "task": "eating", "group": "home"},  
+
+    {"side": 3, "cube_id": 1, "task": "debugging", "group": "work"},  
+
+    {"side": 4, "cube_id": 1, "task": "coding", "group": "work"},  
+
+    {"side": 5, "cube_id": 1, "task": "nothing", "group": "home"}]  
+    
+}  
 
 On the other side the cube sends a .json file containing the name of the task, which just had been finished if it is turned. This file is
 then processed by the for that written callback function task_message_action.
 
-.. ___bot_conversation:
+.. __bot_conversation:
 
 Bot Conversation
 ----------------
@@ -198,14 +201,14 @@ Bot Conversation
 To understand the behavior of the bot better, this shows the general procedure of how the user bot interaction works inside the telegram 
 bot.
 
-.. ___bot_state_machine:
+.. __bot_state_machine:
 
 Bot State Machine
 -----------------
 .. image:: images/StateMachine.jpg
 In more detail, the bot follows this state machine while communicating with the user.
 
-.. __section-deployment-view:
+.. _section-deployment-view:
 
 Deployment View
 ===============
@@ -215,7 +218,7 @@ server for the Web-GUI and the bot should all run in the AWS cloud and the cube 
 the cube should communicate with the MQTT broker via MQTT and the user can use the Web-GUI or the telegram bot to interact with the cube. 
 These two applications then also can communicate via the cube API with the MQTT broker and on this way interact with the cube. 
 
-.. __section-design-decisions:
+.. _section-design-decisions:
 
 Design Decisions
 ================
