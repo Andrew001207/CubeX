@@ -120,7 +120,9 @@ Deployment View
 Like mentioned in the requirements section, the system should be mainly cloud based, so in the end, the database, the MQTT broker, the 
 server for the Web-GUI and the bot should all run in the AWS cloud and the cube and the user communicate via the cloud with eachother. So 
 the cube should communicate with the MQTT broker via MQTT and the user can use the Web-GUI or the telegram bot to interact with the cube. 
-These two applications then also can communicate via the cube API with the MQTT broker and on this way interact with the cube.
+These two applications then also can communicate via the cube API with the MQTT broker and on this way interact with the cube. 
+As for this project itself it was not necessary to let all of this run in the cloud, the Web-GUI and the bot still ran on our local devices 
+for easier testing.
 
 .. _section-design-decisions:
 
