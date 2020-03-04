@@ -34,7 +34,7 @@ are doing one of these tasks, you simply turn the cube onto the side, you assign
 the cube to another side and the cube measures the time you spent on that task and later creates you statistics about how much time 
 you have spent on which task for example. 
 
-.. __subsection-our_task:
+.. __subsection-our-task:
 
 Our Task
 --------
@@ -43,7 +43,7 @@ to be created, the creation of a simple Web-GUI to view some statistics of the c
 configure and work with the cube. For testing we were provided with a microcontroller with two buttons connected to a small display to 
 simulate an actual cube.
 
-.. __subsection-how_to_start:
+.. __subsection-how-to-start:
 
 How to start
 ------------
@@ -51,7 +51,7 @@ To see and try the results of the project, the database, the GUI and the bot hav
 should be connected to a network. If all of this is done, you can connect to the GUI, create a account (with your telegram username) if you 
 have not done so yet and connect to the telegram bot where you have to enter "[/]start" to start interacting with the cube.
 
-.. __subsection-requirements_overview:
+.. __subsection-requirements-overview:
 
 Requirements Overview
 ---------------------
@@ -59,7 +59,7 @@ As the cube should be a modern and flexible IoT device, the communication will b
 and fast interaction with the cube, the **protocol MQTT** is used. And finally considering the expected flexibility and the prototyp state 
 of the project, the software components will be implemented in **python**.
 
-.. __subsection-quality_goals:
+.. __subsection-quality-goals:
 
 Quality Goals
 -------------
@@ -82,7 +82,7 @@ Quality Goals
 
 System Scope and Context
 ========================
-.. __subsection-external_interfaces
+.. __subsection-external-interfaces
 
 External Interfaces
 -------------------
@@ -96,7 +96,7 @@ External Interfaces
 |Database                |psycopg2 python package to communicate with the database vial postGreSql|
 +------------------------+------------------------------------------------------------------------+
 
-.. __subsection-other_dependencies
+.. __subsection-other-dependencies
 
 Other Dependencies
 ------------------
@@ -130,7 +130,7 @@ additionally contains a group, which toghter with the user and the name of the t
 all groups can be found with the tasks. The table for the cube sides identifys a side via a side number and the cube and holds the task that 
 was mapped onto the side. Finally the measured activities, called events, contain the task and a start and end time.
 
-.. __subsection-telegram_bot:
+.. __subsection-telegram-bot:
 
 Telegram Bot
 ------------
@@ -139,7 +139,7 @@ too restrictive for a simple and flexible bot, the bot is now made up of two cla
 to handle multiple users called UserProxy and the actual conversation is handeled by a own state machine implemented in the class 
 ConvMachine.
 
-.. __subsection-web_gui:
+.. __subsection-web-gui:
 
 Web-GUI
 -------
@@ -165,7 +165,7 @@ provide all necessary functions for working with the cube and the database for a
 
 Runtime View
 ============
-.. __subsection-mqtt_transmission:
+.. __subsection-mqtt-transmission:
 
 MQTT Transmission
 -----------------
@@ -193,7 +193,7 @@ following example structure to the cube:
 On the other side the cube sends a .json file containing the name of the task, which just had been finished if it is turned. This file is
 then processed by the for that written callback function task_message_action.
 
-.. __subsection-bot_conversation:
+.. __subsection-bot-conversation:
 
 Bot Conversation
 ----------------
@@ -201,7 +201,7 @@ Bot Conversation
 To understand the behavior of the bot better, this shows the general procedure of how the user bot interaction works inside the telegram 
 bot.
 
-.. __subsection-bot_state_machine:
+.. __subsection-bot-state-machine:
 
 Bot State Machine
 -----------------
@@ -222,16 +222,32 @@ These two applications then also can communicate via the cube API with the MQTT 
 
 Design Decisions
 ================
-As this project is only a small part of the whole Smart Cube project and one of the goals was to create a very flexible software system, 
-there were no decicions with too much impact made. The only rather enduring decicions made concern the structure of the database and the 
-format of the to the cube transmitted json file itself, because there are already many parts in the software that depend on these 
-structures, so changes there could cause a rising number of modifications to be necessary.
-db special, modular for flexibility
-???
-To create a quiet structured way for the user to manage his tasks, the decicions were 
-made that on the one hand a group has to contain at least one task, so the user can group his tasks by group and on the other hand a task 
-can contain an optional cube_id so the user can also group his tasks by cube.
-registration
-no registration, username telegram = username db
-state name conventions
-cube sends only task_name, rest callback cubeX
+.. __subsection-database:
+
+Database
+--------
+One of the first fundamental decicions was the overall structure of the database itself becuase this has an impact on many other software 
+components. Among the most discussed questions was how to create a structured way for the to manage his tasks. In the end, the decicions 
+were made that on the one hand a group has to contain at least one task, so the user can group his tasks by group and on the other hand a 
+task can contain an optional cube_id so the user can also group his tasks by cube.
+
+.. __subsection-user-handling:
+
+User Handling
+-------------
+Another question was, wether a new user should be able to register a account via the telegram bot. But because there is no convenient way 
+to enter a password securely in telegram, a user now first has to register himself in the Web-GUI and then he can use the bot properly with 
+his cubes. To simplify the implementation at this point, for now the username at the registration has to be the same as the user's username 
+within telegram.
+
+.. __subsection-state-naming-conventions:
+
+State Naming Conventions
+------------------------
+Finally an important point when trying to expand the state machine for the bot are the appointed naming conventions for the states:
+naming conventions for the states:
+    * state name starts with _ if the state cannot be accessed directly by the user (= is not a command)
+
+    * if possible the state ends with the by its function affected object (e.g. select_cube, create_task, select_group)
+
+    * if pre-enter shows the user a list to select from and an empty list is allowed, the pre-enter must contain the word "or" (e.g. see _optional_add_cube, _select_group)
