@@ -98,10 +98,9 @@ django, ...???
 
 Building Block View
 ===================
-[DIAGRAMS]
-DB diagramm
-Class diagramm
-state machine
+.. image:: images/Database.pdf
+.. image:: images/CubeX.pdf
+.. image:: images/StateMachine.pdf
 
 Runtime View
 ============
@@ -110,13 +109,13 @@ Runtime View
 
 Bot Conversation
 ----------------
-[DIAGRAM]
+.. image:: images/Runtime.jpg
 To understand the behavior of the bot better, this shows the general procedure of how the user bot interaction works inside the telegram 
 bot.
 
 Deployment View
 ===============
-[DIAGRAM]
+.. image:: images/Deployment.jpg
 Like mentioned in the requirements section, the system should be mainly cloud based, so in the end, the database, the MQTT broker, the 
 server for the Web-GUI and the bot should all run in the AWS cloud and the cube and the user communicate via the cloud with eachother. So 
 the cube should communicate with the MQTT broker via MQTT and the user can use the Web-GUI or the telegram bot to interact with the cube. 
