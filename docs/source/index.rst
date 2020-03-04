@@ -15,7 +15,7 @@ Welcome to CubeX with Python's documentation!
    :numbered:
    
    overview.rst
-   arc42-template-EN.rst
+   arc42.rst
 
 Indices and tables
 ==================

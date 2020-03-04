@@ -147,7 +147,6 @@ def _get_form(request, formcls, prefix):
 class BarView(View):
     def get(self, request, *args, **kwargs):
         username = request.user.username
-        allEvents = Event.objects.all()
         allTasks = Task.objects.filter(username=username)
         taskid_map = {}
         group_list = []
@@ -157,6 +156,7 @@ class BarView(View):
             if task.group_name not in group_list:
                 group_list.append(task.group_name)
                 time_spent.append(0)
+        allEvents = Event.objects.filter(task_id__in=list(taskid_map.keys()))
         for event in allEvents:
             if event.end_time is not None:
                 dtime = (event.end_time - event.start_time).seconds
