@@ -99,8 +99,8 @@ django, ...???
 Building Block View
 ===================
 .. image:: images/Database.pdf
-.. image:: images/CubeX.pdf
-.. image:: images/StateMachine.pdf
+.. image:: images/CubeX.jpg
+.. image:: images/StateMachine.jpg
 
 Runtime View
 ============
@@ -109,7 +109,7 @@ Runtime View
 
 Bot Conversation
 ----------------
-.. image:: images/Runtime.jpg
+.. image:: images/RuntimeBot.jpg
 To understand the behavior of the bot better, this shows the general procedure of how the user bot interaction works inside the telegram 
 bot.
 
