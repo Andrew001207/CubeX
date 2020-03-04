@@ -1,4 +1,4 @@
-from sql.sql_connector import SqlConnector
+from .ext_conn.sql_connector import SqlConnector
 
 class UserX:
 
