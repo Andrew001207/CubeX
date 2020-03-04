@@ -92,7 +92,13 @@ the actual conversation is handeled by a own state machine.
 
 Web-GUI
 ----------------
-django, ...???
+As for the architecture pattern Django itself uses the MVC Pattern or in Django’s case a MTC Pattern.
+All of our Databases is written down in the models file which resembles the Models in MVC. As well as some extra information.
+For our View we have the Templates which are written down in html including some java script and Django internal syntax.
+The Controller which does almost all the computing work, is located in the views.py file.
+It passes all the information to the templates.
+
+The Websites itself has some simple functions, logging in, signing up. As well as editing your Cubes. Along with these Basics functions it shows you a few charts which resembles your time spend on the Tasks and Groups.
 
 .. _section-building-block-view:
 
