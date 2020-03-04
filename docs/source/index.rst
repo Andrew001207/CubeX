@@ -14,7 +14,6 @@ Welcome to CubeX with Python's documentation!
    :maxdepth:  2
    :numbered:
    
-   overview.rst
    arc42.rst
 
 Indices and tables
