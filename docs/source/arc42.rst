@@ -116,6 +116,13 @@ Bot Conversation
 To understand the behavior of the bot better, this shows the general procedure of how the user bot interaction works inside the telegram 
 bot.
 
+.. ___transmission_to_cube
+
+Transmission to Cube
+--------------------
+json example
+cube sends only task_name, rest callback cubeX
+
 Deployment View
 ===============
 .. image:: images/Deployment.jpg
