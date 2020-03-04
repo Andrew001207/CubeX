@@ -61,7 +61,9 @@ class ConvMachine:
 
     def handle_answer(self, update, context):
         """this is the method which handles the state changes"""
-        #TODO handel error
+
+        if not update.message:
+            return
         answer = update.message.text
 
         #Enable instant start of conversation by telegram bot start
