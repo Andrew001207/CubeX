@@ -15,21 +15,31 @@ Hruschka & Dr. Gernot Starke.
 
 Introduction and Goals
 ======================
+.. __what_is_the_smart_cube:
+
+What is the Smart Cube?
+-----------------------
 The project is all about the so called Smart Cube. That is a device with n sides which supports people with their time management. 
 To do so you can assign any custom task like cooking, eating, coding, debugging, etc. to each side of the cube and then, when you 
 are doing one of these tasks, you simply turn the cube onto the side, you assigned this task to before and after finishing, you turn
 the cube to another side and the cube measures the time you spent on that task and later creates you statistics about how much time 
-you have spent on which task for example. The contribution of this specific project to the whole Smart Cube project should be the creation 
-of an API to communicate with the cube and the database, which also has to be created, the creation of a simple Web-GUI to view some 
-statistics of the cube and finally the implementation of a telegram bot to configure and work with the cube.  
+you have spent on which task for example. 
+
+.. __our_task:
+
+Our Task
+--------
+Our contribution to the whole Smart Cube project is the creation of an API to communicate with the cube and the database, which also has 
+to be created, the creation of a simple Web-GUI to view some statistics of the cube and finally the implementation of a telegram bot to 
+configure and work with the cube.  
 
 .. __how_to_start:
 
 How to start
 ------------
-To see and try the results of the project, the database, the GUI and the bot code have to be running and the prototype of the cube should 
-be connected to a network. If all of this is done, you can connect to the GUI, create a account if you have not done so yet and connect to 
-the telegram bot where you have to enter "[/]start" to start interacting with the cube.
+To see and try the results of the project, the database, the GUI and the bot have to be running in the cloud and the prototype of the cube 
+should be connected to a network. If all of this is done, you can connect to the GUI, create a account (with your telegram username) if you 
+have not done so yet and connect to the telegram bot where you have to enter "[/]start" to start interacting with the cube.
 
 .. __requirements_overview:
 
@@ -46,6 +56,7 @@ Quality Goals
 At the time of this project, the whole Smart Cube project is still quite at the beginning. That is why the main quality goal of this project 
 is flexibility for future ideas and changes in the whole project. Apart from that another goal is to create a simple, easily expandable and 
 correctly working software package for interaction with cube and database, including the telegram bot.
+table!
 
 .. _section-system-scope-and-context:
 
@@ -55,11 +66,13 @@ AWS: To connect to the AWS servers with python, the module AWSIoTPythonSDK will 
 Database: As the database will also run on AWS, the there available postgresql will be used
 Telegram: For the bot to interact with telegram, the module python-telegram-bot will be used
 Web-GUI: The small web-GUI will also be implemented in python with the help of the django framework
+table!
 
 .. _section-solution-strategy:
 
 Solution Strategy
 =================
+As our project consists of four individual parts, we had to find solution strategies for those four different sub-projects:
 
 .. ___api:
 
@@ -92,14 +105,14 @@ no registration, username telegram = username db
 .. ___web_gui:
 
 Web-GUI
-----------------
+-------
 As for the architecture pattern Django itself uses the MVC Pattern or in Django’s case a MTC Pattern.
 All of our Databases is written down in the models file which resembles the Models in MVC. As well as some extra information.
-For our View we have the Templates which are written down in html including some java script and Django internal syntax.
+For our view we have the templates which are written down in html including some java script and Django internal syntax.
 The Controller which does almost all the computing work, is located in the views.py file.
 It passes all the information to the templates.
-
-The Websites itself has some simple functions, logging in, signing up. As well as editing your Cubes. Along with these Basics functions it shows you a few charts which resembles your time spend on the Tasks and Groups.
+The Websites itself has some simple functions, logging in, signing up. As well as editing your Cubes. Along with these Basics functions 
+it shows you a few charts which resembles your time spend on the Tasks and Groups.
 
 .. _section-building-block-view:
 
@@ -128,6 +141,7 @@ Transmission to Cube
 --------------------
 json example
 cube sends only task_name, rest callback cubeX
+mqtt topics
 
 Deployment View
 ===============
@@ -147,3 +161,5 @@ As this project is only a small part of the whole Smart Cube project and one of 
 there were no decicions with too much impact made. The only rather enduring decicions made concern the structure of the database and the 
 format of the to the cube transmitted json file itself, because there are already many parts in the software that depend on these 
 structures, so changes there could cause a rising number of modifications to be necessary.
+db special, modular for flexibility
+json
