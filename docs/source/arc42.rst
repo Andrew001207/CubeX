@@ -11,17 +11,22 @@ Project: Smart Cube
 
 Project Participants
 --------------------
-+------------------------|--------------+
-|Participant             |Student Number|
-+========================|==============+
-|Kilian Drechsler        |1111111       |
-+------------------------|--------------+
-|Maximilian Diesenbacher |2050504       |
-+------------------------|--------------+
-|Florian Wöster          |2222222       |
-+------------------------|--------------+
-|Matthias Moser          |3333333       |
-+------------------------|--------------+
+.. list-table::
+   :widths: 25 15
+   :header-rows: 1
+
+   * - Participant
+     - Student Number
+
+   * - Maximilian Diesenbacher
+     - 2050504
+   * - Kilian Drechsler
+     - 1111111
+   * - Matthias Moser
+     - 2222222
+   * - Florian Wöster
+     - 3333333
+
 
 .. __section-introduction-and-goals:
 
@@ -43,7 +48,8 @@ Our Task
 --------
 Our contribution to the whole Smart Cube project is the creation of an API to communicate with the cube and the database, which also has 
 to be created, the creation of a simple Web-GUI to view some statistics of the cube and finally the implementation of a telegram bot to 
-configure and work with the cube.  
+configure and work with the cube. For testing we were provided with a microcontroller with two buttons connected to a small display to 
+simulate an actual cube.
 
 .. ___how_to_start:
 
@@ -66,12 +72,12 @@ of the project, the software components will be implemented in **python**.
 Quality Goals
 -------------
 +------------------------|---------------------------------------------------------------------+
-|Quality goal            |Motivation and Explanation                                           |
+|Quality goal            |                                      |
 +========================|=====================================================================+
 |Flexibility             |At the time of this project, the whole Smart Cube project is still   |
 |                        |quite at the beginning. That is why one main quality goal of this    |
 |                        |project is to create a flexible and easily expandable software for   |
-|                        |future ideas and changes in the whole project .                      |
+|                        |future ideas and changes in the whole project.                      |
 +------------------------|---------------------------------------------------------------------+
 |Functionality and       |The bot and the web GUI should offer a number of basic functions to  |
 |Correctness             |interact via a correctly funtioning API with the cube.               |      
@@ -80,16 +86,25 @@ Quality Goals
 |                        |interface for the user to work with the cube.                        |
 +------------------------|---------------------------------------------------------------------+
 
+.. list-table::
+   :widths: 20 60
+   :header-rows: 1
+
+   * - Quality Goal
+     - Motivation and Explanation
+
+   * - Flexibility
+     - At the time of this project, the whole Smart Cube project is still quite at the beginning. That is why one main quality goal of this 
+       project is to create a flexible and easily expandable software for future ideas and changes in the whole project.   
+   * - Functionality and Correctness
+     - The bot and the web GUI should offer a number of basic functions to interact via a correctly funtioning API with the cube.
+   * - Usability
+     - The bot and the web GUI should be a simple and easy to understand interface for the user to work with the cube.
+
 .. __section-system-scope-and-context:
 
 System Scope and Context
 ========================
-
-AWS: To connect to the AWS servers with python, the module AWSIoTPythonSDK will be used
-Database: As the database will also run on AWS, the there available postgresql will be used
-Telegram: For the bot to interact with telegram, the module python-telegram-bot will be used
-Web-GUI: The small web-GUI will also be implemented in python with the help of the django framework
-table!
 .. ___external_interfaces
 
 External Interfaces
@@ -152,29 +167,47 @@ ConvMachine.
 Web-GUI
 -------
 As for the architecture pattern Django itself uses the MVC Pattern or in Django’s case a MTC Pattern.
-All of our Databases is written down in the models file which resembles the Models in MVC. As well as some extra information.
+All of our Databases is written down in the models file which resembles the Models in MVC as well as some extra information.
 For our view we have the templates which are written down in html including some java script and Django internal syntax.
-The Controller which does almost all the computing work, is located in the views.py file.
-It passes all the information to the templates.
-The Websites itself has some simple functions, logging in, signing up. As well as editing your Cubes. Along with these Basics functions 
-it shows you a few charts which resembles your time spend on the Tasks and Groups.
+The Controller which does almost all the computing work is located in the views.py file. It passes all the information to the templates.
+The Website itself has some simple functions like logging in, signing up or editing your cubes. Along with these basics functions 
+it shows you a few charts which resembles your time spend on the tasks and groups.
 
 .. __section-building-block-view:
 
 Building Block View
 ===================
-.. image:: images/Database.pdf
-sql conncector
+
+.. image:: images/Database.jpg
+This database then can be accessed with the functions of the class SqlConnector
 
 .. image:: images/CubeX.jpg
-cubeX + userX
-
-.. image:: images/StateMachine.jpg
+Using the two classes SqlConnector and AwsConnector, which directly interact with the database and AWS, the classes UserX and CubeX 
+provide all necessary functions for working with the cube and the database for any application. 
 
 .. __section-runtime-view:
 
 Runtime View
 ============
+.. ___mqtt_transmission:
+
+MQTT Transmission
+-----------------
+.. image:: images/MQTT.jpg
+While the programm is running, the cube and any user interface via CubeX via the AwsConnector exchange data if there was a relevant change 
+done by the user. In our case this is mainly when a task is mapped. Then CubeX initiates the transmission of a .json file with the 
+following example structure to the cube:
+{"side": 
+    [{"side": 0, "cube_id": 1, "task": "netflix", "group": "home"}, 
+    {"side": 1, "cube_id": 1, "task": "sleeping", "group": "home"}, 
+    {"side": 2, "cube_id": 1, "task": "eating", "group": "home"}, 
+    {"side": 3, "cube_id": 1, "task": "debugging", "group": "work"}, 
+    {"side": 4, "cube_id": 1, "task": "coding", "group": "work"}, 
+    {"side": 5, "cube_id": 1, "task": "nothing", "group": "home"}]
+}
+
+On the other side the cube sends a .json file containing the name of the task, which just had been finished if it is turned. This file is
+then processed by the for that written callback function task_message_action.
 
 .. ___bot_conversation:
 
@@ -184,13 +217,12 @@ Bot Conversation
 To understand the behavior of the bot better, this shows the general procedure of how the user bot interaction works inside the telegram 
 bot.
 
-.. ___transmission_to_cube
+.. ___bot_state_machine:
 
-Transmission to Cube
---------------------
-json example
-cube sends only task_name, rest callback cubeX
-mqtt topics
+Bot State Machine
+-----------------
+.. image:: images/StateMachine.jpg
+In more detail, the bot follows this state machine while communicating with the user.
 
 .. __section-deployment-view:
 
@@ -201,8 +233,6 @@ Like mentioned in the requirements section, the system should be mainly cloud ba
 server for the Web-GUI and the bot should all run in the AWS cloud and the cube and the user communicate via the cloud with eachother. So 
 the cube should communicate with the MQTT broker via MQTT and the user can use the Web-GUI or the telegram bot to interact with the cube. 
 These two applications then also can communicate via the cube API with the MQTT broker and on this way interact with the cube. 
-As for this project itself it was not necessary to let all of this run in the cloud, the Web-GUI and the bot still ran on our local devices 
-for easier testing.
 
 .. __section-design-decisions:
 
@@ -217,7 +247,7 @@ db special, modular for flexibility
 To create a quiet structured way for the user to manage his tasks, the decicions were 
 made that on the one hand a group has to contain at least one task, so the user can group his tasks by group and on the other hand a task 
 can contain an optional cube_id so the user can also group his tasks by cube.
-json
 registration
 no registration, username telegram = username db
 state name conventions
+cube sends only task_name, rest callback cubeX
