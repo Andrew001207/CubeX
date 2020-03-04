@@ -1,7 +1,8 @@
-.. _section_project_documentation:
+.. _title-project-documentation:
 
+#####################
 Project Documentation
-*********************
+#####################
 
 Documentation on the short-term project at OPNU in Odessa
 
@@ -11,24 +12,19 @@ Project: Smart Cube
 
 Project Participants
 --------------------
-.. list-table::
-   :widths: 25 15
-   :header-rows: 1
++------------------------+--------------+
+|Participant             |Student Number|
++========================+==============+
+|Kilian Drechsler        |1111111       |
++------------------------+--------------+
+|Maximilian Diesenbacher |2050504       |
++------------------------+--------------+
+|Florian Wöster          |2222222       |
++------------------------+--------------+
+|Matthias Moser          |3333333       |
++------------------------+--------------+
 
-   * - Participant
-     - Student Number
-
-   * - Maximilian Diesenbacher
-     - 2050504
-   * - Kilian Drechsler
-     - 1111111
-   * - Matthias Moser
-     - 2222222
-   * - Florian Wöster
-     - 3333333
-
-
-.. __section-introduction-and-goals:
+.. _section-introduction-and-goals:
 
 Introduction and Goals
 ======================
@@ -71,35 +67,20 @@ of the project, the software components will be implemented in **python**.
 
 Quality Goals
 -------------
-+------------------------|---------------------------------------------------------------------+
-|Quality goal            |                                      |
-+========================|=====================================================================+
++------------------------+---------------------------------------------------------------------+
+|Quality goal            |Motivation and Explanation                                           |
++========================+=====================================================================+
 |Flexibility             |At the time of this project, the whole Smart Cube project is still   |
 |                        |quite at the beginning. That is why one main quality goal of this    |
 |                        |project is to create a flexible and easily expandable software for   |
-|                        |future ideas and changes in the whole project.                      |
-+------------------------|---------------------------------------------------------------------+
+|                        |future ideas and changes in the whole project .                      |
++------------------------+---------------------------------------------------------------------+
 |Functionality and       |The bot and the web GUI should offer a number of basic functions to  |
 |Correctness             |interact via a correctly funtioning API with the cube.               |      
-+------------------------|---------------------------------------------------------------------+
++------------------------+---------------------------------------------------------------------+
 |Usability               |The bot and the web GUI should be a simple and easy to understand    |
 |                        |interface for the user to work with the cube.                        |
-+------------------------|---------------------------------------------------------------------+
-
-.. list-table::
-   :widths: 20 60
-   :header-rows: 1
-
-   * - Quality Goal
-     - Motivation and Explanation
-
-   * - Flexibility
-     - At the time of this project, the whole Smart Cube project is still quite at the beginning. That is why one main quality goal of this 
-       project is to create a flexible and easily expandable software for future ideas and changes in the whole project.   
-   * - Functionality and Correctness
-     - The bot and the web GUI should offer a number of basic functions to interact via a correctly funtioning API with the cube.
-   * - Usability
-     - The bot and the web GUI should be a simple and easy to understand interface for the user to work with the cube.
++------------------------+---------------------------------------------------------------------+
 
 .. __section-system-scope-and-context:
 
@@ -109,25 +90,25 @@ System Scope and Context
 
 External Interfaces
 -------------------
-+------------------------|------------------------------------------------------------------------+
++------------------------+------------------------------------------------------------------------+
 |External system         |Used Interface                                                          |
-+========================|========================================================================+
++========================+========================================================================+
 |AWS                     |AWSIoTPythonSDK python package                                          |
-+------------------------|------------------------------------------------------------------------+
++------------------------+------------------------------------------------------------------------+
 |Telegram                |python-telegram-bot python package                                      |
-+------------------------|------------------------------------------------------------------------+
++------------------------+------------------------------------------------------------------------+
 |Database                |psycopg2 python package to communicate with the database vial postGreSql|
-+------------------------|------------------------------------------------------------------------+
++------------------------+------------------------------------------------------------------------+
 
 .. ___other_dependencies
 
 Other Dependencies
 ------------------
-+------------------------|------------------------------------------------------------------------+
++------------------------+------------------------------------------------------------------------+
 |System                  |Used Component                                                          |
-+========================|========================================================================+
++========================+========================================================================+
 |Web GUI                 |Django Webframework for python                                          |
-+------------------------|------------------------------------------------------------------------+
++------------------------+------------------------------------------------------------------------+
 
 .. __section-solution-strategy:
 
