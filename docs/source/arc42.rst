@@ -64,7 +64,7 @@ Solution Strategy
 .. ___api:
 
 API
-----------------
+---
 The API to interact with the cube for now consists of four basic classes. There is one to interact directly with the database and one 
 to handle the connection to the AWS. Built on those two classes there is one class which represents the cube and handles operations 
 connected directly to the cube like mapping a task onto a side of the cube. The other class represents the user and deals with requests 
@@ -74,7 +74,7 @@ with the cube and the database.
 .. ___database:
 
 Database
-----------------
+--------
 The database currently consists of five tables. One to hold the users, one for the cubes, one for the tasks, one for the cube side mappings 
 and one to store the activities measured by the cube. To create a quiet structured way for the user to manage his tasks, the decicions were 
 made that on the one hand a group has to contain at least one task, so the user can group his tasks by group and on the other hand a task 
@@ -83,15 +83,16 @@ can contain an optional cube_id so the user can also group his tasks by cube.
 .. ___telegram_bot:
 
 Telegram Bot
-----------------
+------------
 At first, the idea was to create the bot based on the class ConvHandler of the used telegram API. But as this class in the end was to 
 restrictive, the bot is now made up of two classes. The first one is a custom handler for telegram updates to deal with multiple users and 
 the actual conversation is handeled by a own state machine.
+no registration, username telegram = username db
 
 .. ___web_gui:
 
 Web-GUI
-----------------
+-------
 django, ...???
 
 .. _section-building-block-view:
@@ -99,7 +100,9 @@ django, ...???
 Building Block View
 ===================
 .. image:: images/Database.pdf
+sql conncector
 .. image:: images/CubeX.jpg
+cubeX + userX
 .. image:: images/StateMachine.jpg
 
 Runtime View
