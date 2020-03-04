@@ -1,0 +1,25 @@
+{% extends "main_template.html" %}
+{% block title %}
+    Tasks
+{% endblock %}
+
+{% block content %}
+<div style="overflow-x:auto;">
+      {% load staticfiles %}
+<link rel='stylesheet' type="text/css" href="{% static 'table.css' %}">
+<table>
+<th>Task Name</th>
+<th>Group Name</th>
+<th>Cube ID</th>
+    <ul>
+        {% for s in allTasks %}<tr>
+    <td>{{ s.task_name }}</td>
+    <td>{{ s.group_name }}</td>
+    <td>{{ s.cube_id }}</td>
+        </tr>
+        {% endfor %}
+    </ul>
+</table>
+</div>
+{% endblock %}
+

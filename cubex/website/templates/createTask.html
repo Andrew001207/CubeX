@@ -1,0 +1,27 @@
+{% extends "main_template.html" %}
+{% block title %}Create Tasks{% endblock %}
+{% block content %}
+{% load staticfiles %}
+
+<link rel='stylesheet' type="text/css" href="{% static 'TaskCreate.css' %}">
+<div>
+<table>
+    <form method="POST">
+        <th>Task  Name</th>
+        <th>Task Group</th>
+        <th>Cube ID</th>
+        {% csrf_token %}
+        <tr>
+            <td>{{ form.task_name }}</td>
+            <td>{{ form.task_group }}</td>
+            <td>{{ form.cube_id }}</td>
+        </tr>
+</table>
+</div>
+
+
+<p align="right">
+<button type="submit">submit</button>
+</p>
+    </form>
+{% endblock %}

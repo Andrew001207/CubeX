@@ -1,0 +1,32 @@
+<nav>
+
+        {% load staticfiles %}
+<link rel='stylesheet' type="text/css" href="{% static 'navbar.css' %}">
+<div class="topnav">
+<ul class="topnav">
+        <li class="ab">CubeX</li>
+        <li><a href="/"> Home</a> </li>
+        {% if user.is_authenticated %}
+            <li><a href="/pie">PieChart</a></li>
+            <li><a href="/task">Table of Tasks</a> </li>
+            <li><a href="/bar">Group BarChart</a> </li>
+            <div class="dropdown">
+                <button class="dropbtn">Edit Cube
+                    <i class="fa fa-caret-down"></i>
+                </button>
+                <div class="dropdown-content">
+                   <a href="/cube">Create Cube</a>
+                    <a href="/createTask">Create Tasks</a>
+                    <a href="/sides">Edit Sides</a>
+
+                </div>
+             </div>
+            <li><a href="{% url 'logout' %}">Logout</a></li>
+        {% else %}
+            <li><a href="/accounts/login/">Login</a></li>
+            <li><a href="/signup">Registration</a> </li>
+        {% endif %}
+    </ul>
+</div>
+
+</nav>
