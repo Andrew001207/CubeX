@@ -3,7 +3,7 @@
 import logging
 
 from telegram.ext.handler import Handler
-from cube_api.ext_conn.sql_connector import SqlConnector
+from cube_api import userX
 from .conv_machine import ConvMachine
 
 # Enable logging
@@ -44,8 +44,7 @@ class UserProxy(Handler):
             self.callback = self.user_conv_handlers[tel_id].handle_answer
             return True
 
-        conn = SqlConnector()
-        if conn.is_telegram_id_user(tel_id):
+        if userX.user_exists(tel_id):
             self.user_conv_handlers[tel_id] = ConvMachine(user_first_name)
             self.callback = self.user_conv_handlers[tel_id].handle_answer
             return True
