@@ -19,7 +19,6 @@ class ConvMachine:
         naming conventions for the states:
             -state name starts with _ if the state cannot be accessed directly by the user (= is not a command)
             -if possible state ends with the by its function affected object (e.g. select_cube, create_task, select_group)
-            -if a state is there to set an optional value, it starts with optional or _optional (e.g. _optional_add_cube)
             -if pre-enter shows the user a list to select from and an empty list is allowed, the pre-enter must contain 
              the word "or" (e.g. see _optional_add_cube, _select_group)
     
