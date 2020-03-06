@@ -1,7 +1,3 @@
-#####################
-Project Documentation
-#####################
-
 Documentation of the short-term project at OPNU in Odessa
 
 Project: Smart Cube
@@ -11,14 +7,15 @@ Project Participants:
 +------------------------+--------------+
 |Participant             |Student Number|
 +========================+==============+
-|Kilian Drechsler        |1111111       |
+|Kilian Drechsler        |2045548       |
 +------------------------+--------------+
 |Maximilian Diesenbacher |2050504       |
 +------------------------+--------------+
-|Florian Wöster          |2222222       |
+|Florian Wöster          |2053617       |
 +------------------------+--------------+
-|Matthias Moser          |3333333       |
+|Matthias Moser          |2048594       |
 +------------------------+--------------+
+
 
 .. _section-introduction-and-goals:
 
@@ -155,9 +152,11 @@ it shows you a few charts which resembles your time spend on the tasks and group
 Building Block View
 ===================
 .. image:: images/Database.jpg
+
 This database then can be accessed with the functions of the class SqlConnector
 
 .. image:: images/CubeX.jpg
+
 Using the two classes SqlConnector and AwsConnector, which directly interact with the database and AWS, the classes UserX and CubeX 
 provide all necessary functions for working with the cube and the database for any application. 
 
@@ -170,6 +169,7 @@ Runtime View
 MQTT Transmission
 -----------------
 .. image:: images/MQTT.jpg
+
 While the programm is running, the cube and any user interface via CubeX via the AwsConnector exchange data if there was a relevant change 
 done by the user. In our case this is mainly when a task is mapped. Then CubeX initiates the transmission of a .json file with the 
 following example structure to the cube:
@@ -198,6 +198,7 @@ then processed by the for that written callback function task_message_action.
 Bot Conversation
 ----------------
 .. image:: images/RuntimeBot.jpg
+
 To understand the behavior of the bot better, this shows the general procedure of how the user bot interaction works inside the telegram 
 bot.
 
@@ -206,6 +207,7 @@ bot.
 Bot State Machine
 -----------------
 .. image:: images/StateMachine.jpg
+
 In more detail, the bot follows this state machine while communicating with the user.
 
 .. _section-deployment-view:
@@ -213,6 +215,7 @@ In more detail, the bot follows this state machine while communicating with the 
 Deployment View
 ===============
 .. image:: images/Deployment.jpg
+
 Like mentioned in the requirements section, the system should be mainly cloud based, so in the end, the database, the MQTT broker, the 
 server for the Web-GUI and the bot should all run in the AWS cloud and the cube and the user communicate via the cloud with eachother. So 
 the cube should communicate with the MQTT broker via MQTT and the user can use the Web-GUI or the telegram bot to interact with the cube. 
@@ -250,12 +253,14 @@ naming conventions for the states:
 
 * if possible the state ends with the by its function affected object (e.g. select_cube, create_task, select_group)
 
-* if pre-enter shows the user a list to select from and an empty list is allowed, the pre-enter must contain the word "or" (e.g. see _optional_add_cube, _select_group)
+* if pre-enter shows the user a list to select from and an empty list is allowed, the pre-enter must contain the word "or" (e.g. 
+  see _optional_add_cube, _select_group); this was chosen because it usually appears natural in such a pre-enter as you have to give the 
+  user an alternative to the empty list
 
-.. _section-code-documentation-cubex:
+.. _section-code-documentation:
 
-Code Documentation CubeX
-========================
+Code Documentation
+==================
 .. __subsection-main:
 
 main module
