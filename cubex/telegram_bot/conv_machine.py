@@ -14,26 +14,32 @@ logger = logging.getLogger(__name__)
 
 class ConvMachine:
     """This object handles the conversation with the user within telegram
-
-    Note: 
-        naming conventions for the states:
-            -state name starts with _ if the state cannot be accessed directly by the user (= is not a command)
-            -if possible state ends with the by its function affected object (e.g. select_cube, create_task, select_group)
-            -if pre-enter shows the user a list to select from and an empty list is allowed, the pre-enter must contain 
-             the word "or" (e.g. see _optional_add_cube, _select_group)
     
-    Attributes:
-        states (dict): The states of the state machine with name as key and tuple of the state' s function, its pre_enter 
-                       message and a description of the state
-        cubeX (CubeX): Representation of the currently used Smart Cube
-        userX (userX): Representation of the database user account
-        username (str): Database username
-        result_function (function): Function from cube_api which should process the current commands user input
-        answers (dict): Stores all the user's answers for the current command
-        curr_state (str): The current state of the state machine
-        next_state (str): The next state of the state machine
-        return_state (str): Used when a necessary precondition to enter a state is not fullfilled. Stores the actual state so that 
-                            the states responsible to fullfill this precondition are executed can finally return to the right state
+    :ivar states: The states of the state machine with name as key and tuple of the state' s function, its pre_enter \
+                  message and a description of the state
+    :vartype states: dict
+    :ivar cubeX: Representation of the currently used Smart Cube
+    :vartype cubeX: cube_api.cubeX.CubeX
+    :ivar userX: Representation of the database user account
+    :vartype userX: cube_api.userX
+    :ivar result_function: Function from cube_api which should process the current commands user input
+    :vartype result_function: function
+    :ivar answers: Stores all the user's answers for the current command
+    :vartype answers: dict
+    :ivar curr_state: The current state of the state machine
+    :vartype curr_state: str
+    :ivar next_state: The next state of the state machine
+    :vartype next_state: str
+    :ivar return_state: Used when a necessary precondition to enter a state is not fullfilled. Stores the actual state so that \
+                        the states responsible to fullfill this precondition are executed can finally return to the right state
+    :vartype return_state: str
+
+    .. note::
+        Naming conventions for the states:
+            * state name starts with _ if the state cannot be accessed directly by the user (= is not a command)\n
+            * if possible state ends with the by its function affected object (e.g. select_cube, create_task, select_group)\n
+            * if pre-enter shows the user a list to select from and an empty list is allowed, the pre-enter must contain \
+              the word "or" (e.g. see _optional_add_cube, _select_group)
     """
 
     def __init__(self, username):
@@ -59,7 +65,7 @@ class ConvMachine:
 
 
     def handle_answer(self, update, context):
-        """this is the method which handles the state changes"""
+        """This is the method which handles the state changes"""
 
         if not update.message:
             return
@@ -168,14 +174,14 @@ class ConvMachine:
 
 
         def _add_to_states(self, function, pre_enter=None, description=None):
-            """Add a state to the automat
+            """Add a state to the machine
 
-            Parameters:
-                function (function): function to process the user input for the added state
-                pre_enter (str or callable which returns list with str and format args): 
-                instruction to tell the user, what he should
-                input for this state to process as an answer
-                description (str): description for the state if user can acces state by command
+            :param function: function to process the user input for the added state
+            :type function: function
+            :param pre_enter: instruction to tell the user, what he should input for this state to process as an answer
+            :type pre_enter: str or callable which returns list with str and format args, optional
+            :param description: description for the state if user can acces state by command
+            :type description: str, optional
             """
             self.states[function.__name__] = (pre_enter, function, description)
 
@@ -304,8 +310,7 @@ class ConvMachine:
 
 
         def _select_group(self, answer):
-            """Internal state function to select a group
-            or initiate creating a new group for another command"""
+            """Internal state function to select a group or initiate creating a new group for another command"""
             if answer == "create_group":
                 return _return_dict("_create_group")
 
@@ -332,8 +337,7 @@ class ConvMachine:
 
 
         def map_task(self, answer):
-            """State function to set a task on a side of the selected cube,
-            if no cube is selected, user will be asked to do so"""
+            """State function to set a task on a side of the selected cube, if no cube is selected, user will be asked to do so"""
             if self.cubeX:
                 self.result_function = self.cubeX.set_task
                 return _return_dict("_select_task")
@@ -376,14 +380,15 @@ class ConvMachine:
         def _validate_answer(answer, list_of_valids, cast_funct=None):
             """ Check if answer is valid
 
-            Parameters:
-                answer (str): user input
-                list_of_valids (list): list with acceptable answers
-                cast_funct (function): function with which the answer should casted
-                    to the right type, None if string is the expected type
+            :param answer: user input
+            :type answer: str
+            :param list_of_valids: list with acceptable answers
+            :type list_of_valids: list
+            :param cast_funct: function with which the answer should casted to the right type, None if string is the expected type
+            :type cast_funct: function, optional
 
-            Returns:
-                answer in correct type if in list_of_valids, otherwise None
+            :return: answer in correct type if in list_of_valids, otherwise None
+            :rtype: depending on cast_funct or type of answer
             """
             final_answer = answer
             if cast_funct:
@@ -399,16 +404,17 @@ class ConvMachine:
 
 
         def _add_answer_and_continue(self, answer, answer_key, next_state=None):
-            """
-            Parameters:
-                answer: user's answer in the needed data type
-                answer_key: dictionary position of the answer
-                next_state: next state for the automat or
-                    None if there is no more user input needed for the command
+            """Used to add an answer to answers dict and go to next state
 
-            Returns:
-                dictionary with the next state for the state machine (automat)
-                or the result of the commands internal function
+            :param answer: user's answer in the needed data type
+            :type answer: str, int, ...
+            :param answer_key: dictionary position of the answer
+            :type answer_key: str
+            :param next_state: next state for the automat or None if there is no more user input needed for the command
+            :type next_state: str, optional
+
+            :return: next state for the state machine or the result of the commands internal function
+            :rtype: dict or depending on result_function
             """
             self.answers[answer_key] = answer
             if next_state:
@@ -433,11 +439,10 @@ class ConvMachine:
 
 
         def _return_to_return_state():
-            """
-            Return to and reset return_state
+            """Return to and reset return_state
 
-            Returns:
-                dictionary with next state
+            :return: next state for state machine (=return_state)
+            :rtype: dict
             """
             tmp = self.return_state
             self.return_state = None
@@ -451,8 +456,7 @@ class ConvMachine:
 
 
     def _execute_function(self):
-        """Call the selected userX or cubeX function with the user's input
-           to interact with the cube and/or database"""
+        """Call the selected userX or cubeX function with the user's input to interact with the cube and/or database"""
         try:
             self.result_function(**self.answers)
             return dict(next_state="start",

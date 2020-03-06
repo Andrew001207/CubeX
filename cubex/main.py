@@ -15,7 +15,7 @@ def error(update, context):
     logger.warning('Update with id: "%s" caused error "%s"', update['update_id'], context.error)
 
 def main(bot_token):
-    """Start the bot."""
+    """Starts the bot"""
     # Create the Updater and pass it your bot's token.
     # Make sure to set use_context=True to use the new context based callbacks
     # Post version 12 this will no longer be necessary

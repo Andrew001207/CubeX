@@ -1,14 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Wed Feb 12 15:57:35 2020
 
-@author: matthiasmoser
-# Edited By Andrew001207 Feb17
-    Removed logging
-    Callbacks are custom
-    Topics handled by another class
-"""
 from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
 import logging, time
 import json

@@ -13,9 +13,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logger = logging.getLogger(__name__)
 
 class UserProxy(Handler):
-    '''A handler missused as a proxy,
-    to send the updates to the conversation automat of the user
-    depending on the user id'''
+    '''A handler missused as a proxy to send the updates to the conversation automat of the user depending on the user id'''
 
     def __init__(self, callback):
         self.user_conv_handlers = {}
@@ -23,14 +21,13 @@ class UserProxy(Handler):
         self.callback = callback
 
     def check_update(self, update):
-        """determents to which user the update should be send
+        """Determines to which user the update should be send
 
-        Args:
-            update (:class:`telegram.Update`): Incoming telegram update.
+        :param update: Incoming telegram update.
+        :type update: telegram.Update
 
-        Returns:
-            :obj:`bool`
-
+        :return: updated could be assigned
+        :rtype: bool
         """
         if not update.message:
             #TODO:
@@ -54,5 +51,5 @@ class UserProxy(Handler):
         return True
 
     def _unknown_user(self, update, context):
-        'callback function if the users telegram id is not known to the database'
+        'Callback function if the users telegram id is not known to the database'
         update.message.reply_text('It seems like an error occured or your telegram id is not known to us.')

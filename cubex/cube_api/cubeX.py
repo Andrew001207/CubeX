@@ -18,7 +18,8 @@ STREAM_HANDLER.setFormatter(FORMATTER)
 LOGGER.addHandler(STREAM_HANDLER)
 
 class CubeX(ConfigAware):
-    "Representation of a Cube"
+    """Representation of a Cube"""
+    
     def __init__(self, cube_id):
         super().__init__()
         self.cube_id = cube_id

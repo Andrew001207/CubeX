@@ -20,10 +20,10 @@ logger.addHandler(streamHandler)
 
 class SqlConnector(ConfigAware):
     '''
-    Connection to database
-    Methods for interacting with the database
+    handles the onnection to and interaction with the database
 
     :param configdict: database connection information
+    :type configdict: dict
     '''
 
     def make_conn(self):
@@ -39,7 +39,8 @@ class SqlConnector(ConfigAware):
         fetches data from the aws server
 
         :param cmd: sql command in string format
-        :return: the requested data as list of touple
+        :return: the requested data
+        :rtype: list of tuples
         """
         if "select" not in cmd:
             logger.warning("tryed to fetch data with \
@@ -64,8 +65,8 @@ class SqlConnector(ConfigAware):
         """
         executes sql cmd on the aws server
 
-        :param cmd: sql cmd in string format
-        :return: nothing
+        :param cmd: sql cmd
+        :type cmd: str
         """
         conn = self.make_conn()
         cursor = conn.cursor()
@@ -81,7 +82,7 @@ class SqlConnector(ConfigAware):
         executes sql scrips from file
 
         :param filename: filename of sql script
-        :return:
+        :type filename: str
         """
         # Open and read the file as a single buffer
         fd = open(filename, 'r')
@@ -102,12 +103,14 @@ class SqlConnector(ConfigAware):
 # TODO why is here a print?
 
 
-    def create_task_from_json(self,cube_id, file_path):
+    def create_task_from_json(self, cube_id, file_path):
         """
-        takes the json file and creates all task that are in it
+        takes the json file and creates all tasks that are in it
 
-        :param json_file: json_file
-        :return:
+        :param cube_id: ID of the cube the tasks should be bound to
+        :type cube_id: int
+        :param file_path: Path to the .json file containing the tasks
+        :type file_path: str
         """
         username = "Paula"
         with open(file_path) as json_file:
@@ -121,10 +124,14 @@ class SqlConnector(ConfigAware):
         """
         creates task on the aws database
 
-        :param cube_id: integer
-        :param task_name: string
-        :param group_name: string
-        :return: none
+        :param username: Name of the user creating the task
+        :type username: str
+        :param task_name: Name of the new task
+        :type task_name: str
+        :param group_name: Group of the new task
+        :type group_name: str
+        :param cube_id: ID of the cube the task should be bound to
+        :type cube_id: int, optional
         """
         if cube_id is None:
             try:
@@ -405,4 +412,3 @@ class SqlConnector(ConfigAware):
     def create_pw_hash(self, pw):
         """creates a password hash"""
         return self.encode(pw, self.salt(), 'pbkdf2_sha256', 150000)
-
