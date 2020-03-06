@@ -344,8 +344,8 @@ class SqlConnector(ConfigAware):
         list = self.fetch_to_list(self.fetch_data("select username from auth_user where telegram_id = {}".format(telegram_id)))
         if len(list) == 0:
             return False
-        else:
-            return True
+
+        return True
 
     def signup_user(self, username, password, telegram_id = None, first_name = "",last_name = "",email = "", is_staff = False, is_active = True):
         """

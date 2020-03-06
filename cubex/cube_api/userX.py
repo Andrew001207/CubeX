@@ -21,8 +21,6 @@ class UserX:
     def list_groups(self):
         return self.sql_conn.get_all_group_name(self.user_name)
 
-def telegram_to_user(telegram_id, user_name):
-    pass
-
-def create_user(name, password):
-    pass
+def user_exists(telegram_id):
+    conn = SqlConnector()
+    return conn.is_telegram_id_user(telegram_id)
