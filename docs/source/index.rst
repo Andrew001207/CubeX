@@ -8,10 +8,6 @@ Welcome to CubeX with Python's documentation!
 
 .. toctree::
    :maxdepth: 3
-   :caption: Contents:
-
-.. toctree::
-   :maxdepth:  2
    :numbered:
    
    arc42.rst

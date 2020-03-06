@@ -1,9 +1,5 @@
 #!/usr/bin/env python3
-"""
-Created on Thu Feb 13 12:50:37 2020
 
-@author: matthiasmoser
-"""
 import base64
 from sqlite3 import OperationalError
 

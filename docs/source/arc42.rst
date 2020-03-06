@@ -246,8 +246,107 @@ State Naming Conventions
 ------------------------
 Finally an important point when trying to expand the state machine for the bot are the appointed naming conventions for the states:
 naming conventions for the states:
-    * state name starts with _ if the state cannot be accessed directly by the user (= is not a command)
+* state name starts with _ if the state cannot be accessed directly by the user (= is not a command)
 
-    * if possible the state ends with the by its function affected object (e.g. select_cube, create_task, select_group)
+* if possible the state ends with the by its function affected object (e.g. select_cube, create_task, select_group)
 
-    * if pre-enter shows the user a list to select from and an empty list is allowed, the pre-enter must contain the word "or" (e.g. see _optional_add_cube, _select_group)
+* if pre-enter shows the user a list to select from and an empty list is allowed, the pre-enter must contain the word "or" (e.g. see _optional_add_cube, _select_group)
+
+.. _section-code-documentation-cubex:
+
+Code Documentation CubeX
+========================
+.. __subsection-main:
+
+main module
+-----------
+
+.. automodule:: main
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. __subsection-config_aware:
+
+config_aware module
+-------------------
+
+.. automodule:: config_aware
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. __subsection-cube_api:
+
+cube_api
+--------
+.. ___subsubsection-cubeX:
+
+cubeX module
+^^^^^^^^^^^^
+
+.. automodule:: cube_api.cubeX
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. ___subsubsection-userX:
+
+userX module
+^^^^^^^^^^^^
+
+.. automodule:: cube_api.userX
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. ___subsubsection-ext_conn:
+
+ext_conn
+^^^^^^^^
+
+.. ____subsubsubsection-aws_connector:
+
+aws_connector module
+""""""""""""""""""""
+
+.. automodule:: cube_api.ext_conn.aws_connector
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. ____subsubsubsection-sql_connector:
+
+sql_connector module
+""""""""""""""""""""
+
+.. automodule:: cube_api.ext_conn.sql_connector
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. __subsection-telegram_bot:
+
+telegram_bot
+------------
+.. ___subsubsection-user_proxy:
+
+user_proxy module
+^^^^^^^^^^^^^^^^^
+
+.. automodule:: telegram_bot.user_proxy
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. ___subsubsection-conv_machine:
+
+conv_machine module
+^^^^^^^^^^^^^^^^^^^
+
+.. automodule:: telegram_bot.conv_machine
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
