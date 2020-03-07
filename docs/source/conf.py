@@ -16,6 +16,8 @@ from pathlib import Path
 print("Path: ", f"{Path(__file__).parents[2]}/cubex")
 sys.path.insert(0, f"{Path(__file__).parents[2]}/cubex")
 
+# The master toctree document.
+master_doc = 'index'
 
 # -- Project information -----------------------------------------------------
 
